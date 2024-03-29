@@ -1,16 +1,13 @@
-FROM pytorch/pytorch:1.7.1
-
-WORKDIR /app
+FROM codercom/enterprise-base:ubuntu
 
 # Install GDAL dependencies
 RUN apt-get update && apt-get install -y \
     libgdal-dev \
     gdal-bin
 
-COPY requirements.txt .
+COPY ../requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+RUN rm requirements.txt
 
-CMD ["python3", "main.py"]
