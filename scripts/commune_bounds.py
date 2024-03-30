@@ -1,12 +1,12 @@
-from osgeo import gdal, ogr
 import geopandas as gpd
+from osgeo import gdal, ogr
 
-COMMUNE_NAME = "Pully"
+COMMUNE_NAME = "Nyon"
 
 
 def main() -> None:
     boundaries = gdal.OpenEx(
-        "data/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg", gdal.OF_VECTOR
+        "data/raw/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg", gdal.OF_VECTOR
     )
     print("Layers:")
     for i in range(boundaries.GetLayerCount()):
@@ -22,9 +22,10 @@ def main() -> None:
         if feature.GetField("NAME") == COMMUNE_NAME:
             # save the feature as geopackage
             driver = ogr.GetDriverByName("GPKG")
-            commune = driver.CreateDataSource("data/commune.gpkg")
+            commune = driver.CreateDataSource(f"data/raw/{COMMUNE_NAME.lower()}.gpkg")
             commune_layer = commune.CreateLayer(
-                "commune", srs=feature.GetGeometryRef().GetSpatialReference()
+                "commune",
+                srs=feature.GetGeometryRef().GetSpatialReference(),
             )
             commune_layer.CreateField(ogr.FieldDefn("NAME", ogr.OFTString))
             new_feature = ogr.Feature(commune_layer.GetLayerDefn())
@@ -36,8 +37,8 @@ def main() -> None:
             break
 
     # Load the geopackage with geopandas
-    commune = gpd.read_file("data/commune.gpkg")
-    commune.plot().get_figure().savefig("data/commune.png")
+    commune = gpd.read_file(f"data/raw/{COMMUNE_NAME.lower()}.gpkg")
+    commune.plot().get_figure().savefig(f"data/raw/{COMMUNE_NAME.lower()}.png")
 
 
 if __name__ == "__main__":
