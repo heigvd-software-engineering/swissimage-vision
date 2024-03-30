@@ -45,22 +45,26 @@ class SolarDataModule(L.LightningDataModule):
 
     def setup(self, stage: str = None) -> None:
         # Load data from disk, split into train, val, test sets
-        data = {"image": [], "bb": []}
+        data = []
         for ann_file in self.ann_dir.glob("*.xml"):
             tree = ET.parse(ann_file)
-            data["image"].append(str(self.img_dir / tree.find("filename").text))
-            data["bb"].append(
-                [
-                    int(tree.find("object/bndbox/xmin").text),
-                    int(tree.find("object/bndbox/ymin").text),
-                    int(tree.find("object/bndbox/xmax").text),
-                    int(tree.find("object/bndbox/ymax").text),
-                ]
+            objects = tree.findall("object")
+            bbs = []
+            for obj in objects:
+                bbs.append(
+                    [
+                        int(obj.find("bndbox/xmin").text),
+                        int(obj.find("bndbox/ymin").text),
+                        int(obj.find("bndbox/xmax").text),
+                        int(obj.find("bndbox/ymax").text),
+                    ]
+                )
+            data.append(
+                {"image": str(self.img_dir / tree.find("filename").text), "bbs": bbs}
             )
-        data = pd.DataFrame(data)
-        shuffled_data = data.sample(frac=1, random_state=self.seed)
-        train = shuffled_data[: int(self.split * len(shuffled_data))]
-        val = shuffled_data[int(self.split * len(shuffled_data)) :]
+        random.shuffle(data)
+        train = data[: int(self.split * len(data))]
+        val = data[int(self.split * len(data)) :]
         self.train_dataset = SolarDataset(train)
         self.val_dataset = SolarDataset(val)
 
