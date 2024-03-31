@@ -1,0 +1,6 @@
+[core]
+    remote = minio
+    analytics = false
+['remote "minio"']
+    url = s3://swissimage-vision/dvc
+    endpointurl = https://storage-kubernetes.iict.ch:9000

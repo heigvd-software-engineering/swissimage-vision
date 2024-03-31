@@ -1,0 +1,30 @@
+schema: '2.0'
+stages:
+  preview:
+    cmd: python3 src/preview.py
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: df491cbb527a8c2880f33c43db5ddad9.dir
+      size: 3818819130
+      nfiles: 429
+    - path: src/preview.py
+      hash: md5
+      md5: a9a3a2afa43e089267d0ac60dc6cd06b
+      size: 1733
+    params:
+      params.yaml:
+        datamodule:
+          seed: 42
+          data_root: data/raw/solar
+          split: 0.8
+          batch_size: 16
+          image_size: 256
+          num_workers: 0
+          pin_memory: false
+    outs:
+    - path: data/preview
+      hash: md5
+      md5: 24d82d7fa463bc1ea480f6c07401a5c5.dir
+      size: 1210067
+      nfiles: 10

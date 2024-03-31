@@ -9,16 +9,16 @@ stages:
     outs:
       - data/preview
 
-  train:
-    cmd: python3 src/train.py
-    deps:
-      - src/train.py
-      - data/raw
-      - data/preview
-    params: 
-      - datamodule
-      - train
-    outs:
-      - lightning_logs:
-          persist: true
-      - out/model.ckpt
+  # train:
+  #   cmd: python3 src/train.py
+  #   deps:
+  #     - src/train.py
+  #     - data/raw
+  #     - data/preview
+  #   params: 
+  #     - datamodule
+  #     - train
+  #   outs:
+  #     - lightning_logs:
+  #         persist: true
+  #     - out/model.ckpt
