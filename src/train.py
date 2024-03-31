@@ -1,3 +1,5 @@
+import shutil
+import time
 from pathlib import Path
 
 import lightning as L
@@ -69,15 +71,15 @@ def train(
     if save_ckpt:
         callbacks.append(
             ModelCheckpoint(
-                filename="{epoch:02d}-{step}-{val_loss:.3f}",
-                monitor="val_loss",
+                filename="{epoch:02d}-{step}-{val_ciou:.3f}",
+                monitor="val_ciou",
                 save_top_k=1,
                 mode="min",
             )
         )
     if es_patience is not None:
         callbacks.append(
-            EarlyStopping(monitor="val_loss", patience=es_patience, mode="min"),
+            EarlyStopping(monitor="val_ciou", patience=es_patience, mode="min"),
         )
 
     trainer = L.Trainer(
@@ -100,6 +102,30 @@ def train(
         model,
         datamodule=dm,
     )
+
+    # Copy model to root folder
+    ckpt_folder = (
+        sorted(
+            Path("lightning_logs").glob("version_*"),
+            key=lambda x: int(x.name.split("_")[-1]),
+        )[-1]
+        / "checkpoints"
+    )
+
+    model_path = ckpt_folder / "last.ckpt"
+    trainer.save_checkpoint(model_path)
+
+    # Wait for model to be saved
+    max_retries = 20
+    retries = 0
+    while True:
+        if retries >= max_retries:
+            raise RuntimeError("Model not found")
+        if model_path.exists():
+            shutil.copy(model_path, Path("out/model.ckpt"))
+            break
+        time.sleep(1)
+        retries += 1
 
 
 def main() -> None:

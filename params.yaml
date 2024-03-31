@@ -18,8 +18,8 @@ train:
   lr_decay_rate: 0.0005
   lr_sched_step_size: 0.1
   lr_sched_gamma: 0.1
-  save_ckpt: true
-  es_patience: 5
-  epochs: 3
+  save_ckpt: false
+  es_patience: null
+  epochs: 5
   precision: "16-mixed"
   accumulate_grad_batches: null
