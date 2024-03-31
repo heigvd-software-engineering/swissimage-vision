@@ -33,20 +33,22 @@ class FasterRCNNModel(L.LightningModule):
         self.lr_sched_step_size = self.hparams.lr_sched_step_size
         self.lr_sched_gamma = self.hparams.lr_sched_gamma
 
-        model = torchvision.models.detection.fasterrcnn_resnet50_fpn_v2(
+        self.model = torchvision.models.detection.fasterrcnn_resnet50_fpn_v2(
             weights="DEFAULT"
         )
-        in_features = model.roi_heads.box_predictor.cls_score.in_features
-        model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
-        self.model = model
+        in_features = self.model.roi_heads.box_predictor.cls_score.in_features
+        self.model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
+
+    # TODO: Implement the forward method.
 
     def training_step(self, batch, batch_idx) -> torch.Tensor:
+        self.model.train()  # TODO: Figure out why this is necessary.
         images, targets = batch
         loss_dict = self.model(images, targets)
         loss = sum(loss for loss in loss_dict.values())
         loss_val = loss.item()
 
-        self.log("train_loss", loss_val, prog_bar=True)
+        self.log("train_loss", loss_val, prog_bar=True, sync_dist=True)
         return loss
 
     def validation_step(self, batch, batch_idx) -> torch.Tensor:

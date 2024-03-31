@@ -82,6 +82,8 @@ def train(
             EarlyStopping(monitor="val_ciou", patience=es_patience, mode="min"),
         )
 
+    # TODO: Adjust logging interval
+    # TODO: Check log batch size
     trainer = L.Trainer(
         max_epochs=epochs,
         precision=precision if precision else "32-true",
