@@ -104,12 +104,11 @@ def train(
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
-    prepare_params = params["prepare"]
-    prepare_params.pop("seed")
-    prepare_params.pop("num_workers")
+    datamodule_params = params["datamodule"]
+    datamodule_params.pop("seed")
     train_params = params["train"]
 
-    train(**prepare_params, **train_params)
+    train(**datamodule_params, **train_params)
 
 
 if __name__ == "__main__":

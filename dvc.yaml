@@ -1,0 +1,24 @@
+stages:
+  preview:
+    cmd: python3 src/preview.py
+    deps:
+      - src/preview.py
+      - data/raw
+    params: 
+      - datamodule
+    outs:
+      - data/preview
+
+  train:
+    cmd: python3 src/train.py
+    deps:
+      - src/train.py
+      - data/raw
+      - data/preview
+    params: 
+      - datamodule
+      - train
+    outs:
+      - lightning_logs:
+          persist: true
+      - out/model.ckpt
