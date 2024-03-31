@@ -132,7 +132,7 @@ class SolarDataModule(L.LightningDataModule):
                     T.RandomHorizontalFlip(0.5),
                     T.RandomVerticalFlip(0.5),
                     T.ColorJitter(
-                        brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1
+                        brightness=0.25, contrast=0.5, saturation=0.5, hue=0.1
                     ),
                 ]
             )

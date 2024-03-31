@@ -11,10 +11,9 @@ from lightning.pytorch.callbacks import (
     ModelCheckpoint,
 )
 from lightning.pytorch.strategies import DDPStrategy
-from torchsummary import summary
 
 from dataset.solar_datamodule import SolarDataModule
-from model.fasterrcnn import FasterRCNNModel
+from model.fasterrcnn import FasterRCNN
 
 
 def train(
@@ -50,7 +49,7 @@ def train(
         pin_memory=pin_memory,
     )
 
-    model = FasterRCNNModel(
+    model = FasterRCNN(
         num_classes=num_classes,
         lr=lr,
         lr_momentum=lr_momentum,
@@ -59,9 +58,7 @@ def train(
         lr_sched_gamma=lr_sched_gamma,
     )
 
-    if not torch.cuda.is_available():
-        summary(model, batch_size=batch_size)
-    else:
+    if torch.cuda.is_available():
         torch.set_float32_matmul_precision("high")
 
     callbacks = [
@@ -82,9 +79,9 @@ def train(
             EarlyStopping(monitor="val_ciou", patience=es_patience, mode="min"),
         )
 
-    # TODO: Adjust logging interval
     # TODO: Check log batch size
     trainer = L.Trainer(
+        log_every_n_steps=1,
         max_epochs=epochs,
         precision=precision if precision else "32-true",
         strategy=(
@@ -120,11 +117,13 @@ def train(
     # Wait for model to be saved
     max_retries = 20
     retries = 0
+    out_path = Path("out/model.ckpt")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     while True:
         if retries >= max_retries:
             raise RuntimeError("Model not found")
         if model_path.exists():
-            shutil.copy(model_path, Path("out/model.ckpt"))
+            shutil.copy(model_path, out_path)
             break
         time.sleep(1)
         retries += 1

@@ -10,8 +10,38 @@ stages:
       nfiles: 429
     - path: src/preview.py
       hash: md5
-      md5: a9a3a2afa43e089267d0ac60dc6cd06b
-      size: 1733
+      md5: 1c1be0b1bef19c6c37ce367492787208
+      size: 1777
+    params:
+      params.yaml:
+        datamodule.batch_size: 16
+        datamodule.data_root: data/raw/solar
+        datamodule.image_size: 256
+        datamodule.seed: 42
+        datamodule.split: 0.8
+    outs:
+    - path: data/preview
+      hash: md5
+      md5: 5c8a6fde5eef44ff48150fb649688887.dir
+      size: 1180799
+      nfiles: 10
+  train:
+    cmd: python3 src/train.py
+    deps:
+    - path: data/preview
+      hash: md5
+      md5: 5c8a6fde5eef44ff48150fb649688887.dir
+      size: 1180799
+      nfiles: 10
+    - path: data/raw
+      hash: md5
+      md5: df491cbb527a8c2880f33c43db5ddad9.dir
+      size: 3818819130
+      nfiles: 429
+    - path: src/train.py
+      hash: md5
+      md5: bdac143c16333cd25c4ef7ee74fc2b27
+      size: 3518
     params:
       params.yaml:
         datamodule:
@@ -20,11 +50,65 @@ stages:
           split: 0.8
           batch_size: 16
           image_size: 256
-          num_workers: 0
-          pin_memory: false
+          num_workers: 6
+          pin_memory: true
+        train:
+          seed: 42
+          num_classes: 2
+          lr: 0.005
+          lr_momentum: 0.9
+          lr_decay_rate: 0.0005
+          lr_sched_step_size: 0.1
+          lr_sched_gamma: 0.1
+          save_ckpt: false
+          es_patience:
+          epochs: 15
+          precision: 16-mixed
+          accumulate_grad_batches:
     outs:
-    - path: data/preview
+    - path: lightning_logs
       hash: md5
-      md5: 24d82d7fa463bc1ea480f6c07401a5c5.dir
-      size: 1210067
+      md5: fef98892125690bac37360271dd622c8.dir
+      size: 4431529645
+      nfiles: 27
+    - path: out/model.ckpt
+      hash: md5
+      md5: 8ca1009bfd12145847ed4e4a5ec73da0
+      size: 346489062
+  evaluate:
+    cmd: python3 src/evaluate.py
+    deps:
+    - path: out/model.ckpt
+      hash: md5
+      md5: 8ca1009bfd12145847ed4e4a5ec73da0
+      size: 346489062
+    - path: src/evaluate.py
+      hash: md5
+      md5: bb78ea6e13cf9beb9f1f68d0ec8a6954
+      size: 2472
+    params:
+      params.yaml:
+        datamodule.batch_size: 16
+        datamodule.data_root: data/raw/solar
+        datamodule.image_size: 256
+        datamodule.seed: 42
+        datamodule.split: 0.8
+        train:
+          seed: 42
+          num_classes: 2
+          lr: 0.005
+          lr_momentum: 0.9
+          lr_decay_rate: 0.0005
+          lr_sched_step_size: 0.1
+          lr_sched_gamma: 0.1
+          save_ckpt: false
+          es_patience:
+          epochs: 15
+          precision: 16-mixed
+          accumulate_grad_batches:
+    outs:
+    - path: data/evaluate
+      hash: md5
+      md5: 59215211979bb40b86105e13d9d88803.dir
+      size: 1187789
       nfiles: 10

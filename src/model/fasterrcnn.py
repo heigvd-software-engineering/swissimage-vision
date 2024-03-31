@@ -4,7 +4,7 @@ import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 
-class FasterRCNNModel(L.LightningModule):
+class FasterRCNN(L.LightningModule):
     def __init__(
         self,
         num_classes: int,
@@ -34,31 +34,10 @@ class FasterRCNNModel(L.LightningModule):
         self.lr_sched_gamma = self.hparams.lr_sched_gamma
 
         self.model = torchvision.models.detection.fasterrcnn_resnet50_fpn_v2(
-            weights="DEFAULT"
+            weights="DEFAULT", trainable_backbone_layers=5
         )
         in_features = self.model.roi_heads.box_predictor.cls_score.in_features
         self.model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
-
-    # TODO: Implement the forward method.
-
-    def training_step(self, batch, batch_idx) -> torch.Tensor:
-        self.model.train()  # TODO: Figure out why this is necessary.
-        images, targets = batch
-        loss_dict = self.model(images, targets)
-        loss = sum(loss for loss in loss_dict.values())
-        loss_val = loss.item()
-
-        self.log("train_loss", loss_val, prog_bar=True, sync_dist=True)
-        return loss
-
-    def validation_step(self, batch, batch_idx) -> torch.Tensor:
-        images, targets = batch
-        # In validation mode, the loss is not calculated.
-        # See https://pytorch.org/vision/main/models/generated/torchvision.models.detection.fasterrcnn_resnet50_fpn.html#torchvision.models.detection.fasterrcnn_resnet50_fpn
-        outputs = self.model(images)
-
-        iou = self._get_ciou(targets, outputs)
-        self.log("val_ciou", iou, prog_bar=True, sync_dist=True)
 
     def configure_optimizers(self):
         params = [p for p in self.model.parameters() if p.requires_grad]
@@ -73,17 +52,43 @@ class FasterRCNNModel(L.LightningModule):
         )
         return [optimizer], [lr_scheduler]
 
-    def _get_ciou(self, targets: torch.Tensor, outputs: torch.Tensor) -> float:
-        iou = (
-            torch.stack(
-                [
-                    torchvision.ops.complete_box_iou(
-                        targets[i]["boxes"], outputs[i]["boxes"]
-                    ).mean()
-                    for i in range(len(targets))
-                ]
-            )
-            .mean()
-            .item()
+    def forward(self, images: torch.Tensor) -> torch.Tensor:
+        self.model.eval()
+        return self.model(images)
+
+    def training_step(self, batch, batch_idx) -> torch.Tensor:
+        images, targets = batch
+        loss_dict = self.model(images, targets)
+        loss = sum(loss for loss in loss_dict.values())
+        loss_val = loss.item()
+
+        self.log(
+            "train_loss",
+            loss_val,
+            batch_size=len(images),
+            prog_bar=True,
+            sync_dist=True,
         )
-        return iou
+        return loss
+
+    def validation_step(self, batch, batch_idx) -> torch.Tensor:
+        images, targets = batch
+        # In validation mode, the loss is not calculated.
+        # See https://pytorch.org/vision/main/models/generated/torchvision.models.detection.fasterrcnn_resnet50_fpn.html#torchvision.models.detection.fasterrcnn_resnet50_fpn
+        outputs = self.model(images)
+
+        iou = self._get_ciou(targets, outputs)
+        self.log("val_ciou", iou, batch_size=len(images), prog_bar=True, sync_dist=True)
+
+    def _get_ciou(self, targets: torch.Tensor, outputs: torch.Tensor) -> float:
+        iou = torch.stack(
+            [
+                torchvision.ops.complete_box_iou(
+                    outputs[i]["boxes"], targets[i]["boxes"]
+                ).mean()
+                for i in range(len(targets))
+            ]
+        ).mean()
+        if torch.isnan(iou):
+            return 0.0
+        return iou.item()
