@@ -1,10 +1,7 @@
 import lightning as L
 import torch
 import torchvision
-from torch import nn
-from torchvision.models.detection import FasterRCNN
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from torchvision.models.detection.rpn import AnchorGenerator
 
 
 class FasterRCNNModel(L.LightningModule):
@@ -54,7 +51,8 @@ class FasterRCNNModel(L.LightningModule):
 
     def validation_step(self, batch, batch_idx) -> torch.Tensor:
         images, targets = batch
-        # In validation, the loss is not calculated.
+        # In validation mode, the loss is not calculated.
+        # See https://pytorch.org/vision/main/models/generated/torchvision.models.detection.fasterrcnn_resnet50_fpn.html#torchvision.models.detection.fasterrcnn_resnet50_fpn
         outputs = self.model(images)
 
         iou = self._get_ciou(targets, outputs)
