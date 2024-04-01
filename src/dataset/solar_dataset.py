@@ -22,14 +22,16 @@ class SolarDataset(Dataset):
         sample = self.metadata[idx]
         image = read_image(sample["image"])
 
-        boxes = torch.tensor(sample["boxes"], dtype=torch.float)
-        labels = torch.ones((boxes.shape[0],), dtype=torch.int64)
-
         targets = {}
-        targets["boxes"] = tv_tensors.BoundingBoxes(
-            boxes, format="XYXY", canvas_size=F.get_size(image)
-        )
-        targets["labels"] = labels
+        if sample["boxes"]:  # If there are annotations
+            boxes = torch.tensor(sample["boxes"], dtype=torch.float)
+            targets["boxes"] = tv_tensors.BoundingBoxes(
+                boxes, format="XYXY", canvas_size=F.get_size(image)
+            )
+            targets["labels"] = torch.ones((boxes.shape[0],), dtype=torch.int64)
+        else:
+            targets["boxes"] = torch.empty((0, 4), dtype=torch.float)
+            targets["labels"] = torch.empty((0,), dtype=torch.int64)
 
         image, targets = self.transform(image, targets)
         return image, targets

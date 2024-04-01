@@ -39,7 +39,7 @@ def train(
     L.seed_everything(seed)
 
     dm = SolarDataModule(
-        ann_dir=Path(data_root) / "annotations/xmls",
+        ann_dir=Path(data_root) / "annotations",
         img_dir=Path(data_root) / "images",
         image_size=image_size,
         seed=seed,
@@ -62,7 +62,7 @@ def train(
         torch.set_float32_matmul_precision("high")
 
     callbacks = [
-        LearningRateMonitor(logging_interval="epoch"),
+        LearningRateMonitor(logging_interval="epoch", log_momentum=True),
     ]
 
     if save_ckpt:
@@ -81,7 +81,7 @@ def train(
 
     # TODO: Check log batch size
     trainer = L.Trainer(
-        log_every_n_steps=1,
+        log_every_n_steps=5,
         max_epochs=epochs,
         precision=precision if precision else "32-true",
         strategy=(

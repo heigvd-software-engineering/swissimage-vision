@@ -1,9 +1,19 @@
 stages:
+  prepare:
+    cmd: python3 src/prepare.py
+    deps:
+      - src/prepare.py
+      - data/raw
+    params:
+      - datamodule.data_root
+    outs:
+      - ${datamodule.data_root}
+
   preview:
     cmd: python3 src/preview.py
     deps:
       - src/preview.py
-      - data/raw
+      - ${datamodule.data_root}
     params: 
       - datamodule.seed
       - datamodule.data_root

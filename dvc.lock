@@ -3,54 +3,54 @@ stages:
   preview:
     cmd: python3 src/preview.py
     deps:
-    - path: data/raw
+    - path: data/prepared
       hash: md5
-      md5: df491cbb527a8c2880f33c43db5ddad9.dir
-      size: 3818819130
-      nfiles: 429
+      md5: 04dd6fc88c379a948dcc0f7d2b09c9a7.dir
+      size: 111703891
+      nfiles: 1714
     - path: src/preview.py
       hash: md5
-      md5: 1c1be0b1bef19c6c37ce367492787208
-      size: 1777
+      md5: 4ab1fc04f76ae42747836709553d8894
+      size: 1772
     params:
       params.yaml:
         datamodule.batch_size: 16
-        datamodule.data_root: data/raw/solar
+        datamodule.data_root: data/prepared
         datamodule.image_size: 256
         datamodule.seed: 42
         datamodule.split: 0.8
     outs:
     - path: data/preview
       hash: md5
-      md5: 5c8a6fde5eef44ff48150fb649688887.dir
-      size: 1180799
+      md5: e5586c29afa5a899b79193ce1c1ae6ce.dir
+      size: 1153721
       nfiles: 10
   train:
     cmd: python3 src/train.py
     deps:
     - path: data/preview
       hash: md5
-      md5: 5c8a6fde5eef44ff48150fb649688887.dir
-      size: 1180799
+      md5: e5586c29afa5a899b79193ce1c1ae6ce.dir
+      size: 1153721
       nfiles: 10
     - path: data/raw
       hash: md5
-      md5: df491cbb527a8c2880f33c43db5ddad9.dir
-      size: 3818819130
-      nfiles: 429
+      md5: 2cbcd546cdfae22d6070e2e1e76bf050.dir
+      size: 214964820
+      nfiles: 5
     - path: src/train.py
       hash: md5
-      md5: bdac143c16333cd25c4ef7ee74fc2b27
-      size: 3518
+      md5: 63d7265cb05c48b0ecaa298845220e75
+      size: 3532
     params:
       params.yaml:
         datamodule:
           seed: 42
-          data_root: data/raw/solar
+          data_root: data/prepared
           split: 0.8
           batch_size: 16
           image_size: 256
-          num_workers: 6
+          num_workers: 4
           pin_memory: true
         train:
           seed: 42
@@ -68,28 +68,28 @@ stages:
     outs:
     - path: lightning_logs
       hash: md5
-      md5: fef98892125690bac37360271dd622c8.dir
-      size: 4431529645
-      nfiles: 27
+      md5: 8d057332976cf45267de68e4ea8bb7ff.dir
+      size: 1386047934
+      nfiles: 8
     - path: out/model.ckpt
       hash: md5
-      md5: 8ca1009bfd12145847ed4e4a5ec73da0
+      md5: ab62f0089ec3cf41a38dfe556ee4dc6a
       size: 346489062
   evaluate:
     cmd: python3 src/evaluate.py
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: 8ca1009bfd12145847ed4e4a5ec73da0
+      md5: ab62f0089ec3cf41a38dfe556ee4dc6a
       size: 346489062
     - path: src/evaluate.py
       hash: md5
-      md5: bb78ea6e13cf9beb9f1f68d0ec8a6954
-      size: 2472
+      md5: f047f94aeaf0c083cab5a56305085216
+      size: 2467
     params:
       params.yaml:
         datamodule.batch_size: 16
-        datamodule.data_root: data/raw/solar
+        datamodule.data_root: data/prepared
         datamodule.image_size: 256
         datamodule.seed: 42
         datamodule.split: 0.8
@@ -109,6 +109,27 @@ stages:
     outs:
     - path: data/evaluate
       hash: md5
-      md5: 59215211979bb40b86105e13d9d88803.dir
-      size: 1187789
+      md5: a0ca375451551dfc7e04d0d022f05e6e.dir
+      size: 1137085
       nfiles: 10
+  prepare:
+    cmd: python3 src/prepare.py
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 2cbcd546cdfae22d6070e2e1e76bf050.dir
+      size: 214964820
+      nfiles: 5
+    - path: src/prepare.py
+      hash: md5
+      md5: 7dcc5b17b9ae0c9b67eb3ef2b7cc4a6d
+      size: 3183
+    params:
+      params.yaml:
+        datamodule.data_root: data/prepared
+    outs:
+    - path: data/prepared
+      hash: md5
+      md5: 04dd6fc88c379a948dcc0f7d2b09c9a7.dir
+      size: 111703891
+      nfiles: 1714

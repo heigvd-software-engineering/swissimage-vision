@@ -4,7 +4,7 @@
   - [Setup DVC](#setup-dvc)
 - [Resources](#resources)
   - [Data](#data)
-  - [Tutorials](#tutorials)
+  - [Projects](#projects)
 
 ## Installation
 
@@ -40,11 +40,13 @@ dvc pull
 
 ### Data
 
-http://2019.geopython.net/data/solar.zip
-https://ep2020.europython.eu/media/conference/slides/detecting-and-analyzing-solar-panels-switzerland-using-aerial-imagery.pdf
+- http://2019.geopython.net/data/solar.zip
+- https://ep2020.europython.eu/media/conference/slides/detecting-and-analyzing-solar-panels-switzerland-using-aerial-imagery.pdf
+- https://zenodo.org/records/5171712
 
-### Tutorials
+### Projects
 
 - https://github.com/shashankag14/fine-tune-object-detector/blob/main/fine_tune.ipynb
 - https://github.com/swiss-ai-center/giscup2023-resnet-unet
 - https://pytorch.org/tutorials/intermediate/torchvision_tutorial.html
+- https://github.com/saizk/Deep-Learning-for-Solar-Panel-Recognition?tab=readme-ov-file

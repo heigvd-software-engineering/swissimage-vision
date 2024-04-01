@@ -24,7 +24,7 @@ def evaluate(
     L.seed_everything(seed)
 
     dm = SolarDataModule(
-        ann_dir=Path(data_root) / "annotations/xmls",
+        ann_dir=Path(data_root) / "annotations",
         img_dir=Path(data_root) / "images",
         image_size=image_size,
         seed=seed,
