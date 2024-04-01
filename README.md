@@ -2,9 +2,12 @@
 
 - [Installation](#installation)
   - [Setup DVC](#setup-dvc)
+- [Demo](#demo)
 - [Resources](#resources)
   - [Data](#data)
   - [Projects](#projects)
+
+![Demo](media/demo.png)
 
 ## Installation
 
@@ -33,6 +36,14 @@ dvc remove modify --local minio secret_access_key <SECRET_ACCESS_KEY>
 
 ```bash
 dvc pull
+```
+
+## Demo
+
+To run the demo locally, execute the following command:
+
+```bash
+python src/demo.py
 ```
 
 ## Resources
