@@ -21,7 +21,6 @@ conda activate swissimage-vision
 ```
 
 ```bash
-# Conda
 pip install -r requirements.txt
 ```
 
