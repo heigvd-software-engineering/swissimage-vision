@@ -193,7 +193,7 @@ def detect_tif(
 
     img_arr = np.float32(img_arr) / 255.0
 
-    tile_size = 768
+    tile_size = 1024
     overlap_cnt = 0
     overlap_size = int(tile_size * 1 / (overlap_cnt + 1)) if overlap_cnt > 0 else 0
     total_tiles = ((img_arr.shape[0] - tile_size) // (tile_size - overlap_size) + 1) * (

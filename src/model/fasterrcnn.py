@@ -52,11 +52,16 @@ class FasterRCNN(L.LightningModule):
         )
         return [optimizer], [lr_scheduler]
 
-    def forward(self, images: torch.Tensor) -> torch.Tensor:
-        self.model.eval()
+    def forward(
+        self, images: torch.Tensor
+    ) -> tuple[dict[str, torch.Tensor], list[dict[str, torch.Tensor]]]:
+        # convert torch.Tensor to list[torch.Tensor]
+        images = [img for img in images]
         return self.model(images)
 
-    def training_step(self, batch, batch_idx) -> torch.Tensor:
+    def training_step(
+        self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> torch.Tensor:
         images, targets = batch
         loss_dict = self.model(images, targets)
         loss = sum(loss for loss in loss_dict.values())
@@ -71,7 +76,9 @@ class FasterRCNN(L.LightningModule):
         )
         return loss
 
-    def validation_step(self, batch, batch_idx) -> torch.Tensor:
+    def validation_step(
+        self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> torch.Tensor:
         images, targets = batch
         # In validation mode, the loss is not calculated.
         # See https://pytorch.org/vision/main/models/generated/torchvision.models.detection.fasterrcnn_resnet50_fpn.html#torchvision.models.detection.fasterrcnn_resnet50_fpn

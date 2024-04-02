@@ -3,6 +3,7 @@
 - [Installation](#installation)
   - [Setup DVC](#setup-dvc)
 - [Demo](#demo)
+- [LabelStudio](#labelstudio)
 - [Resources](#resources)
   - [Data](#data)
   - [Projects](#projects)
@@ -44,6 +45,24 @@ To run the demo locally, execute the following command:
 
 ```bash
 python src/demo.py
+```
+
+## LabelStudio
+
+```bash
+conda install conda-forge::psycopg2-binary
+```
+
+```bash
+pip install label-studio>=0.11.0,<=0.12
+```
+
+```bash
+python3 ./scripts/serve_data.py
+```
+
+```bash
+label-studio start ./label-studio/config.xml
 ```
 
 ## Resources

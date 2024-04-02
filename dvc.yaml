@@ -3,7 +3,8 @@ stages:
     cmd: python3 src/prepare.py
     deps:
       - src/prepare.py
-      - data/raw
+      - data/raw/solar.zip
+      - data/raw/PV01.zip
     params:
       - datamodule.data_root
     outs:
@@ -27,8 +28,8 @@ stages:
     cmd: python3 src/train.py
     deps:
       - src/train.py
-      - data/raw
       - data/preview
+      - ${datamodule.data_root}
     params: 
       - datamodule
       - train
@@ -36,6 +37,19 @@ stages:
       - lightning_logs:
           persist: true
       - out/model.ckpt
+
+  export:
+    cmd: python3 src/export.py
+    deps:
+      - src/export.py
+      - out/model.ckpt
+    params:
+      - datamodule.batch_size
+      - datamodule.image_size
+      - train.num_classes
+      - export.model_name
+    outs:
+      - out/${export.model_name}.bentomodel
 
   evaluate:
     cmd: python3 src/evaluate.py
@@ -52,17 +66,17 @@ stages:
     outs:
       - data/evaluate
 
-  detect:
-    cmd: python3 src/detect_tif.py
-    deps:
-      - src/detect_tif.py
-      - out/model.ckpt
-      - data/raw/nyon.tif
-    params:
-      - datamodule.batch_size
-      - datamodule.image_size
-      - train.seed
-      - train.num_classes
-    outs:
-      - out/nyon_solar.gpkg
+  # detect:
+  #   cmd: python3 src/detect_tif.py
+  #   deps:
+  #     - src/detect_tif.py
+  #     - out/model.ckpt
+  #     - data/raw/nyon.tif
+  #   params:
+  #     - datamodule.batch_size
+  #     - datamodule.image_size
+  #     - train.seed
+  #     - train.num_classes
+  #   outs:
+  #     - out/nyon_solar.gpkg
 

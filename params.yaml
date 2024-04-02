@@ -23,3 +23,6 @@ train:
   epochs: 15
   precision: "16-mixed"
   accumulate_grad_batches: null
+
+export:
+  model_name: solar_model
