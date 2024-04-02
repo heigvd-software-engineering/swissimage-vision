@@ -55,7 +55,6 @@ class FasterRCNN(L.LightningModule):
     def forward(
         self, images: torch.Tensor
     ) -> tuple[dict[str, torch.Tensor], list[dict[str, torch.Tensor]]]:
-        # convert torch.Tensor to list[torch.Tensor]
         images = [img for img in images]
         return self.model(images)
 

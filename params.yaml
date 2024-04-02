@@ -25,4 +25,4 @@ train:
   accumulate_grad_batches: null
 
 export:
-  model_name: solar_model
+  model_name: solar_model_gpu

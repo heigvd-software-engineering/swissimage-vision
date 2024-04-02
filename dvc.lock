@@ -5,9 +5,9 @@ stages:
     deps:
     - path: data/prepared
       hash: md5
-      md5: 04dd6fc88c379a948dcc0f7d2b09c9a7.dir
-      size: 111703891
-      nfiles: 1714
+      md5: cdfd04e2d6dbef4b4236aa4ea8ee2201.dir
+      size: 317289648
+      nfiles: 1914
     - path: src/preview.py
       hash: md5
       md5: 4ab1fc04f76ae42747836709553d8894
@@ -22,21 +22,21 @@ stages:
     outs:
     - path: data/preview
       hash: md5
-      md5: e5586c29afa5a899b79193ce1c1ae6ce.dir
-      size: 1153721
+      md5: 8151e06be17fa2b44aeee5b5c0236986.dir
+      size: 1199481
       nfiles: 10
   train:
     cmd: python3 src/train.py
     deps:
     - path: data/prepared
       hash: md5
-      md5: 04dd6fc88c379a948dcc0f7d2b09c9a7.dir
-      size: 111703891
-      nfiles: 1714
+      md5: cdfd04e2d6dbef4b4236aa4ea8ee2201.dir
+      size: 317289648
+      nfiles: 1914
     - path: data/preview
       hash: md5
-      md5: e5586c29afa5a899b79193ce1c1ae6ce.dir
-      size: 1153721
+      md5: 8151e06be17fa2b44aeee5b5c0236986.dir
+      size: 1199481
       nfiles: 10
     - path: src/train.py
       hash: md5
@@ -68,19 +68,19 @@ stages:
     outs:
     - path: lightning_logs
       hash: md5
-      md5: 6960909705b05dbcedffb8270767b933.dir
-      size: 2772052408
-      nfiles: 16
+      md5: 883c734bf0c08324e022aafddf5d35ad.dir
+      size: 693003568
+      nfiles: 4
     - path: out/model.ckpt
       hash: md5
-      md5: 62809612766c30e8676383cc13462d6d
+      md5: 133d570dc77c8242872ad3f7fd3965b8
       size: 346489062
   evaluate:
     cmd: python3 src/evaluate.py
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: 62809612766c30e8676383cc13462d6d
+      md5: 133d570dc77c8242872ad3f7fd3965b8
       size: 346489062
     - path: src/evaluate.py
       hash: md5
@@ -109,8 +109,8 @@ stages:
     outs:
     - path: data/evaluate
       hash: md5
-      md5: 3d6d4f8f77625c63ed36901c13d08f57.dir
-      size: 1137919
+      md5: 3a6815e3e1ddf751b94617f998559aa9.dir
+      size: 1149876
       nfiles: 10
   prepare:
     cmd: python3 src/prepare.py
@@ -119,23 +119,28 @@ stages:
       hash: md5
       md5: c4a02b4a2cc6364284bc8610f46539c8
       size: 108133319
+    - path: data/raw/nyon_tiles
+      hash: md5
+      md5: 452c76214071d941c674f5c9c9089e93.dir
+      size: 2230429501
+      nfiles: 1111
     - path: data/raw/solar.zip
       hash: md5
       md5: e29f2f3bbb502669449b62b38c2b1878
       size: 33438193
     - path: src/prepare.py
       hash: md5
-      md5: 7dcc5b17b9ae0c9b67eb3ef2b7cc4a6d
-      size: 3183
+      md5: a235b2f81003018c141f7bf800a1d453
+      size: 4498
     params:
       params.yaml:
         datamodule.data_root: data/prepared
     outs:
     - path: data/prepared
       hash: md5
-      md5: 04dd6fc88c379a948dcc0f7d2b09c9a7.dir
-      size: 111703891
-      nfiles: 1714
+      md5: cdfd04e2d6dbef4b4236aa4ea8ee2201.dir
+      size: 317289648
+      nfiles: 1914
   detect:
     cmd: python3 src/detect_tif.py
     deps:
@@ -145,12 +150,12 @@ stages:
       size: 3679034256
     - path: out/model.ckpt
       hash: md5
-      md5: 054ade9d1837d75b2d5d699913f50449
+      md5: 133d570dc77c8242872ad3f7fd3965b8
       size: 346489062
     - path: src/detect_tif.py
       hash: md5
-      md5: 0e53bab8b39b06d66517ca281e37cbb9
-      size: 7317
+      md5: aeb4304c82f12483e7f1935153d15dae
+      size: 7318
     params:
       params.yaml:
         datamodule.batch_size: 16
@@ -160,27 +165,27 @@ stages:
     outs:
     - path: out/nyon_solar.gpkg
       hash: md5
-      md5: cd498175990e45f63b10cc8bcfce7b63
-      size: 286720
+      md5: b47c82d21d13320d6125ff079d61548f
+      size: 221184
   export:
     cmd: python3 src/export.py
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: 62809612766c30e8676383cc13462d6d
+      md5: 133d570dc77c8242872ad3f7fd3965b8
       size: 346489062
     - path: src/export.py
       hash: md5
-      md5: 91215376e129d80741502e7a379fd9a0
-      size: 1021
+      md5: 7017958e6a63e84cfe8126edad7b6674
+      size: 2807
     params:
       params.yaml:
         datamodule.batch_size: 16
         datamodule.image_size: 256
-        export.model_name: solar_model
+        export.model_name: solar_model_gpu
         train.num_classes: 2
     outs:
-    - path: out/solar_model.bentomodel
+    - path: out/solar_model_gpu.bentomodel
       hash: md5
-      md5: 262dcdb8477967d1f054468b56942ad3
-      size: 159974132
+      md5: f20bbb0ef619ed684e54e1151b4ab4d9
+      size: 159971380

@@ -2,8 +2,15 @@
 
 - [Installation](#installation)
   - [Setup DVC](#setup-dvc)
-- [Demo](#demo)
+- [Reproduce the Experiment](#reproduce-the-experiment)
+- [Serving the Model](#serving-the-model)
+  - [Gradio Demo](#gradio-demo)
+  - [BentoML API](#bentoml-api)
 - [LabelStudio](#labelstudio)
+  - [Configuration](#configuration)
+  - [Automated Labeling](#automated-labeling)
+- [Reference](#reference)
+  - [DVC](#dvc)
 - [Resources](#resources)
   - [Data](#data)
   - [Projects](#projects)
@@ -12,12 +19,13 @@
 
 ## Installation
 
+If you don't have Conda installed, you can run the following script to install it:
+
 ```bash
-# Conda
 ./scripts/install_conda.sh
 ```
 
-Next, restart your terminal and create a new conda environment:
+Next, restart your terminal and create a new conda environment and install the dependencies:
 
 ```bash
 conda create --name swissimage-vision python=3.12 pip
@@ -30,24 +38,52 @@ pip install -r requirements.txt
 
 ### Setup DVC
 
+Add the MinIO credentials to the DVC configuration:
+
 ```bash
 dvc remove modify --local minio access_key_id <ACCESS_KEY_ID>
 dvc remove modify --local minio secret_access_key <SECRET_ACCESS_KEY>
 ```
 
+Pull the data from the remote storage:
+
 ```bash
 dvc pull
 ```
 
-## Demo
+## Reproduce the Experiment
 
-To run the demo locally, execute the following command:
+To reproduce the experiment, execute the following command:
 
 ```bash
-python src/demo.py
+dvc repro
+```
+
+To view the training logs, run the following command:
+
+```bash
+tensorboard --logdir lightning_logs
+```
+
+## Serving the Model
+
+### Gradio Demo
+
+Run the following command to start the Gradio demo interface:
+
+```bash
+python3 src/demo.py
+```
+
+### BentoML API
+
+```bash
+python3 src/serve.py
 ```
 
 ## LabelStudio
+
+**NOTE:** Documentation WIP
 
 ```bash
 conda install conda-forge::psycopg2-binary
@@ -57,13 +93,41 @@ conda install conda-forge::psycopg2-binary
 pip install label-studio>=0.11.0,<=0.12
 ```
 
-```bash
-python3 ./scripts/serve_data.py
-```
+Run the following command to start a local backend for Label Studio:
 
 ```bash
-label-studio start ./label-studio/config.xml
+python3 scripts/serve_label_studio.py
 ```
+
+
+```bash
+# label-studio start ./label-studio/config.xml
+```
+
+### Configuration
+
+### Automated Labeling
+
+## Reference
+
+### DVC
+
+![dag](media/dag.png)
+
+The experiment is managed using DVC. The following is the DAG of the experiment:
+
+```bash
+dvc dag
+```
+
+
+It is divided into the following stages:
+- `prepare`
+- `preview`
+- `train`
+- `export`
+- `evaluate`
+- `detect`
 
 ## Resources
 

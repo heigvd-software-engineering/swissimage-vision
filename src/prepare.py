@@ -1,3 +1,4 @@
+import json
 import shutil
 import zipfile
 from pathlib import Path
@@ -30,7 +31,29 @@ def create_xml_annotation(
     tree.write(xml_out_path)
 
 
-def get_bboxes_from_mask(mask: np.ndarray, size_thresh=0.01) -> list[np.ndarray]:
+def get_bboxes_from_labels(labels: list[dict]) -> list[list[int]]:
+    # label = {
+    #     "x": 91.82068355586543,
+    #     "y": 85.74240453746339,
+    #     "width": 4.025513972711175,
+    #     "height": 5.344855420815499,
+    #     "rotation": 0,
+    #     "original_width": 1024,
+    #     "original_height": 1024
+    #   },
+    # where x, y, width, height are in percentage
+    bboxes = []
+    for label in labels:
+        x = label["x"] / 100 * label["original_width"]
+        y = label["y"] / 100 * label["original_height"]
+        width = label["width"] / 100 * label["original_width"]
+        height = label["height"] / 100 * label["original_height"]
+        bb = [x, y, x + width, y + height]
+        bboxes.append(list(map(round, bb)))
+    return bboxes
+
+
+def get_bboxes_from_mask(mask: np.ndarray, size_thresh=0.01) -> list[list[int]]:
     # Find contours
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     bboxes = []
@@ -74,6 +97,18 @@ def prepare(root_raw_dir: Path, output_dir: Path) -> None:
             boxes = get_bboxes_from_mask(np.array(mask))
             create_xml_annotation(image_out_path, boxes, ann_dir)
 
+    # NyonTiles Dataset
+    with open(root_raw_dir / "nyon_tiles/annotations.json", "r") as f:
+        annotations = json.load(f)
+    for ann in annotations:
+        image_name = ann["image"].split("/")[-1]
+        image_path = root_raw_dir / "nyon_tiles/images" / image_name
+        boxes = []
+        if ann.get("label"):
+            boxes = get_bboxes_from_labels(ann["label"])
+        image_out_path = image_dir / image_name
+        create_xml_annotation(image_out_path, boxes, ann_dir)
+        shutil.copy(image_path, image_dir)
     # Delete the extracted files
     shutil.rmtree(output_dir / "solar")
     shutil.rmtree(output_dir / "PV01")
