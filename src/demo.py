@@ -39,7 +39,6 @@ def dectect(model: FasterRCNN, device: str, image_size: int, image: Image) -> Im
 
 
 def main() -> None:
-
     params = yaml.safe_load(open("params.yaml"))
     train_params = params["train"]
     datamodule_params = params["datamodule"]

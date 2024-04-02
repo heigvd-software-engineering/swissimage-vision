@@ -1,10 +1,6 @@
-import os
-
 import geopandas as gpd
 import rasterio
 from dotenv import load_dotenv
-from minio.error import S3Error
-from osgeo import gdal, osr
 from rasterio.windows import Window
 
 COMMUNE = "nyon"

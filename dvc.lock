@@ -35,9 +35,9 @@ stages:
       nfiles: 10
     - path: data/raw
       hash: md5
-      md5: 2cbcd546cdfae22d6070e2e1e76bf050.dir
-      size: 214964820
-      nfiles: 5
+      md5: dfaf1dbeef7e5e297e9a25eabf51f17b.dir
+      size: 3893999076
+      nfiles: 6
     - path: src/train.py
       hash: md5
       md5: 63d7265cb05c48b0ecaa298845220e75
@@ -68,19 +68,19 @@ stages:
     outs:
     - path: lightning_logs
       hash: md5
-      md5: 8d057332976cf45267de68e4ea8bb7ff.dir
-      size: 1386047934
-      nfiles: 8
+      md5: 05611ee7855b9ce980f5691ee193dd30.dir
+      size: 2079050171
+      nfiles: 12
     - path: out/model.ckpt
       hash: md5
-      md5: ab62f0089ec3cf41a38dfe556ee4dc6a
+      md5: 054ade9d1837d75b2d5d699913f50449
       size: 346489062
   evaluate:
     cmd: python3 src/evaluate.py
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: ab62f0089ec3cf41a38dfe556ee4dc6a
+      md5: 054ade9d1837d75b2d5d699913f50449
       size: 346489062
     - path: src/evaluate.py
       hash: md5
@@ -109,17 +109,17 @@ stages:
     outs:
     - path: data/evaluate
       hash: md5
-      md5: a0ca375451551dfc7e04d0d022f05e6e.dir
-      size: 1137085
+      md5: 9398017630bfa17d49084c68987b59b8.dir
+      size: 1141222
       nfiles: 10
   prepare:
     cmd: python3 src/prepare.py
     deps:
     - path: data/raw
       hash: md5
-      md5: 2cbcd546cdfae22d6070e2e1e76bf050.dir
-      size: 214964820
-      nfiles: 5
+      md5: dfaf1dbeef7e5e297e9a25eabf51f17b.dir
+      size: 3893999076
+      nfiles: 6
     - path: src/prepare.py
       hash: md5
       md5: 7dcc5b17b9ae0c9b67eb3ef2b7cc4a6d
@@ -133,3 +133,29 @@ stages:
       md5: 04dd6fc88c379a948dcc0f7d2b09c9a7.dir
       size: 111703891
       nfiles: 1714
+  detect:
+    cmd: python3 src/detect_tif.py
+    deps:
+    - path: data/raw/nyon.tif
+      hash: md5
+      md5: bc7ea13eb06a246207e8fba8fec1a82b
+      size: 3679034256
+    - path: out/model.ckpt
+      hash: md5
+      md5: 054ade9d1837d75b2d5d699913f50449
+      size: 346489062
+    - path: src/detect_tif.py
+      hash: md5
+      md5: 0e53bab8b39b06d66517ca281e37cbb9
+      size: 7317
+    params:
+      params.yaml:
+        datamodule.batch_size: 16
+        datamodule.image_size: 256
+        train.num_classes: 2
+        train.seed: 42
+    outs:
+    - path: out/nyon_solar.gpkg
+      hash: md5
+      md5: cd498175990e45f63b10cc8bcfce7b63
+      size: 286720

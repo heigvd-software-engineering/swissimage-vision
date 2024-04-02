@@ -52,3 +52,17 @@ stages:
     outs:
       - data/evaluate
 
+  detect:
+    cmd: python3 src/detect_tif.py
+    deps:
+      - src/detect_tif.py
+      - out/model.ckpt
+      - data/raw/nyon.tif
+    params:
+      - datamodule.batch_size
+      - datamodule.image_size
+      - train.seed
+      - train.num_classes
+    outs:
+      - out/nyon_solar.gpkg
+
