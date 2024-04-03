@@ -17,7 +17,6 @@ def evaluate(
     image_size: int,
     num_workers: int,
     pin_memory: bool,
-    num_classes: int,
     max_samples: int,
     output_dir: Path,
 ) -> None:
@@ -35,7 +34,7 @@ def evaluate(
     )
     dm.setup()
 
-    model = FasterRCNN.load_from_checkpoint("out/model.ckpt", num_classes=num_classes)
+    model = FasterRCNN.load_from_checkpoint("out/model.ckpt")
     device = "cpu"
     if torch.cuda.is_available():
         device = "cuda"
@@ -77,7 +76,6 @@ def main() -> None:
     evaluate(
         seed=train_params["seed"],
         **datamodule_params,
-        num_classes=train_params["num_classes"],
         max_samples=10,
         output_dir=Path("data/evaluate"),
     )

@@ -40,8 +40,8 @@ stages:
       nfiles: 10
     - path: src/train.py
       hash: md5
-      md5: 63d7265cb05c48b0ecaa298845220e75
-      size: 3532
+      md5: 98e1105dbfdbf1fbcd875aa8c7f19421
+      size: 3584
     params:
       params.yaml:
         datamodule:
@@ -55,37 +55,37 @@ stages:
         train:
           seed: 42
           num_classes: 2
-          lr: 0.005
+          trainable_backbone_layers: 2
+          lr: 0.0025
           lr_momentum: 0.9
           lr_decay_rate: 0.0005
-          lr_sched_step_size: 0.1
-          lr_sched_gamma: 0.1
+          lr_sched_step_size: 5
+          lr_sched_gamma: 0.8
           save_ckpt: false
           es_patience:
           epochs: 15
           precision: 16-mixed
-          accumulate_grad_batches:
     outs:
     - path: lightning_logs
       hash: md5
-      md5: 883c734bf0c08324e022aafddf5d35ad.dir
-      size: 693003568
-      nfiles: 4
+      md5: 7a9163fab7bb890df3e25539e3d3082f.dir
+      size: 3451572429
+      nfiles: 20
     - path: out/model.ckpt
       hash: md5
-      md5: 133d570dc77c8242872ad3f7fd3965b8
-      size: 346489062
+      md5: 132648df8aa5561b56c3e5317fcb5d16
+      size: 340689014
   evaluate:
     cmd: python3 src/evaluate.py
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: 133d570dc77c8242872ad3f7fd3965b8
-      size: 346489062
+      md5: 132648df8aa5561b56c3e5317fcb5d16
+      size: 340689014
     - path: src/evaluate.py
       hash: md5
-      md5: f047f94aeaf0c083cab5a56305085216
-      size: 2467
+      md5: 76246872074b2fff306bc10bbbe9534b
+      size: 2371
     params:
       params.yaml:
         datamodule.batch_size: 16
@@ -96,21 +96,21 @@ stages:
         train:
           seed: 42
           num_classes: 2
-          lr: 0.005
+          trainable_backbone_layers: 2
+          lr: 0.0025
           lr_momentum: 0.9
           lr_decay_rate: 0.0005
-          lr_sched_step_size: 0.1
-          lr_sched_gamma: 0.1
+          lr_sched_step_size: 5
+          lr_sched_gamma: 0.8
           save_ckpt: false
           es_patience:
           epochs: 15
           precision: 16-mixed
-          accumulate_grad_batches:
     outs:
     - path: data/evaluate
       hash: md5
-      md5: 3a6815e3e1ddf751b94617f998559aa9.dir
-      size: 1149876
+      md5: fe3622757de8dc4cd49d3710294adf86.dir
+      size: 1145870
       nfiles: 10
   prepare:
     cmd: python3 src/prepare.py
@@ -150,42 +150,40 @@ stages:
       size: 3679034256
     - path: out/model.ckpt
       hash: md5
-      md5: 133d570dc77c8242872ad3f7fd3965b8
-      size: 346489062
+      md5: 132648df8aa5561b56c3e5317fcb5d16
+      size: 340689014
     - path: src/detect_tif.py
       hash: md5
-      md5: aeb4304c82f12483e7f1935153d15dae
-      size: 7318
+      md5: 55b60bb2755cef959e916c19dfb523c2
+      size: 7263
     params:
       params.yaml:
         datamodule.batch_size: 16
         datamodule.image_size: 256
-        train.num_classes: 2
         train.seed: 42
     outs:
     - path: out/nyon_solar.gpkg
       hash: md5
-      md5: b47c82d21d13320d6125ff079d61548f
-      size: 221184
+      md5: a982e7cf87251c89a3c99faafcadf863
+      size: 200704
   export:
     cmd: python3 src/export.py
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: 133d570dc77c8242872ad3f7fd3965b8
-      size: 346489062
+      md5: 132648df8aa5561b56c3e5317fcb5d16
+      size: 340689014
     - path: src/export.py
       hash: md5
-      md5: 7017958e6a63e84cfe8126edad7b6674
-      size: 2807
+      md5: 18b281e82ca26a46359377e78afd8db0
+      size: 2680
     params:
       params.yaml:
         datamodule.batch_size: 16
         datamodule.image_size: 256
         export.model_name: solar_model_gpu
-        train.num_classes: 2
     outs:
     - path: out/solar_model_gpu.bentomodel
       hash: md5
-      md5: f20bbb0ef619ed684e54e1151b4ab4d9
-      size: 159971380
+      md5: 846c37435429e89acd940791ecd05c00
+      size: 159955668

@@ -47,7 +47,6 @@ stages:
     params:
       - datamodule.batch_size
       - datamodule.image_size
-      - train.num_classes
       - export.model_name
     outs:
       - out/${export.model_name}.bentomodel
@@ -77,7 +76,6 @@ stages:
       - datamodule.batch_size
       - datamodule.image_size
       - train.seed
-      - train.num_classes
     outs:
       - out/nyon_solar.gpkg
 

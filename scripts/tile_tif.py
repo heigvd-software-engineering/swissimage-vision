@@ -58,9 +58,6 @@ def tile_tif(
     images_dir = out_root / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
 
-    anns_dir = out_root / "annotations"
-    anns_dir.mkdir(parents=True, exist_ok=True)
-
     with multiprocessing.Pool(processes=processes) as pool:
         for row_idx, row in enumerate(tiles):
             for col_idx, tile in enumerate(row):
@@ -83,7 +80,6 @@ def tile_tif(
 
 
 def main() -> None:
-    datamodule_params = yaml.safe_load(open("params.yaml"))["datamodule"]
     tile_size = 1024
     overlap_cnt = 0
     overlap_size = int(tile_size * 1 / (overlap_cnt + 1)) if overlap_cnt > 0 else 0

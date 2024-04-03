@@ -1,5 +1,6 @@
 # SwissImage Vision
 
+- [TODO](#todo)
 - [Installation](#installation)
   - [Setup DVC](#setup-dvc)
 - [Reproduce the Experiment](#reproduce-the-experiment)
@@ -16,6 +17,19 @@
   - [Projects](#projects)
 
 ![Demo](media/demo.png)
+
+## TODO
+
+- Better model evaluation metrics and plots
+- PR and main branch CI/CD
+- CML reporting
+- CML training on Kubernetes cluster
+- Add label studio configuration
+- (Label studio web hook to DVC)
+- (Label studio model training with DVC)
+- Add more training data
+- Deploy BentoML API to Kubernetes cluster
+- (Deploy label studio instance)
 
 ## Installation
 
@@ -99,7 +113,6 @@ Run the following command to start a local backend for Label Studio:
 python3 scripts/serve_label_studio.py
 ```
 
-
 ```bash
 # label-studio start ./label-studio/config.xml
 ```
@@ -120,8 +133,8 @@ The experiment is managed using DVC. The following is the DAG of the experiment:
 dvc dag
 ```
 
-
 It is divided into the following stages:
+
 - `prepare`
 - `preview`
 - `train`

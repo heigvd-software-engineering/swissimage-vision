@@ -25,6 +25,7 @@ def train(
     num_workers: int,
     pin_memory: bool,
     num_classes: int,
+    trainable_backbone_layers: int,
     lr: float,
     lr_momentum: float,
     lr_decay_rate: float,
@@ -34,7 +35,6 @@ def train(
     es_patience: bool,
     epochs: int,
     precision: str | None,
-    accumulate_grad_batches: int | None,
 ) -> None:
     L.seed_everything(seed)
 
@@ -51,6 +51,7 @@ def train(
 
     model = FasterRCNN(
         num_classes=num_classes,
+        trainable_backbone_layers=trainable_backbone_layers,
         lr=lr,
         lr_momentum=lr_momentum,
         lr_decay_rate=lr_decay_rate,
@@ -68,20 +69,19 @@ def train(
     if save_ckpt:
         callbacks.append(
             ModelCheckpoint(
-                filename="{epoch:02d}-{step}-{val_ciou:.3f}",
-                monitor="val_ciou",
+                filename="{epoch:02d}-{step}-{val_iou:.3f}",
+                monitor="val_iou",
                 save_top_k=1,
                 mode="min",
             )
         )
     if es_patience is not None:
         callbacks.append(
-            EarlyStopping(monitor="val_ciou", patience=es_patience, mode="min"),
+            EarlyStopping(monitor="val_iou", patience=es_patience, mode="min"),
         )
 
-    # TODO: Check log batch size
     trainer = L.Trainer(
-        log_every_n_steps=5,
+        log_every_n_steps=10,
         max_epochs=epochs,
         precision=precision if precision else "32-true",
         strategy=(
@@ -92,7 +92,6 @@ def train(
             else "auto"
         ),
         benchmark=True if torch.cuda.is_available() else False,
-        accumulate_grad_batches=accumulate_grad_batches or 1,
         callbacks=callbacks,
         limit_val_batches=0 if split == 1 else None,
     )
@@ -111,8 +110,11 @@ def train(
         / "checkpoints"
     )
 
-    model_path = ckpt_folder / "last.ckpt"
-    trainer.save_checkpoint(model_path)
+    if save_ckpt:
+        model_path = list(ckpt_folder.glob("*.ckpt"))[0]
+    else:
+        model_path = ckpt_folder / "last.ckpt"
+        trainer.save_checkpoint(model_path)
 
     # Wait for model to be saved
     max_retries = 20

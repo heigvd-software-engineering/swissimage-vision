@@ -239,9 +239,7 @@ def main() -> None:
     datamodule_params = params["datamodule"]
 
     L.seed_everything(train_params["seed"])
-    model = FasterRCNN.load_from_checkpoint(
-        "out/model.ckpt", num_classes=train_params["num_classes"]
-    )
+    model = FasterRCNN.load_from_checkpoint("out/model.ckpt")
     device = "cpu"
     if torch.cuda.is_available():
         device = "cuda"

@@ -7,8 +7,8 @@ from torchvision.transforms.v2 import functional as F
 from model.fasterrcnn import FasterRCNN
 
 
-def export(batch_size: int, image_size: int, num_classes: int, model_name: str) -> None:
-    model = FasterRCNN.load_from_checkpoint("out/model.ckpt", num_classes=num_classes)
+def export(batch_size: int, image_size: int, model_name: str) -> None:
+    model = FasterRCNN.load_from_checkpoint("out/model.ckpt")
     model.eval()
     model.to("cuda")
     script_module = model.to_torchscript(
@@ -69,13 +69,11 @@ def main() -> None:
 
     params = yaml.safe_load(open("params.yaml"))
     datamodule_params = params["datamodule"]
-    train_params = params["train"]
     export_params = params["export"]
 
     export(
         batch_size=datamodule_params["batch_size"],
         image_size=datamodule_params["image_size"],
-        num_classes=train_params["num_classes"],
         model_name=export_params["model_name"],
     )
 

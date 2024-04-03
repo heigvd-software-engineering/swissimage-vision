@@ -40,12 +40,9 @@ def dectect(model: FasterRCNN, device: str, image_size: int, image: Image) -> Im
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
-    train_params = params["train"]
     datamodule_params = params["datamodule"]
 
-    model = FasterRCNN.load_from_checkpoint(
-        "out/model.ckpt", num_classes=train_params["num_classes"]
-    )
+    model = FasterRCNN.load_from_checkpoint("out/model.ckpt")
     device = "cpu"
     if torch.cuda.is_available():
         device = "cuda"
