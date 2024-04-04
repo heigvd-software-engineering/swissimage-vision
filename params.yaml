@@ -10,6 +10,13 @@ datamodule:
 # ------------------------------------------------------------------------
 # DVC Pipeline Parameters
 # ------------------------------------------------------------------------
+extract_tiles:
+  commune_name: Nyon
+  x_ratio: 0.66
+  y_ratio: 0.75
+  tile_size: 1024
+  overlap_size: 0
+
 train:
   seed: 42
   num_classes: 2

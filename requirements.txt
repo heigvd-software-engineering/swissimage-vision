@@ -9,3 +9,5 @@ rasterio>=1.3.9,<1.4
 geopandas>=0.14.3,<0.15
 tqdm>=4.66.2,<4.67
 bentoml>=1.2.9,<1.3
+python_dotenv>=1.0.1,<1.1
+boto3>=1.34.51,<1.35
