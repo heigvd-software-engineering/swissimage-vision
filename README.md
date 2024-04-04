@@ -20,6 +20,9 @@
 
 ## TODO
 
+- Deploy LabelStudio instance with configuration
+- Complete 01_pull_labels.py stage (labelstudio api)
+
 - Better model evaluation metrics and plots
 - PR and main branch CI/CD
 - CML reporting
@@ -27,7 +30,6 @@
 - Add label studio configuration
 - (Label studio web hook to DVC)
 - (Label studio model training with DVC)
-- Add more training data
 - Deploy BentoML API to Kubernetes cluster
 - (Deploy label studio instance)
 
