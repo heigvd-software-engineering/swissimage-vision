@@ -9,7 +9,6 @@ import numpy as np
 import torch
 import yaml
 from PIL import Image
-from torchvision.transforms.v2 import functional as F
 
 
 def create_xml_annotation(
@@ -64,60 +63,81 @@ def get_bboxes_from_mask(mask: np.ndarray, size_thresh=0.01) -> list[list[int]]:
     return bboxes
 
 
-def prepare(root_raw_dir: Path, output_dir: Path) -> None:
-    if output_dir.exists():
-        shutil.rmtree(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Extract the zip files
+def prepare_solar_dataset(
+    root_raw_dir: Path, out_dir: Path, img_dir: Path, ann_dir: Path
+) -> None:
     with zipfile.ZipFile(root_raw_dir / "solar.zip", "r") as zip_ref:
-        zip_ref.extractall(output_dir / "solar")
+        zip_ref.extractall(out_dir / "solar")
+
+    shutil.copytree(out_dir / "solar/images/", img_dir, dirs_exist_ok=True)
+    shutil.copytree(out_dir / "solar/annotations/xmls/", ann_dir, dirs_exist_ok=True)
+    shutil.rmtree(out_dir / "solar")
+
+
+def prepare_pv01_dataset(
+    root_raw_dir: Path, out_dir: Path, img_dir: Path, ann_dir: Path
+) -> None:
     with zipfile.ZipFile(root_raw_dir / "PV01.zip", "r") as zip_ref:
-        zip_ref.extractall(output_dir / "PV01")
+        zip_ref.extractall(out_dir / "PV01")
 
-    image_dir = output_dir / "images"
-    ann_dir = output_dir / "annotations"
-    image_dir.mkdir(parents=True, exist_ok=True)
-    ann_dir.mkdir(parents=True, exist_ok=True)
-
-    # Solar Dataset
-    shutil.copytree(output_dir / "solar/images/", image_dir, dirs_exist_ok=True)
-    shutil.copytree(output_dir / "solar/annotations/xmls/", ann_dir, dirs_exist_ok=True)
-
-    # PV01 Dataset
     # Iterate over the images and create xml annotations bounding boxes
-    for image_path in (output_dir / "PV01").rglob("*.bmp"):
+    for image_path in (out_dir / "PV01").rglob("*.bmp"):
         if not image_path.name.endswith("_label.bmp"):
             image = Image.open(image_path)
-            image_out_path = image_dir / image_path.with_suffix(".png").name
+            image_out_path = img_dir / image_path.with_suffix(".png").name
             image.save(image_out_path)
 
             mask_path = image_path.parent / (image_path.stem + "_label.bmp")
             mask = Image.open(mask_path).convert("L")
             boxes = get_bboxes_from_mask(np.array(mask))
             create_xml_annotation(image_out_path, boxes, ann_dir)
+    shutil.rmtree(out_dir / "PV01")
 
-    # NyonTiles Dataset
-    with open(root_raw_dir / "nyon_tiles/annotations.json", "r") as f:
+
+def prepare_tiles_dataset(
+    tiles_dir: Path, raw_ann_path: Path, img_dir: Path, ann_dir: Path
+) -> None:
+    if not raw_ann_path.exists():
+        return
+
+    with open(raw_ann_path, "r") as f:
         annotations = json.load(f)
+
     for ann in annotations:
         image_name = ann["image"].split("/")[-1]
-        image_path = root_raw_dir / "nyon_tiles/images" / image_name
+        image_path = tiles_dir / image_name
         boxes = []
         if ann.get("label"):
             boxes = get_bboxes_from_labels(ann["label"])
-        image_out_path = image_dir / image_name
+        image_out_path = img_dir / image_name
         create_xml_annotation(image_out_path, boxes, ann_dir)
-        shutil.copy(image_path, image_dir)
-    # Delete the extracted files
-    shutil.rmtree(output_dir / "solar")
-    shutil.rmtree(output_dir / "PV01")
+        shutil.copy(image_path, img_dir)
+
+
+def prepare(root_raw_dir: Path, out_dir: Path) -> None:
+    if out_dir.exists():
+        shutil.rmtree(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    img_dir = out_dir / "images"
+    ann_dir = out_dir / "annotations"
+    img_dir.mkdir(parents=True, exist_ok=True)
+    ann_dir.mkdir(parents=True, exist_ok=True)
+
+    prepare_solar_dataset(root_raw_dir, out_dir, img_dir, ann_dir)
+    prepare_pv01_dataset(root_raw_dir, out_dir, img_dir, ann_dir)
+    prepare_tiles_dataset(
+        tiles_dir=Path("data/extracted/tiles"),
+        raw_ann_path=Path("data/labels/annotations.json"),
+        img_dir=img_dir,
+        ann_dir=ann_dir,
+    )
 
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
-    output_dir = params["datamodule"]["data_root"]
-    prepare(root_raw_dir=Path("data/raw"), output_dir=Path(output_dir))
+    out_dir = params["datamodule"]["data_root"]
+    prepare(root_raw_dir=Path("data/raw"), out_dir=Path(out_dir))
 
 
 if __name__ == "__main__":

@@ -113,34 +113,38 @@ stages:
       size: 2259603
       nfiles: 10
   prepare:
-    cmd: python3 src/prepare.py
+    cmd: python3 src/2_prepare.py
     deps:
+    - path: data/extracted/tiles
+      hash: md5
+      md5: 5ff78e98758c8cefd97d51f7b39746b4.dir
+      size: 2232518327
+      nfiles: 1110
+    - path: data/labels/annotations.json
+      hash: md5
+      md5: d751713988987e9331980363e24189ce
+      size: 2
     - path: data/raw/PV01.zip
       hash: md5
       md5: c4a02b4a2cc6364284bc8610f46539c8
       size: 108133319
-    - path: data/raw/nyon_tiles
-      hash: md5
-      md5: b04583ac06f3aeae6d2c241f6a718b2b.dir
-      size: 2230497346
-      nfiles: 1111
     - path: data/raw/solar.zip
       hash: md5
       md5: e29f2f3bbb502669449b62b38c2b1878
       size: 33438193
-    - path: src/prepare.py
+    - path: src/2_prepare.py
       hash: md5
-      md5: a235b2f81003018c141f7bf800a1d453
-      size: 4498
+      md5: 47e9ec92bfd5c1f2247ca3b4130a5b0d
+      size: 4901
     params:
       params.yaml:
         datamodule.data_root: data/prepared
     outs:
     - path: data/prepared
       hash: md5
-      md5: 9b0b44a5cf07a217c7c6497ef4659c2c.dir
-      size: 546521724
-      nfiles: 2142
+      md5: 04dd6fc88c379a948dcc0f7d2b09c9a7.dir
+      size: 111703891
+      nfiles: 1714
   detect:
     cmd: python3 src/detect_tif.py
     deps:
@@ -187,3 +191,40 @@ stages:
       hash: md5
       md5: e271a669539bbea27f51d67305449982
       size: 159967928
+  extract_tiles:
+    cmd: python3 src/0_extract_tiles.py
+    deps:
+    - path: data/raw/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg
+      hash: md5
+      md5: f6f20f6b2a2e76e976e5bc5fb22d06a2
+      size: 73265152
+    - path: src/0_extract_tiles.py
+      hash: md5
+      md5: d8f3c3f85cb8ce0f03bc2f5cb6d268f2
+      size: 5549
+    params:
+      params.yaml:
+        extract_tiles:
+          commune_name: Nyon
+          x_ratio: 0.66
+          y_ratio: 0.75
+          tile_size: 1024
+          overlap_size: 0
+    outs:
+    - path: data/extracted
+      hash: md5
+      md5: 21ebad90556c18bcb102a899cbaec28a.dir
+      size: 2232518327
+      nfiles: 1110
+  pull_labels:
+    cmd: python3 src/1_pull_labels.py
+    deps:
+    - path: src/1_pull_labels.py
+      hash: md5
+      md5: 9a8d04cb37fda408fb573066a7f58d3d
+      size: 196
+    outs:
+    - path: data/labels/annotations.json
+      hash: md5
+      md5: d751713988987e9331980363e24189ce
+      size: 2

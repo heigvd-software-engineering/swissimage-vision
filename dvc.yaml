@@ -13,21 +13,22 @@ stages:
     cmd: python3 src/1_pull_labels.py
     deps:
       - src/1_pull_labels.py
-    # outs: 
-    #   - data/labels/annotations.json
+    outs: 
+      - data/labels/annotations.json
     always_changed: true
 
-  # prepare:
-  #   cmd: python3 src/2_prepare.py
-  #   deps:
-  #     - src/2_prepare.py
-  #     - data/raw/solar.zip
-  #     - data/raw/PV01.zip
-  #     - data/raw/nyon_tiles
-  #   params:
-  #     - datamodule.data_root
-  #   outs:
-  #     - ${datamodule.data_root}
+  prepare:
+    cmd: python3 src/2_prepare.py
+    deps:
+      - src/2_prepare.py
+      - data/extracted/tiles
+      - data/labels/annotations.json
+      - data/raw/solar.zip
+      - data/raw/PV01.zip
+    params:
+      - datamodule.data_root
+    outs:
+      - ${datamodule.data_root}
 
   # preview:
   #   cmd: python3 src/3_preview.py

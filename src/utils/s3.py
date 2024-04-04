@@ -21,15 +21,8 @@ def upload_files(
     path: Path,
     bucket: str,
     dest_folder: Path,
-    delete_if_exists: bool = False,
     max_workers: int = 10,
 ) -> None:
-    if delete_if_exists:
-        # Check if dest_folder exists in the bucket and delete it if it does
-        print(f"[INFO] Deleting existing files in s3://{bucket}/{dest_folder}")
-        for obj in s3.Bucket(bucket).objects.filter(Prefix=str(dest_folder)):
-            obj.delete()
-
     # Recursively upload all files in path to the bucket
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         for root, _, files in os.walk(path):
@@ -38,10 +31,22 @@ def upload_files(
                 dest_key = str(dest_folder / file_path.relative_to(path))
                 executor.submit(
                     upload_file,
-                    kwargs=dict(
-                        s3=s3,
-                        file_path=file_path,
-                        bucket=bucket,
-                        dest_key=dest_key,
-                    ),
+                    s3,
+                    file_path,
+                    bucket,
+                    dest_key,
                 )
+
+
+def delete_file(s3: boto3.resource, bucket: str, key: str) -> None:
+    s3.Object(bucket, key).delete()
+    print(f"[INFO] Deleted {key} from s3://{bucket}")
+
+
+def delete_files(
+    s3: boto3.resource, bucket: str, folder: Path, max_workers: int = 10
+) -> None:
+    # Delete all files in the folder
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for obj in s3.Bucket(bucket).objects.filter(Prefix=str(folder)):
+            executor.submit(delete_file, s3, bucket, obj.key)

@@ -133,6 +133,7 @@ def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
     extract_tiles_params = params["extract_tiles"]
     out_dir = Path("data/extracted")
+    bucket = "swissimage-vision"
 
     # 1. Extract the commune bounds
     print("[INFO] Extracting the commune bounds")
@@ -166,18 +167,18 @@ def main() -> None:
         aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
         aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
     )
+    utils.s3.delete_files(s3, bucket=bucket, folder=Path("data/tiles"))
     utils.s3.upload_files(
         s3,
         path=tiles_out_dir,
-        bucket="swissimage-vision",
+        bucket=bucket,
         dest_folder=Path("data/tiles"),
-        delete_if_exists=True,
     )
     utils.s3.upload_file(
         s3,
         file_path=tif_out_path,
-        bucket="swissimage-vision",
-        dest_key="data",
+        bucket=bucket,
+        dest_key=f"data/{tif_out_path.name}",
     )
     # Delete the tif file as we do not use it and it would slow down dvc
     tif_out_path.unlink()
