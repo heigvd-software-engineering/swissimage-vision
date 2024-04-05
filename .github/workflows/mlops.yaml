@@ -33,7 +33,6 @@ jobs:
         env:
           REPO_TOKEN: ${{ secrets.PAT }}
         run: |
-          export KUBERNETES_CONFIGURATION=${{ secrets.KUBECONFIG }}
           cml runner \
             --labels="cml-runner" \
             --cloud="kubernetes" \
