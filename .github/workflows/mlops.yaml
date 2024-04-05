@@ -1,0 +1,94 @@
+name: MLOps
+
+env:
+  CML_VERSION: 0.20.0
+
+on:
+  # Runs on pushes targeting main branch
+  push:
+    branches:
+      - main
+
+  # Runs on pull requests
+  pull_request:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Allow the creation and usage of self-hosted runners
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  setup-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - uses: iterative/setup-cml@v2
+        with:
+          version: ${{ env.CML_VERSION }}
+      - name: Initialize runner on Kubernetes
+        env:
+          REPO_TOKEN: ${{ secrets.PAT }}
+        run: |
+          export KUBERNETES_CONFIGURATION=${{ secrets.KUBECONFIG }}
+          cml runner \
+            --labels="cml-runner" \
+            --cloud="kubernetes" \
+            --cloud-kubernetes-node-selector="gpu=true" \
+            --single
+
+  train-and-report:
+    permissions: write-all
+    needs: setup-runner
+    runs-on: [self-hosted, cml-runner]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run DVC pipeline
+        run: dvc repro --pull --allow-missing
+        # Node is required to run CML
+      - name: Setup Node
+        if: github.event_name == 'pull_request'
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Setup CML
+        if: github.event_name == 'pull_request'
+        uses: iterative/setup-cml@v2
+        with:
+          version: ${{ env.CML_VERSION }}
+      - name: Create CML report
+        if: github.event_name == 'pull_request'
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Fetch all other Git branches
+          git fetch --depth=1 origin main:main
+
+          # Add title to the report
+          echo "# Experiment Report (${{ github.sha }})" >> report.md
+
+          # Compare parameters to main branch
+          echo "## Params workflow vs. main" >> report.md
+          dvc params diff main --md >> report.md
+
+          # Publish the CML report
+          cml comment update --target=pr --publish report.md
+
+  # deploy:
+  #   # Runs on main branch only
+  #   if: github.ref == 'refs/heads/main'
+  #   needs: train-and-report
+  #   name: Call Deploy
+  #   uses: ./.github/workflows/mlops-deploy.yml
+  #   secrets: inherit
