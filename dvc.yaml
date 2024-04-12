@@ -71,9 +71,9 @@ stages:
 
   # Evaluate the model
   evaluate:
-    cmd: python3 src/4_evaluate.py
+    cmd: python3 src/3_evaluate.py
     deps:
-      - src/4_evaluate.py
+      - src/3_evaluate.py
       - out/model.ckpt
     params: 
       # We exclude
