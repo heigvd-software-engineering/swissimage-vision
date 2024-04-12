@@ -1,35 +1,38 @@
-datamodule:
-  seed: 42
-  data_root: data/prepared
-  split: 0.8
-  batch_size: 16
-  image_size: 384
-  num_workers: 2
-  pin_memory: true
 
 # ------------------------------------------------------------------------
 # DVC Pipeline Parameters
 # ------------------------------------------------------------------------
-extract_tiles:
-  commune_name: Nyon
-  x_ratio: 0.66
-  y_ratio: 0.75
-  tile_size: 1024
-  overlap_size: 0
+prepare:
+  commune_name: Nyon  # Commune name to be cropped
+  x_ratio: 0.66       # Width ratio of the crop for the commune
+  y_ratio: 0.75       # Height ratio of the crop for the commune
+  tile_size: 1024     # Tile size cropped from the original image in pixels
+  overlap_size: 0     # Overlap size between tiles in pixels
 
 train:
-  seed: 42
-  num_classes: 2
-  trainable_backbone_layers: 3
-  lr: 0.0075
-  lr_momentum: 0.9
-  lr_decay_rate: 0.0005
-  lr_sched_step_size: 5
-  lr_sched_gamma: 0.8
-  save_ckpt: false
-  es_patience: null
-  epochs: 15
-  precision: "16-mixed"
+  datamodule:         # PyTorch Lightning DataModule parameters
+    s3_data_path: |-  # S3 path to the prepared data (should contain images/ and labels/)
+      s3://swissimage-vision/data/prepared
+    seed: 42          # Random seed for data split
+    split: 0.8        # train = split * total
+    batch_size: 16
+    image_size: 384   # Image size for the model
+    num_workers: 2    # Split evenly between train and val dataloaders
+    pin_memory: true
+  model:
+    seed: 42          # Random seed for model initialization
+    num_classes: 2    # No solar panel & solar panel
+    trainable_backbone_layers: 3
+  training:
+    lr: 0.0075
+    lr_momentum: 0.9
+    lr_decay_rate: 0.0005
+    lr_sched_step_size: 5  # Step size (epochs) for learning rate scheduler
+    lr_sched_gamma: 0.8    # Multiplicative factor of learning rate decay
+    save_ckpt: false       # Save best model checkpoint while training
+    es_patience: null      # Early stopping patience, null to disable
+    epochs: 15
+    precision: "16-mixed"
 
 export:
   model_name: solar_model_gpu

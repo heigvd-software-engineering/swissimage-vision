@@ -20,13 +20,15 @@
 
 ## TODO
 
-- Deploy LabelStudio instance with configuration
+
+- CML training on Kubernetes cluster
+  - Self hosted runner with terraform (https://medium.com/simform-engineering/how-to-setup-self-hosted-github-action-runner-on-kubernetes-c8825ccbb63c)
+- Deploy label studio model backend
 - Complete 01_pull_labels.py stage (labelstudio api)
 
 - Better model evaluation metrics and plots
 - PR and main branch CI/CD
 - CML reporting
-- CML training on Kubernetes cluster
 - Add label studio configuration
 - (Label studio web hook to DVC)
 - (Label studio model training with DVC)

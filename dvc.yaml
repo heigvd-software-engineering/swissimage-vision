@@ -1,100 +1,89 @@
 stages:
-  extract_tiles:
-    cmd: python3 src/0_extract_tiles.py
-    deps:
-      - src/0_extract_tiles.py
-      - data/raw/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg
-    params: 
-      - extract_tiles
-    outs:
-      - data/extracted
-
-  pull_labels:
-    cmd: python3 src/1_pull_labels.py
-    deps:
-      - src/1_pull_labels.py
-    outs: 
-      - data/labels/annotations.json
-    always_changed: true
-
+  # 1. Create tiles
+  # 2. Pull annotations from S3
+  # 3. Upload tiles + xml annotations to S3
   prepare:
-    cmd: python3 src/2_prepare.py
+    cmd: python3 src/0_prepare.py
     deps:
-      - src/2_prepare.py
-      - data/extracted/tiles
-      - data/labels/annotations.json
-      - data/raw/solar.zip
-      - data/raw/PV01.zip
+      - src/0_prepare.py
+      - data/raw/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg
     params:
-      - datamodule.data_root
+      - prepare
     outs:
-      - ${datamodule.data_root}
+      - data/prepared/depends.txt
 
-  # preview:
-  #   cmd: python3 src/3_preview.py
-  #   deps:
-  #     - src/3_preview.py
-  #     - ${datamodule.data_root}
-  #   params: 
-  #     - datamodule.seed
-  #     - datamodule.data_root
-  #     - datamodule.split
-  #     - datamodule.batch_size
-  #     - datamodule.image_size
-  #   outs:
-  #     - data/preview
+  # 1. Pull some images from S3
+  # 2. Save them into DVC Cache
+  preview:
+    cmd: python3 src/1_preview.py
+    deps:
+      - src/1_preview.py
+      - data/prepared/depends.txt
+    params: 
+      # We exclude
+      #  - train.datamodule.num_workers
+      #  - train.datamodule.pin_memory
+      # as they should not invalidate the cache
+      - train.datamodule.s3_data_path
+      - train.datamodule.seed
+      - train.datamodule.split
+      - train.datamodule.batch_size
+      - train.datamodule.image_size
+    outs:
+      - data/preview/samples
+      - data/preview/depends.txt
+  
+  # Train the model
+  train:
+    cmd: python3 src/2_train.py
+    deps:
+      - src/2_train.py
+      - data/preview/depends.txt
+    params: 
+      # We exclude
+      #  - train.datamodule.num_workers
+      #  - train.datamodule.pin_memory
+      # as they should not invalidate the cache
+      - train.datamodule.s3_data_path
+      - train.datamodule.seed
+      - train.datamodule.split
+      - train.datamodule.batch_size
+      - train.datamodule.image_size
+      - train.model
+      - train.training
+    outs:
+      - lightning_logs:
+          persist: true
+      - out/model.ckpt
+  
+  # Convert PyTorch model to BentoML model (TorchScript)
+  export:
+    cmd: python3 src/3_export.py
+    deps:
+      - src/3_export.py
+      - out/model.ckpt
+    params:
+      - train.datamodule.batch_size
+      - train.datamodule.image_size
+      - export.model_name
+    outs:
+      - out/${export.model_name}.bentomodel
 
-  # train:
-  #   cmd: python3 src/4_train.py
-  #   deps:
-  #     - src/4_train.py
-  #     - data/preview
-  #     - ${datamodule.data_root}
-  #   params: 
-  #     - datamodule
-  #     - train
-  #   outs:
-  #     - lightning_logs:
-  #         persist: true
-  #     - out/model.ckpt
-
-  # export:
-  #   cmd: python3 src/5_export.py
-  #   deps:
-  #     - src/5_export.py
-  #     - out/model.ckpt
-  #   params:
-  #     - datamodule.batch_size
-  #     - datamodule.image_size
-  #     - export.model_name
-  #   outs:
-  #     - out/${export.model_name}.bentomodel
-
-  # evaluate:
-  #   cmd: python3 src/5_evaluate.py
-  #   deps:
-  #     - src/5_evaluate.py
-  #     - out/model.ckpt
-  #   params: 
-  #     - datamodule.seed
-  #     - datamodule.data_root
-  #     - datamodule.split
-  #     - datamodule.batch_size
-  #     - datamodule.image_size
-  #     - train
-  #   outs:
-  #     - data/evaluate
-
-  # detect:
-  #   cmd: python3 src/5_detect_tif.py
-  #   deps:
-  #     - src/5_detect_tif.py
-  #     - out/model.ckpt
-  #     - data/raw/nyon.tif
-  #   params:
-  #     - datamodule.batch_size
-  #     - datamodule.image_size
-  #     - train.seed
-  #   outs:
-  #     - out/nyon_solar.gpkg
-
+  # Evaluate the model
+  evaluate:
+    cmd: python3 src/4_evaluate.py
+    deps:
+      - src/4_evaluate.py
+      - out/model.ckpt
+    params: 
+      # We exclude
+      #  - train.datamodule.num_workers
+      #  - train.datamodule.pin_memory
+      # as they should not invalidate the cache
+      - train.datamodule.s3_data_path
+      - train.datamodule.seed
+      - train.datamodule.split
+      - train.datamodule.batch_size
+      - train.datamodule.image_size
+    outs:
+      - data/evaluate
