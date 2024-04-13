@@ -13,7 +13,6 @@ def upload_file(
         Bucket=bucket,
         Key=dest_key,
     )
-    print(f"[INFO] Uploaded {file_path} to s3://{bucket}/{dest_key}")
 
 
 def upload_files(
@@ -40,13 +39,13 @@ def upload_files(
 
 def delete_file(s3: boto3.resource, bucket: str, key: str) -> None:
     s3.Object(bucket, key).delete()
-    print(f"[INFO] Deleted {key} from s3://{bucket}")
 
 
 def delete_files(
     s3: boto3.resource, bucket: str, folder: Path, max_workers: int = 10
 ) -> None:
     # Delete all files in the folder
+    print(f"[INFO] Deleting files in {folder} from s3://{bucket}")
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         for obj in s3.Bucket(bucket).objects.filter(Prefix=str(folder)):
             executor.submit(delete_file, s3, bucket, obj.key)

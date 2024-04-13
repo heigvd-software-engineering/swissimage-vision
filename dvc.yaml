@@ -1,6 +1,6 @@
 stages:
   # 1. Create tiles
-  # 2. Pull annotations from S3
+  # 2. Pull raw data + labelstudio annotations from S3
   # 3. Upload tiles + xml annotations to S3
   prepare:
     cmd: python3 src/0_prepare.py
