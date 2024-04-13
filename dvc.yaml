@@ -23,14 +23,13 @@ stages:
       - train.datamodule.setup
     outs:
       - data/preview/samples
-      - data/preview/depends.txt
   
   # Train the model
   train:
-    cmd: python3 src/2_train.py
+    cmd: python3 src/1_train.py
     deps:
-      - src/2_train.py
-      - data/preview/depends.txt
+      - src/1_train.py
+      - data/prepared/depends.txt
     params: 
       - train.datamodule.setup
       - train.model
@@ -42,9 +41,9 @@ stages:
   
   # Convert PyTorch model to BentoML model (TorchScript)
   export:
-    cmd: python3 src/3_export.py
+    cmd: python3 src/2_export.py
     deps:
-      - src/3_export.py
+      - src/2_export.py
       - out/model.ckpt
     params:
       - train.datamodule.setup.batch_size
@@ -55,9 +54,9 @@ stages:
 
   # Evaluate the model
   evaluate:
-    cmd: python3 src/3_evaluate.py
+    cmd: python3 src/2_evaluate.py
     deps:
-      - src/3_evaluate.py
+      - src/2_evaluate.py
       - out/model.ckpt
     params: 
       - train.datamodule.setup
