@@ -23,7 +23,7 @@ The parameters for each stage are defined in the `params.yaml` file.
 
 ### Prepare
 
-In this stage we create tiles and upload to S3
+In this stage we create tiles and upload to S3.
 
 We upload the tiles and annotations to S3 to avoid storing them in DVC cache. This is because it would not be efficient to store large amounts of data in DVC cache. Instead, we store the data in S3 and pull it when needed. See more in the <a href="#train">Train</a> stage.
 
@@ -37,7 +37,7 @@ In this stage we:
 
 1. Pull LabelStudio annotations from S3
 2. Merge into a single JSON file
-2. Save it into DVC cache
+3. Save it into DVC cache
 
 ### Preview
 
@@ -66,7 +66,5 @@ TODO: Needs update
 
 ## Data Flow
 
-TODO: Needs update
-
-<img src="../media/data-flow.png" width="550" />
+<img src="../media/data-flow.png" width="650" />
 

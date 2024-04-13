@@ -113,38 +113,31 @@ stages:
       size: 2259603
       nfiles: 10
   prepare:
-    cmd: python3 src/2_prepare.py
+    cmd: python3 src/0_prepare.py
     deps:
-    - path: data/extracted/tiles
+    - path: data/raw/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg
       hash: md5
-      md5: 5ff78e98758c8cefd97d51f7b39746b4.dir
-      size: 2232518327
-      nfiles: 1110
-    - path: data/labels/annotations.json
+      md5: f6f20f6b2a2e76e976e5bc5fb22d06a2
+      size: 73265152
+    - path: src/0_prepare.py
       hash: md5
-      md5: d751713988987e9331980363e24189ce
-      size: 2
-    - path: data/raw/PV01.zip
-      hash: md5
-      md5: c4a02b4a2cc6364284bc8610f46539c8
-      size: 108133319
-    - path: data/raw/solar.zip
-      hash: md5
-      md5: e29f2f3bbb502669449b62b38c2b1878
-      size: 33438193
-    - path: src/2_prepare.py
-      hash: md5
-      md5: 47e9ec92bfd5c1f2247ca3b4130a5b0d
-      size: 4901
+      md5: 0c360e59d6219194572d25f492ffe630
+      size: 1085
     params:
       params.yaml:
-        datamodule.data_root: data/prepared
+        prepare:
+          src_bucket: swissimage-0.1m
+          s3_src_vrt_path: files.vrt
+          s3_dest_prepared_path: data/prepared
+          commune_name: Nyon
+          commune_x_ratio: 0.66
+          commune_y_ratio: 0.75
+          tile_size: 1024
     outs:
-    - path: data/prepared
+    - path: data/prepared/depends.txt
       hash: md5
-      md5: 04dd6fc88c379a948dcc0f7d2b09c9a7.dir
-      size: 111703891
-      nfiles: 1714
+      md5: b04bb8a84303df415975f0342f6c6452
+      size: 86
   detect:
     cmd: python3 src/detect_tif.py
     deps:
@@ -228,3 +221,19 @@ stages:
       hash: md5
       md5: d751713988987e9331980363e24189ce
       size: 2
+  preprocess:
+    cmd: python3 src/1_preprocess.py
+    deps:
+    - path: data/prepared/depends.txt
+      hash: md5
+      md5: b04bb8a84303df415975f0342f6c6452
+      size: 86
+    - path: src/1_preprocess.py
+      hash: md5
+      md5: 8af6f93ca16d2b5b9771f4ff58d5ddee
+      size: 2075
+    outs:
+    - path: data/preprocessed/annotations.json
+      hash: md5
+      md5: 9467bcb5be6091d64d2ff254f6c03675
+      size: 249

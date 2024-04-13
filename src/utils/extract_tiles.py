@@ -88,6 +88,9 @@ def tile_tif(
         y_ratio: Ratio for the y axis.
         tile_size: Size of the tiles.
     """
+    # TODO: Tiling the tif file is currently not multiprocessing-friendly because
+    #       of src and s3 not being pickleable. There is an opportunity to 
+    #       parallelize this process.
     with rasterio.open(src_path) as src:
         gdf = gdf_bounds.to_crs(str(src.crs))
         geometry = gdf.geometry.unary_union
