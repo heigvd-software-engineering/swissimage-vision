@@ -4,12 +4,15 @@ bucket: swissimage-vision
 # DVC Pipeline Parameters
 # ------------------------------------------------------------------------
 prepare:
-  s3_src_vrt_path: /vsis3_streaming/swissimage-0.1m/files.vrt  # S3 path to the VRT file
-  s3_prepared_path: data/prepared  # S3 path where to save the prepared data
+  src_bucket: swissimage-0.1m  # S3 bucket name
+  s3_src_vrt_path: files.vrt  # S3 path to the VRT file
+  s3_dest_prepared_path: data/prepared  # S3 path where to save the prepared data
   commune_name: Nyon     # Commune name to be cropped
   commune_x_ratio: 0.66  # Width ratio of the crop for the commune
   commune_y_ratio: 0.75  # Height ratio of the crop for the commune
   tile_size: 1024        # Tile size cropped from the original image in pixels
+
+preprocess:  # Empty for now
 
 train:
   datamodule:          # PyTorch Lightning DataModule parameters

@@ -1,8 +1,18 @@
 import concurrent.futures
 import os
+from io import BytesIO
 from pathlib import Path
 
 import boto3
+
+
+def get_s3_resource() -> boto3.resource:
+    return boto3.resource(
+        "s3",
+        endpoint_url="https://" + os.environ["AWS_S3_ENDPOINT"],
+        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+    )
 
 
 def upload_file(
@@ -49,3 +59,16 @@ def delete_files(
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         for obj in s3.Bucket(bucket).objects.filter(Prefix=str(folder)):
             executor.submit(delete_file, s3, bucket, obj.key)
+
+
+def list_files(s3: boto3.resource, bucket: str, prefix: str | Path) -> list[str]:
+    if isinstance(prefix, Path):
+        prefix = str(prefix)
+    # List all files in the bucket with the given prefix
+    return [obj.key for obj in s3.Bucket(bucket).objects.filter(Prefix=prefix)]
+
+
+def get_file(s3: boto3.resource, bucket: str, key: str) -> BytesIO:
+    # Get a file from the bucket
+    obj = s3.Object(bucket, key)
+    return BytesIO(obj.get()["Body"].read())

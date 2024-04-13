@@ -12,14 +12,21 @@ def main() -> None:
     prepare_params = params["prepare"]
 
     extract_tiles(
-        bucket=params["bucket"],
+        src_bucket=prepare_params["src_bucket"],
         s3_src_vrt_path=Path(prepare_params["s3_src_vrt_path"]),
-        s3_prepared_path=Path(prepare_params["s3_prepared_path"]),
+        s3_dest_prepared_path=Path(prepare_params["s3_dest_prepared_path"]),
+        dest_bucket=params["bucket"],
         commune_name=prepare_params["commune_name"],
         commune_x_ratio=prepare_params["commune_x_ratio"],
         commune_y_ratio=prepare_params["commune_y_ratio"],
         tile_size=prepare_params["tile_size"],
     )
+
+    # Create dummy file to make other DVC stages depend on this one
+    dummy_file = Path("data/prepared/depends.txt")
+    content = "NOTE: This a dummy file is used to make other DVC stages depend on this one (prepare)."
+    dummy_file.mkdir(parents=True, exist_ok=True)
+    dummy_file.write_text(content)
 
 
 if __name__ == "__main__":

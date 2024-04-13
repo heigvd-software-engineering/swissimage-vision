@@ -8,6 +8,7 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision.transforms import v2 as T
 
+import utils
 from dataset.solar_dataset import SolarDataset
 
 
@@ -28,8 +29,8 @@ def collate_fn(batch):
 class SolarDataModule(L.LightningDataModule):
     def __init__(
         self,
-        ann_dir: Path,
-        img_dir: Path,
+        bucket: str,
+        s3_data_dir: Path,
         image_size: int,
         seed: int,
         split: float,
@@ -40,8 +41,9 @@ class SolarDataModule(L.LightningDataModule):
         """Initialize SolarDataModule.
 
         Args:
-            ann_dir (Path): Path to the directory containing the annotations.
-            img_dir (Path): Path to the directory containing the images.
+            bucket (str): S3 bucket name.
+            s3_data_dir (Path): Path to the data directory on S3 containing
+                                images/ and annotations/ folders.
             image_size (int): Size of the images.
             seed (int): Seed for reproducibility.
             split (float): Fraction of the data to use for training.
@@ -50,8 +52,8 @@ class SolarDataModule(L.LightningDataModule):
             pin_memory (bool, optional): Whether to pin memory. Defaults to True.
         """
         super().__init__()
-        self.ann_dir = ann_dir
-        self.img_dir = img_dir
+        self.bucket = bucket
+        self.s3_data_dir = s3_data_dir
         self.image_size = image_size
         self.seed = seed
         self.split = split
@@ -65,6 +67,9 @@ class SolarDataModule(L.LightningDataModule):
         self.val_transform = self._get_transform(is_train=False)
 
     def setup(self, stage: str = None) -> None:
+        # Load data from S3
+        s3 = utils.s3.get_s3_resource()
+        urls = utils.s3.list_files(s3, self.bucket, self.s3_data_dir / "annotations")
         # Load data from disk, split into train, val, test sets
         data = []
         for ann_file in self.ann_dir.glob("*.xml"):

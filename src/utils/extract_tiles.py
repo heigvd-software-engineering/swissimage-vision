@@ -66,6 +66,7 @@ def crop_and_save_tile_as_png(
 def tile_tif(
     src_path: Path,
     tiles_dest_dir: Path,
+    prefix: str,
     s3: boto3.resource,
     bucket: str,
     gdf_bounds: gpd.GeoDataFrame,
@@ -101,23 +102,24 @@ def tile_tif(
 
         total_tiles = (width // tile_size) * (height // tile_size)
         with tqdm(total=total_tiles, desc="Producing tiles") as pbar:
-            for i, y in enumerate(range(row_off, row_end, tile_size)):
-                for j, x in enumerate(range(col_off, col_end, tile_size)):
+            for y in range(row_off, row_end, tile_size):
+                for x in range(col_off, col_end, tile_size):
                     window = rasterio.windows.Window(x, y, tile_size, tile_size)
                     crop_and_save_tile_as_png(
                         src=src,
                         window=window,
                         s3=s3,
                         bucket=bucket,
-                        tiles_dest_path=tiles_dest_dir / f"tile_{i}_{j}.png",
+                        tiles_dest_path=tiles_dest_dir / f"{prefix}_{x}_{y}.png",
                     )
                     pbar.update()
 
 
 def extract_tiles(
-    bucket: str,
+    src_bucket: str,
     s3_src_vrt_path: Path,
-    s3_prepared_path: Path,
+    s3_dest_prepared_path: Path,
+    dest_bucket: str,
     commune_name: str,
     commune_x_ratio: int,
     commune_y_ratio: int,
@@ -135,13 +137,12 @@ def extract_tiles(
         aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
         aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
     )
-    s3_tiles_path = s3_prepared_path / "images"
-    utils.s3.delete_files(s3, bucket, s3_tiles_path)
     tile_tif(
-        src_path=s3_src_vrt_path,
-        tiles_dest_dir=s3_tiles_path,
+        src_path=Path("/vsis3_streaming") / src_bucket / s3_src_vrt_path,
+        tiles_dest_dir=s3_dest_prepared_path / "images",
+        prefix=f'{src_bucket.replace(".", "")}_{commune_name.lower()}',
         s3=s3,
-        bucket=bucket,
+        bucket=dest_bucket,
         gdf_bounds=gdf_bounds,
         x_ratio=commune_x_ratio,
         y_ratio=commune_y_ratio,
