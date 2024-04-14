@@ -1,17 +1,18 @@
 from pathlib import Path
 
+import lightning as L
 import torch
+import torchvision
 import yaml
+from torchvision.transforms.v2 import functional as F
+
 from dataset.solar_datamodule import SolarDataModule
 from model.fasterrcnn import FasterRCNN
-import lightning as L
-import torchvision
-from torchvision.transforms.v2 import functional as F
 
 
 def evaluate(
     seed: int,
-    data_root: str,
+    ann_path: Path,
     split: float,
     batch_size: int,
     image_size: int,
@@ -23,8 +24,7 @@ def evaluate(
     L.seed_everything(seed)
 
     dm = SolarDataModule(
-        ann_dir=Path(data_root) / "annotations",
-        img_dir=Path(data_root) / "images",
+        ann_path=ann_path,
         image_size=image_size,
         seed=seed,
         split=split,
@@ -67,15 +67,14 @@ def evaluate(
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
-    datamodule_params = params["datamodule"]
     train_params = params["train"]
-    datamodule_params.pop("seed")
-    datamodule_params["num_workers"] = 0
-    datamodule_params["pin_memory"] = False
+    datamodule_setup_params = train_params["datamodule"]["setup"]
 
     evaluate(
-        seed=train_params["seed"],
-        **datamodule_params,
+        **datamodule_setup_params,
+        ann_path=Path("data/preprocessed/annotations.json"),
+        num_workers=0,
+        pin_memory=False,
         max_samples=10,
         output_dir=Path("data/evaluate"),
     )

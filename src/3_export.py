@@ -68,12 +68,12 @@ def main() -> None:
         raise ValueError("CUDA is not available, please run on a machine with a GPU.")
 
     params = yaml.safe_load(open("params.yaml"))
-    datamodule_params = params["datamodule"]
+    datamodule_setup_params = params["train"]["datamodule"]["setup"]
     export_params = params["export"]
 
     export(
-        batch_size=datamodule_params["batch_size"],
-        image_size=datamodule_params["image_size"],
+        batch_size=datamodule_setup_params["batch_size"],
+        image_size=datamodule_setup_params["image_size"],
         model_name=export_params["model_name"],
     )
 

@@ -4,6 +4,7 @@ from io import BytesIO
 from pathlib import Path
 
 import boto3
+from PIL import Image
 
 
 def get_s3_resource() -> boto3.resource:
@@ -72,3 +73,28 @@ def get_file(s3: boto3.resource, bucket: str, key: str) -> BytesIO:
     # Get a file from the bucket
     obj = s3.Object(bucket, key)
     return BytesIO(obj.get()["Body"].read())
+
+
+def get_image(s3: boto3.resource, bucket: str, key: str) -> Image:
+    data = get_file(s3, bucket, key)
+    return Image.open(data)
+
+
+def split_url_to_bucket_and_prefix(url: str) -> tuple[str, str]:
+    """
+    Split an S3 URL into bucket and prefix.
+
+    Example:
+        s3://bucket-name/prefix/to/file -> ('bucket-name', 'prefix/to/file')
+
+    Args:
+        url (str): S3 URL
+
+    Returns:
+        tuple[str, str]: Bucket and prefix
+    """
+    url = url.replace("s3://", "")
+    parts = url.split("/")
+    bucket = parts[0]
+    prefix = "/".join(parts[1:])
+    return bucket, prefix

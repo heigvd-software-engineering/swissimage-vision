@@ -22,53 +22,53 @@ stages:
       - data/preprocessed/annotations.json
     always_changed: true
 
-  # # 1. Pull some images from S3
-  # # 2. Save them into DVC cache
-  # preview:
-  #   cmd: python3 src/2_preview.py
-  #   deps:
-  #     - src/2_preview.py
-  #     - data/preprocessed/annotations.json
-  #   params: 
-  #     - train.datamodule.setup
-  #   outs:
-  #     - data/preview/samples
+  # 1. Pull some images from S3
+  # 2. Save them into DVC cache
+  preview:
+    cmd: python3 src/2_preview.py
+    deps:
+      - src/2_preview.py
+      - data/preprocessed/annotations.json
+    params: 
+      - train.datamodule.setup
+    outs:
+      - data/preview
   
-  # # Train the model
-  # train:
-  #   cmd: python3 src/2_train.py
-  #   deps:
-  #     - src/2_train.py
-  #     - data/preprocessed/annotations.json
-  #   params: 
-  #     - train.datamodule.setup
-  #     - train.model
-  #     - train.training
-  #   outs:
-  #     - lightning_logs:
-  #         persist: true
-  #     - out/model.ckpt
+  # Train the model
+  train:
+    cmd: python3 src/2_train.py
+    deps:
+      - src/2_train.py
+      - data/preprocessed/annotations.json
+    params: 
+      - train.datamodule.setup
+      - train.model
+      - train.training
+    outs:
+      - lightning_logs:
+          persist: true
+      - out/model.ckpt
   
-  # # Convert PyTorch model to BentoML model (TorchScript)
-  # export:
-  #   cmd: python3 src/3_export.py
-  #   deps:
-  #     - src/3_export.py
-  #     - out/model.ckpt
-  #   params:
-  #     - train.datamodule.setup.batch_size
-  #     - train.datamodule.setup.image_size
-  #     - export.model_name
-  #   outs:
-  #     - out/${export.model_name}.bentomodel
+  # Convert PyTorch model to BentoML model (TorchScript)
+  export:
+    cmd: python3 src/3_export.py
+    deps:
+      - src/3_export.py
+      - out/model.ckpt
+    params:
+      - train.datamodule.setup.batch_size
+      - train.datamodule.setup.image_size
+      - export.model_name
+    outs:
+      - out/${export.model_name}.bentomodel
 
-  # # Evaluate the model
-  # evaluate:
-  #   cmd: python3 src/3_evaluate.py
-  #   deps:
-  #     - src/3_evaluate.py
-  #     - out/model.ckpt
-  #   params: 
-  #     - train.datamodule.setup
-  #   outs:
-  #     - data/evaluate
+  # Evaluate the model
+  evaluate:
+    cmd: python3 src/3_evaluate.py
+    deps:
+      - src/3_evaluate.py
+      - out/model.ckpt
+    params: 
+      - train.datamodule.setup
+    outs:
+      - data/evaluate

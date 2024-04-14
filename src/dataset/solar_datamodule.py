@@ -1,6 +1,6 @@
+import json
 import random
 from pathlib import Path
-from xml.etree import ElementTree as ET
 
 import lightning as L
 import numpy as np
@@ -8,7 +8,6 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision.transforms import v2 as T
 
-import utils
 from dataset.solar_dataset import SolarDataset
 
 
@@ -29,8 +28,7 @@ def collate_fn(batch):
 class SolarDataModule(L.LightningDataModule):
     def __init__(
         self,
-        bucket: str,
-        s3_data_dir: Path,
+        ann_path: Path,
         image_size: int,
         seed: int,
         split: float,
@@ -41,9 +39,7 @@ class SolarDataModule(L.LightningDataModule):
         """Initialize SolarDataModule.
 
         Args:
-            bucket (str): S3 bucket name.
-            s3_data_dir (Path): Path to the data directory on S3 containing
-                                images/ and annotations/ folders.
+            ann_path (Path): Path to annotations (json).
             image_size (int): Size of the images.
             seed (int): Seed for reproducibility.
             split (float): Fraction of the data to use for training.
@@ -52,8 +48,7 @@ class SolarDataModule(L.LightningDataModule):
             pin_memory (bool, optional): Whether to pin memory. Defaults to True.
         """
         super().__init__()
-        self.bucket = bucket
-        self.s3_data_dir = s3_data_dir
+        self.ann_path = ann_path
         self.image_size = image_size
         self.seed = seed
         self.split = split
@@ -67,30 +62,9 @@ class SolarDataModule(L.LightningDataModule):
         self.val_transform = self._get_transform(is_train=False)
 
     def setup(self, stage: str = None) -> None:
-        # Load data from S3
-        s3 = utils.s3.get_s3_resource()
-        urls = utils.s3.list_files(s3, self.bucket, self.s3_data_dir / "annotations")
-        # Load data from disk, split into train, val, test sets
-        data = []
-        for ann_file in self.ann_dir.glob("*.xml"):
-            tree = ET.parse(ann_file)
-            objects = tree.findall("object")
-            boxes = []
-            for obj in objects:
-                boxes.append(
-                    [
-                        int(obj.find("bndbox/xmin").text),
-                        int(obj.find("bndbox/ymin").text),
-                        int(obj.find("bndbox/xmax").text),
-                        int(obj.find("bndbox/ymax").text),
-                    ]
-                )
-            data.append(
-                {
-                    "image": str(self.img_dir / tree.find("filename").text),
-                    "boxes": boxes,
-                }
-            )
+        # Load data from preprocessed DVC stage
+        with open(self.ann_path, "r") as f:
+            data = json.load(f)
         if len(data) == 0:
             raise ValueError("No data found. Check the paths.")
         indices = torch.randperm(len(data)).tolist()

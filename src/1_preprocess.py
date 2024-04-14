@@ -1,5 +1,6 @@
 import json
 import multiprocessing
+import random
 from functools import partial
 from pathlib import Path
 
@@ -36,6 +37,9 @@ def parse_annotation(ann_key: str, bucket: str) -> dict:
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
     prepare_params = params["prepare"]
+    seed = params["train"]["datamodule"]["setup"]["seed"]
+    random.seed(seed)
+
     load_dotenv(override=True)
     s3 = utils.s3.get_s3_resource()
     annotations = utils.s3.list_files(
@@ -48,9 +52,21 @@ def main() -> None:
         parsed_annotations = pool.map(
             partial(parse_annotation, bucket=params["bucket"]), annotations
         )
+
+    # Split limit to 50% annotations that do not have bounding boxes (boxes = [])
+    split_limit = int(len(parsed_annotations) * 0.5)
+    no_boxes = [ann for ann in parsed_annotations if not ann["boxes"]]
+    random.shuffle(no_boxes)
+    with_boxes = [ann for ann in parsed_annotations if ann["boxes"]]
+    parsed_annotations = no_boxes[:split_limit] + with_boxes
+
     # We sort to ensure that race conditions don't affect the order of the annotations and
     # therefore don't invalidate the DVC cache
     parsed_annotations = sorted(parsed_annotations, key=lambda x: x["image"])
+
+    print(f"[INFO] Total annotations: {len(parsed_annotations)}")
+
+    # Save the parsed annotations to a JSON file
     with open("data/preprocessed/annotations.json", "w") as f:
         json.dump(parsed_annotations, f)
 
