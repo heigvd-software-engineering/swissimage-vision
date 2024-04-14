@@ -25,23 +25,29 @@
 ### Label Studio
 
 - [ ] Documentation for Label Studio
-
   - [ ] Installation locally
   - [ ] Installation on Kubernetes
   - [ ] Configuration
 
 - [ ] Deploy label studio instance
   - [ ] Add label studio configuration
+
 - [ ] (Deploy BentoML API to Kubernetes cluster)
 - [ ] (Deploy label studio model backend)
 
 ### CML
 
+- [ ] Documentation for CML
+  - [ ] PR preview
+  - [ ] GitHub repository setup (prevent fork to run actions)
+  - [ ] (Diagram)
+
 - [ ] CML training on Kubernetes cluster
   - [ ] Self hosted runner with terraform (https://medium.com/simform-engineering/how-to-setup-self-hosted-github-action-runner-on-kubernetes-c8825ccbb63c)
-- [ ] PR and main branch CI/CD
-- [ ] CML reporting
 
+- [ ] PR and main branch CI/CD
+
+- [ ] CML reporting
   - [ ] Better model evaluation metrics and plots
   - [ ] Save metrics to DVC
 
