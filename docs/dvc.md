@@ -37,7 +37,8 @@ In this stage we:
 
 1. Pull LabelStudio annotations from S3
 2. Merge into a single JSON file
-3. Save it into DVC cache
+3. Preprocess the annotations (distribute equally among image with and without bounding boxes)
+4. Save it into DVC cache
 
 ### Preview
 
@@ -60,7 +61,9 @@ In this stage we evaluate the model on the test set. (not implemented yet)
 
 ## Directed Acyclic Graph (DAG)
 
-TODO: Needs update
+```bash
+dvc dag
+```
 
 <img src="../media/dag.png" width="350" />
 

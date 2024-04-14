@@ -12,7 +12,8 @@ stages:
 
   # 1. Pull labelstudio annotations from S3
   # 2. Merge into a single JSON file
-  # 3. Save it into DVC cache
+  # 3. Preprocess the annotations
+  # 4. Save it into DVC cache
   preprocess:
     cmd: python3 src/1_preprocess.py
     deps:

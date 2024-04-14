@@ -1,17 +1,19 @@
 # SwissImage Vision
 
 - [TODO](#todo)
+  - [Label Studio](#label-studio)
+  - [CML](#cml)
+  - [Model](#model)
+- [About](#about)
 - [Installation](#installation)
   - [Setup DVC](#setup-dvc)
 - [Reproduce the Experiment](#reproduce-the-experiment)
 - [Serving the Model](#serving-the-model)
   - [Gradio Demo](#gradio-demo)
   - [BentoML API](#bentoml-api)
-- [LabelStudio](#labelstudio)
-  - [Configuration](#configuration)
-  - [Automated Labeling](#automated-labeling)
-- [Reference](#reference)
+- [Integrations](#integrations)
   - [DVC](#dvc)
+  - [Label Studio](#label-studio-1)
 - [Resources](#resources)
   - [Data](#data)
   - [Projects](#projects)
@@ -20,20 +22,39 @@
 
 ## TODO
 
+### Label Studio
 
-- CML training on Kubernetes cluster
-  - Self hosted runner with terraform (https://medium.com/simform-engineering/how-to-setup-self-hosted-github-action-runner-on-kubernetes-c8825ccbb63c)
-- Deploy label studio model backend
-- Complete 01_pull_labels.py stage (labelstudio api)
+- [ ] Documentation for Label Studio
 
-- Better model evaluation metrics and plots
-- PR and main branch CI/CD
-- CML reporting
-- Add label studio configuration
-- (Label studio web hook to DVC)
-- (Label studio model training with DVC)
-- Deploy BentoML API to Kubernetes cluster
-- (Deploy label studio instance)
+  - [ ] Installation locally
+  - [ ] Installation on Kubernetes
+  - [ ] Configuration
+
+- [ ] Deploy label studio instance
+  - [ ] Add label studio configuration
+- [ ] (Deploy BentoML API to Kubernetes cluster)
+- [ ] (Deploy label studio model backend)
+
+### CML
+
+- [ ] CML training on Kubernetes cluster
+  - [ ] Self hosted runner with terraform (https://medium.com/simform-engineering/how-to-setup-self-hosted-github-action-runner-on-kubernetes-c8825ccbb63c)
+- [ ] PR and main branch CI/CD
+- [ ] CML reporting
+
+  - [ ] Better model evaluation metrics and plots
+  - [ ] Save metrics to DVC
+
+### Model
+
+- [ ] Detection yaml job on whole dataset
+- [ ] Label more data
+
+## About
+
+The goal of this project is to detect solar panels in aerial images (SwissImage 0.1m) using deep learning.
+
+MLOps practices are used to manage the project, including DVC for data versioning, Label Studio for data labeling, and BentoML for model serving. This allows for reproducibility, collaboration and scalability of the project.
 
 ## Installation
 
@@ -99,52 +120,15 @@ python3 src/demo.py
 python3 src/serve.py
 ```
 
-## LabelStudio
-
-**NOTE:** Documentation WIP
-
-```bash
-conda install conda-forge::psycopg2-binary
-```
-
-```bash
-pip install label-studio>=0.11.0,<=0.12
-```
-
-Run the following command to start a local backend for Label Studio:
-
-```bash
-python3 scripts/serve_label_studio.py
-```
-
-```bash
-# label-studio start ./label-studio/config.xml
-```
-
-### Configuration
-
-### Automated Labeling
-
-## Reference
+## Integrations
 
 ### DVC
 
-![dag](media/dag.png)
+Read more about DVC integration at [docs/dvc.md](docs/dvc.md)
 
-The experiment is managed using DVC. The following is the DAG of the experiment:
+### Label Studio
 
-```bash
-dvc dag
-```
-
-It is divided into the following stages:
-
-- `prepare`
-- `preview`
-- `train`
-- `export`
-- `evaluate`
-- `detect`
+Read more about LabelStudio integration at [docs/labelstudio.md](docs/labelstudio.md)
 
 ## Resources
 
