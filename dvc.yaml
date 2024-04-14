@@ -1,5 +1,6 @@
 stages:
-  # Create tiles and upload to S3
+  # 1. Pull raw data from DVC remote (SwissBoundaries3D)
+  # 2. Create tiles and upload to S3
   prepare:
     cmd: python3 src/0_prepare.py
     deps:

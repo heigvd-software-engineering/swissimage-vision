@@ -23,13 +23,15 @@ The parameters for each stage are defined in the `params.yaml` file.
 
 ### Prepare
 
-In this stage we create tiles and upload to S3.
+In this stage we:
+
+1. Pull raw data from DVC remote (SwissBoundaries3D)
+2. Create tiles and upload to S3
 
 We upload the tiles and annotations to S3 to avoid storing them in DVC cache. This is because it would not be efficient to store large amounts of data in DVC cache. Instead, we store the data in S3 and pull it when needed. See more in the <a href="#train">Train</a> stage.
 
 > **Note**
 > As this stage does not create any outputs (we are saving the dataset to a S3 bucket), we create a dummy output (`data/prepared/depends.txt`) to make other stages depend on this one. See more about this [here](https://github.com/iterative/dvc/issues/8881).
-
 
 ### Preprocess
 
@@ -70,4 +72,3 @@ dvc dag
 ## Data Flow
 
 <img src="../media/data-flow.png" width="650" />
-
