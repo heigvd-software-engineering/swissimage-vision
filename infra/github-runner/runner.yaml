@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: github-runner
+  labels:
+    app: github-runner
+spec:
+  containers:
+  - name: github-runner
+    image: nvidia/cuda:12.4.1-base-ubuntu22.04
+    env:
+      - name: RUNNER_ALLOW_RUNASROOT
+        value: "1"
+    command: ["/bin/bash", "-c"]
+    args:
+      - |
+        apt-get update && apt-get install -y curl
+        mkdir actions-runner && cd actions-runner
+        curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
+        tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
+        sleep infinity
+    resources:
+      limits:
+        cpu: "8"
+        memory: "32Gi"
+        nvidia.com/gpu: "1"
+      requests:
+        cpu: "8"
+        memory: "32Gi"
+        nvidia.com/gpu: "1"
