@@ -10,10 +10,10 @@ on:
       - main
 
   # Runs on pull requests
-  # pull_request:
+  pull_request:
 
   # Allows you to run this workflow manually from the Actions tab
-  # workflow_dispatch:
+  workflow_dispatch:
 
 # Allow the creation and usage of self-hosted runners
 permissions:
@@ -41,6 +41,10 @@ jobs:
             --single
 
   train-and-report:
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     permissions: write-all
     needs: setup-runner
     runs-on: [self-hosted, cml-runner]
