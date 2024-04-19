@@ -42,10 +42,10 @@
   - [ ] GitHub repository setup (prevent fork to run actions)
   - [ ] (Diagram)
 
-- [ ] CML training on Kubernetes cluster
-  - [ ] Self hosted runner with terraform (https://medium.com/simform-engineering/how-to-setup-self-hosted-github-action-runner-on-kubernetes-c8825ccbb63c)
+- [x] CML training on Kubernetes cluster
+  - [x] Self hosted runner
 
-- [ ] PR and main branch CI/CD
+- [x] PR and main branch CI/CD
 
 - [ ] CML reporting
   - [ ] Better model evaluation metrics and plots

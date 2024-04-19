@@ -7,24 +7,30 @@ metadata:
 spec:
   containers:
   - name: github-runner
-    image: nvidia/cuda:12.4.1-base-ubuntu22.04
+    image: ubuntu:22.04
     env:
       - name: RUNNER_ALLOW_RUNASROOT
         value: "1"
     command: ["/bin/bash", "-c"]
     args:
       - |
-        apt-get update && apt-get install -y curl
+        # Install dependencies
+        apt-get update && apt-get install -y \
+                          curl python3 \
+                          python3-pip gpg wget \
+                          git unzip tar
+
+        # Install GitHub Actions Runner
         mkdir actions-runner && cd actions-runner
         curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
         tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
+
+        echo "[INFO] Runner ready"
         sleep infinity
     resources:
       limits:
         cpu: "8"
-        memory: "32Gi"
-        nvidia.com/gpu: "1"
+        memory: "2Gi"
       requests:
         cpu: "8"
-        memory: "32Gi"
-        nvidia.com/gpu: "1"
+        memory: "2Gi"

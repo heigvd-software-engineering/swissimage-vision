@@ -8,9 +8,21 @@ on:
   push:
     branches:
       - main
+    paths:
+      - src/**
+      - dvc.lock
+      - dvc.yaml
+      - params.yaml
+      - requirements.txt
 
   # Runs on pull requests
   pull_request:
+    paths:
+      - src/**
+      - dvc.lock
+      - dvc.yaml
+      - params.yaml
+      - requirements.txt
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

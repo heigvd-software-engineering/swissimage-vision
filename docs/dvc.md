@@ -71,4 +71,4 @@ dvc dag
 
 ## Data Flow
 
-<img src="../media/data-flow.png" width="650" />
+<img src="../media/data-flow.png" width="750" />
