@@ -26,6 +26,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
