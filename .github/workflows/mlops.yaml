@@ -41,7 +41,7 @@ jobs:
           cml runner \
             --labels="cml-runner" \
             --cloud="kubernetes" \
-            --cloud-kubernetes-node-selector="gpu=true" \
+            --cloud-kubernetes-node-selector="nvidia.com/gpu.present=true"
             --single
 
   train-and-report:
