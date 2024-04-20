@@ -1,39 +1,72 @@
 # SwissImage Vision
 
-- [TODO](#todo)
+- [Overview](#overview)
+- [Work in Progress](#work-in-progress)
+  - [Label Studio](#label-studio)
+  - [CML](#cml)
+  - [Model](#model)
 - [Installation](#installation)
+  - [Setup Conda Environment](#setup-conda-environment)
+  - [Install Dependencies](#install-dependencies)
   - [Setup DVC](#setup-dvc)
 - [Reproduce the Experiment](#reproduce-the-experiment)
 - [Serving the Model](#serving-the-model)
-  - [Gradio Demo](#gradio-demo)
   - [BentoML API](#bentoml-api)
-- [LabelStudio](#labelstudio)
-  - [Configuration](#configuration)
-  - [Automated Labeling](#automated-labeling)
-- [Reference](#reference)
+- [Integrations](#integrations)
   - [DVC](#dvc)
+  - [Label Studio](#label-studio-1)
 - [Resources](#resources)
   - [Data](#data)
   - [Projects](#projects)
 
-![Demo](media/demo.png)
+## Overview
 
-## TODO
+The goal of this project is to detect solar panels in aerial images (SwissImage 0.1m) using deep learning.
 
-- Better model evaluation metrics and plots
-- PR and main branch CI/CD
-- CML reporting
-- CML training on Kubernetes cluster
-- Add label studio configuration
-- (Label studio web hook to DVC)
-- (Label studio model training with DVC)
-- Add more training data
-- Deploy BentoML API to Kubernetes cluster
-- (Deploy label studio instance)
+MLOps practices are used to manage the project, including DVC for data versioning, Label Studio for data labeling, and BentoML for model serving. This allows for reproducibility, collaboration and scalability of the project.
+
+## Work in Progress
+
+### Label Studio
+
+- [ ] Documentation for Label Studio
+
+  - [ ] Installation locally
+  - [ ] Installation on Kubernetes
+  - [ ] Configuration
+
+- [ ] Deploy label studio instance
+
+  - [ ] Add label studio configuration
+
+- [ ] (Deploy BentoML API to Kubernetes cluster)
+- [ ] (Deploy label studio model backend)
+
+### CML
+
+- [ ] CML reporting
+  - [ ] Better model evaluation metrics and plots
+  - [ ] Save metrics to DVC
+
+### Model
+
+- [ ] Detection yaml job on whole dataset
+- [ ] Label more data
 
 ## Installation
 
-If you don't have Conda installed, you can run the following script to install it:
+Clone the repository:
+
+```bash
+git clone https://github.com/heigvd-software-engineering/swissimage-vision.git
+cd swissimage-vision
+```
+
+### Setup Conda Environment
+
+Installing MiniConda is optional but is recommended in environments where you do not have sudo access to install system packages. You can skip this step
+
+To install MiniConda, you can run the following script to install it:
 
 ```bash
 ./scripts/install_conda.sh
@@ -45,6 +78,8 @@ Next, restart your terminal and create a new conda environment and install the d
 conda create --name swissimage-vision python=3.12 pip
 conda activate swissimage-vision
 ```
+
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -80,14 +115,14 @@ tensorboard --logdir lightning_logs
 ```
 
 ## Serving the Model
-
+<!-- DEPRECATED
 ### Gradio Demo
 
 Run the following command to start the Gradio demo interface:
 
 ```bash
 python3 src/demo.py
-```
+``` -->
 
 ### BentoML API
 
@@ -95,52 +130,15 @@ python3 src/demo.py
 python3 src/serve.py
 ```
 
-## LabelStudio
-
-**NOTE:** Documentation WIP
-
-```bash
-conda install conda-forge::psycopg2-binary
-```
-
-```bash
-pip install label-studio>=0.11.0,<=0.12
-```
-
-Run the following command to start a local backend for Label Studio:
-
-```bash
-python3 scripts/serve_label_studio.py
-```
-
-```bash
-# label-studio start ./label-studio/config.xml
-```
-
-### Configuration
-
-### Automated Labeling
-
-## Reference
+## Integrations
 
 ### DVC
 
-![dag](media/dag.png)
+Read more about DVC integration at [docs/dvc.md](docs/dvc.md)
 
-The experiment is managed using DVC. The following is the DAG of the experiment:
+### Label Studio
 
-```bash
-dvc dag
-```
-
-It is divided into the following stages:
-
-- `prepare`
-- `preview`
-- `train`
-- `export`
-- `evaluate`
-- `detect`
+Read more about LabelStudio integration at [docs/labelstudio.md](docs/labelstudio.md)
 
 ## Resources
 

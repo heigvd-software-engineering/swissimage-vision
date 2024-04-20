@@ -5,6 +5,8 @@ from torchvision.io import read_image
 from torchvision.transforms import v2 as T
 from torchvision.transforms.v2 import functional as F
 
+import utils
+
 
 class SolarDataset(Dataset):
     def __init__(
@@ -14,13 +16,16 @@ class SolarDataset(Dataset):
     ):
         self.metadata = metadata
         self.transform = transform
+        self.s3 = utils.s3.get_s3_resource()
 
     def __len__(self):
         return len(self.metadata)
 
     def __getitem__(self, idx):
         sample = self.metadata[idx]
-        image = read_image(sample["image"])
+        bucket, prefix = utils.s3.split_url_to_bucket_and_prefix(sample["image"])
+        image = utils.s3.get_image(self.s3, bucket, prefix)
+        image = F.to_image(image)
 
         targets = {}
         if sample["boxes"]:  # If there are annotations

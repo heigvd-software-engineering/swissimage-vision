@@ -2,3 +2,8 @@
 .env
 __pycache__/
 /lightning_logs
+
+# Terrraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*

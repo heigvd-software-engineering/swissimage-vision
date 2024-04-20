@@ -25,7 +25,7 @@ app.add_middleware(
 
 @app.get("/health")
 async def health():
-    return JSONResponse({"status": "ok"})
+    return JSONResponse({"status": "up"})
 
 
 @app.post("/setup")
@@ -92,20 +92,6 @@ async def predict(request: Request):
             }
         )
     return JSONResponse(content={"results": predictions})
-
-
-@app.get("/files.txt")
-async def files():
-    images = (DATA_ROOT / "images").glob("*.png")
-    urls = [f"http://{HOST}:{PORT}/{image}" for image in images]
-    urls_str = "\n".join(urls)
-    return Response(urls_str, media_type="text/plain")
-
-
-@app.get(f"/{DATA_ROOT}/images/" + "{image_name}")
-async def images(image_name: str):
-    image_path = DATA_ROOT / "images" / image_name
-    return Response(image_path.read_bytes(), media_type="image/png")
 
 
 if __name__ == "__main__":

@@ -1,81 +1,76 @@
 stages:
+  # 1. Pull raw data from DVC remote (SwissBoundaries3D)
+  # 2. Create tiles and upload to S3
   prepare:
-    cmd: python3 src/prepare.py
+    cmd: python3 src/0_prepare.py
     deps:
-      - src/prepare.py
-      - data/raw/solar.zip
-      - data/raw/PV01.zip
-      - data/raw/nyon_tiles
+      - src/0_prepare.py
+      - data/raw/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg
     params:
-      - datamodule.data_root
+      - prepare
     outs:
-      - ${datamodule.data_root}
+      - data/prepared/depends.txt
 
+  # 1. Pull labelstudio annotations from S3
+  # 2. Merge into a single JSON file
+  # 3. Preprocess the annotations
+  # 4. Save it into DVC cache
+  preprocess:
+    cmd: python3 src/1_preprocess.py
+    deps:
+      - src/1_preprocess.py
+      - data/prepared/depends.txt
+    outs:
+      - data/preprocessed/annotations.json
+    always_changed: true
+
+  # 1. Pull some images from S3
+  # 2. Save them into DVC cache
   preview:
-    cmd: python3 src/preview.py
+    cmd: python3 src/2_preview.py
     deps:
-      - src/preview.py
-      - ${datamodule.data_root}
+      - src/2_preview.py
+      - data/preprocessed/annotations.json
     params: 
-      - datamodule.seed
-      - datamodule.data_root
-      - datamodule.split
-      - datamodule.batch_size
-      - datamodule.image_size
+      - train.datamodule.setup
     outs:
       - data/preview
-
+  
+  # Train the model
   train:
-    cmd: python3 src/train.py
+    cmd: python3 src/2_train.py
     deps:
-      - src/train.py
-      - data/preview
-      - ${datamodule.data_root}
+      - src/2_train.py
+      - data/preprocessed/annotations.json
     params: 
-      - datamodule
-      - train
+      - train.datamodule.setup
+      - train.model
+      - train.training
     outs:
       - lightning_logs:
           persist: true
       - out/model.ckpt
-
+  
+  # Convert PyTorch model to BentoML model (TorchScript)
   export:
-    cmd: python3 src/export.py
+    cmd: python3 src/3_export.py
     deps:
-      - src/export.py
+      - src/3_export.py
       - out/model.ckpt
     params:
-      - datamodule.batch_size
-      - datamodule.image_size
+      - train.datamodule.setup.batch_size
+      - train.datamodule.setup.image_size
       - export.model_name
     outs:
       - out/${export.model_name}.bentomodel
 
+  # Evaluate the model
   evaluate:
-    cmd: python3 src/evaluate.py
+    cmd: python3 src/3_evaluate.py
     deps:
-      - src/evaluate.py
+      - src/3_evaluate.py
       - out/model.ckpt
     params: 
-      - datamodule.seed
-      - datamodule.data_root
-      - datamodule.split
-      - datamodule.batch_size
-      - datamodule.image_size
-      - train
+      - train.datamodule.setup
     outs:
       - data/evaluate
-
-  detect:
-    cmd: python3 src/detect_tif.py
-    deps:
-      - src/detect_tif.py
-      - out/model.ckpt
-      - data/raw/nyon.tif
-    params:
-      - datamodule.batch_size
-      - datamodule.image_size
-      - train.seed
-    outs:
-      - out/nyon_solar.gpkg
-

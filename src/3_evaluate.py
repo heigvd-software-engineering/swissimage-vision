@@ -7,11 +7,12 @@ import yaml
 from torchvision.transforms.v2 import functional as F
 
 from dataset.solar_datamodule import SolarDataModule
+from model.fasterrcnn import FasterRCNN
 
 
-def preview(
+def evaluate(
     seed: int,
-    data_root: str,
+    ann_path: Path,
     split: float,
     batch_size: int,
     image_size: int,
@@ -23,8 +24,7 @@ def preview(
     L.seed_everything(seed)
 
     dm = SolarDataModule(
-        ann_dir=Path(data_root) / "annotations",
-        img_dir=Path(data_root) / "images",
+        ann_path=ann_path,
         image_size=image_size,
         seed=seed,
         split=split,
@@ -34,17 +34,29 @@ def preview(
     )
     dm.setup()
 
+    model = FasterRCNN.load_from_checkpoint("out/model.ckpt")
+    device = "cpu"
+    if torch.cuda.is_available():
+        device = "cuda"
+        model = torch.nn.DataParallel(model)
+        model.to(device)
+    model.eval()
+
     output_dir.mkdir(parents=True, exist_ok=True)
 
     sample_count = 0
     for images, targets in dm.train_dataloader():
-        for image, target in zip(images, targets):
+        with torch.no_grad():
+            outputs = model(images)
+        for image, target, output in zip(images, targets, outputs):
             if sample_count == max_samples:
                 return
             image = F.to_dtype(image, torch.uint8, scale=True)
-            boxes = target["boxes"]
             sample = torchvision.utils.draw_bounding_boxes(
-                image, boxes, width=1, colors="blue"
+                image, target["boxes"], width=1, colors="blue"
+            )
+            sample = torchvision.utils.draw_bounding_boxes(
+                sample, output["boxes"], width=1, colors="red"
             )
             print("[INFO] Saved to", str(output_dir / f"sample_{sample_count}.png"))
             torchvision.io.write_png(
@@ -55,10 +67,17 @@ def preview(
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
-    datamodule_params = params["datamodule"]
-    datamodule_params["num_workers"] = 0
-    datamodule_params["pin_memory"] = False
-    preview(**datamodule_params, max_samples=10, output_dir=Path("data/preview"))
+    train_params = params["train"]
+    datamodule_setup_params = train_params["datamodule"]["setup"]
+
+    evaluate(
+        **datamodule_setup_params,
+        ann_path=Path("data/preprocessed/annotations.json"),
+        num_workers=0,
+        pin_memory=False,
+        max_samples=10,
+        output_dir=Path("data/evaluate"),
+    )
 
 
 if __name__ == "__main__":

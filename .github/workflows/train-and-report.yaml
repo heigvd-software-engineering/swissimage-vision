@@ -1,0 +1,113 @@
+name: Train and Report
+
+env:
+  CML_VERSION: 0.20.0
+  NODE_VERSION: 18
+  PYTHON_VERSION: 3.12
+
+on:
+  # Runs on pull requests
+  pull_request:
+    paths:
+      - .github/workflows/train-and-report.yaml
+      - src/**
+      - dvc.lock
+      - dvc.yaml
+      - params.yaml
+      - requirements-freeze.txt
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Allow the creation and usage of self-hosted runners
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  setup-runner:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+      - name: Initialize runner on Kubernetes
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        run: |
+          echo "$KUBECONFIG_DATA" > kubeconfig
+          export KUBECONFIG=kubeconfig
+          kubectl apply -f infra/github-runner/runner-gpu.yaml
+
+  train-and-report:
+    permissions: write-all
+    needs: setup-runner
+    runs-on: [self-hosted, gpu-runner]
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
+        run: pip install -r requirements-freeze.txt
+      - name: Run DVC pipeline
+        run: |
+          dvc pull
+          dvc status
+          dvc repro
+      - name: Push the outcomes to DVC remote storage
+        run: dvc push
+      - name: Commit changes in dvc.lock
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Commit changes in dvc.lock
+          file_pattern: dvc.lock
+      # Node is required to run CML
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Setup CML
+        uses: iterative/setup-cml@v2
+        with:
+          version: ${{ env.CML_VERSION }}
+      - name: Create CML report
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Fetch all other Git branches
+          git fetch --depth=1 origin main:main
+
+          # Add title to the report
+          echo "# Experiment Report (${{ github.sha }})" >> report.md
+
+          # Compare parameters to main branch
+          echo "## Params workflow vs. main" >> report.md
+          dvc params diff main --md >> report.md
+
+          # Publish the CML report
+          cml comment update --target=pr --publish report.md
+
+  cleanup-runner:
+    needs: train-and-report
+    runs-on: self-hosted
+    if: success() || failure()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+      - name: Cleanup runner on Kubernetes
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        run: |
+          echo "$KUBECONFIG_DATA" > kubeconfig
+          export KUBECONFIG=kubeconfig
+          kubectl delete --wait=false -f infra/github-runner/runner-gpu.yaml

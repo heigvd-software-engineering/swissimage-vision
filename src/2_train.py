@@ -17,13 +17,14 @@ from model.fasterrcnn import FasterRCNN
 
 
 def train(
-    seed: int,
-    data_root: str,
+    dm_seed: int,
+    ann_path: Path,
     split: float,
     batch_size: int,
     image_size: int,
     num_workers: int,
     pin_memory: bool,
+    seed: int,
     num_classes: int,
     trainable_backbone_layers: int,
     lr: float,
@@ -39,10 +40,9 @@ def train(
     L.seed_everything(seed)
 
     dm = SolarDataModule(
-        ann_dir=Path(data_root) / "annotations",
-        img_dir=Path(data_root) / "images",
+        ann_path=ann_path,
         image_size=image_size,
-        seed=seed,
+        seed=dm_seed,
         split=split,
         batch_size=batch_size,
         num_workers=num_workers,
@@ -81,7 +81,7 @@ def train(
         )
 
     trainer = L.Trainer(
-        log_every_n_steps=10,
+        log_every_n_steps=5,
         max_epochs=epochs,
         precision=precision if precision else "32-true",
         strategy=(
@@ -133,11 +133,19 @@ def train(
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
-    datamodule_params = params["datamodule"]
-    datamodule_params.pop("seed")
     train_params = params["train"]
+    datamodule_params = train_params["datamodule"]
+    datamodule_setup_params = datamodule_params["setup"]
+    datamodule_setup_params["dm_seed"] = datamodule_setup_params.pop("seed")
 
-    train(**datamodule_params, **train_params)
+    train(
+        **datamodule_setup_params,
+        ann_path=Path("data/preprocessed/annotations.json"),
+        num_workers=datamodule_params["num_workers"],
+        pin_memory=datamodule_params["pin_memory"],
+        **train_params["model"],
+        **train_params["training"],
+    )
 
 
 if __name__ == "__main__":
