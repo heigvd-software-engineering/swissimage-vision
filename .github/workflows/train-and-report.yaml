@@ -27,43 +27,27 @@ permissions:
 jobs:
   setup-runner:
     runs-on: self-hosted
-    container: docker://ghcr.io/iterative/cml:0-dvc3-base1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      # - uses: hashicorp/setup-terraform@v3
-      # - uses: actions/setup-node@v4
-      #   with:
-      #     node-version: ${{ env.NODE_VERSION }}
-      - uses: iterative/setup-cml@v2
-        with:
-          version: ${{ env.CML_VERSION }}
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
       - name: Initialize runner on Kubernetes
         env:
-          REPO_TOKEN: ${{ secrets.PAT }}
-          KUBERNETES_CONFIGURATION: ${{ secrets.KUBECONFIG }}
-        run: |
-          cml runner \
-            --labels="cml-runner" \
-            --cloud="kubernetes" \
-            --cloud-kubernetes-node-selector="nvidia.com/gpu.present=true" \
-            --single
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: kubectl apply -f infra/github-runner/runner-gpu.yaml
 
   train-and-report:
     permissions: write-all
     needs: setup-runner
-    runs-on: [self-hosted, cml-runner]
-    container:
-      image: docker://ghcr.io/iterative/cml:0-dvc3-base1
-      # Configure the container limits
-      options: --cpus 16 --memory 64gb --gpus '"device=0"' --shm-size=38gb
+    runs-on: [self-hosted, gpu-runner]
     env:
       AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -80,11 +64,11 @@ jobs:
         with:
           commit_message: Commit changes in dvc.lock
           file_pattern: dvc.lock
-        # Node is required to run CML
-      # - name: Setup Node
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: ${{ env.NODE_VERSION }}
+      # Node is required to run CML
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - name: Setup CML
         uses: iterative/setup-cml@v2
         with:
@@ -105,3 +89,16 @@ jobs:
 
           # Publish the CML report
           cml comment update --target=pr --publish report.md
+
+  free-runner:
+    needs: train-and-report
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+      - name: Initialize runner on Kubernetes
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: kubectl delete -f infra/github-runner/runner-gpu.yaml
