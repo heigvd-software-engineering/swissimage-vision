@@ -27,13 +27,14 @@ permissions:
 jobs:
   setup-runner:
     runs-on: self-hosted
+    container: docker://ghcr.io/iterative/cml:0-dvc3-base1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+      # - uses: hashicorp/setup-terraform@v3
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: ${{ env.NODE_VERSION }}
       - uses: iterative/setup-cml@v2
         with:
           version: ${{ env.CML_VERSION }}
@@ -52,8 +53,8 @@ jobs:
     permissions: write-all
     needs: setup-runner
     runs-on: [self-hosted, cml-runner]
-    container:       
-      image: iterativeai/cml:0-dvc2-base0-gpu  
+    container:
+      image: docker://ghcr.io/iterative/cml:0-dvc3-base1
       # Configure the container limits
       options: --cpus 16 --memory 64gb --gpus '"device=0"' --shm-size=38gb
     env:
@@ -72,7 +73,7 @@ jobs:
         run: pip install -r requirements-freeze.txt
       - name: Run DVC pipeline
         run: dvc repro --pull
-      - name: Push the outcomes to DVC remote storage 
+      - name: Push the outcomes to DVC remote storage
         run: dvc push
       - name: Commit changes in dvc.lock
         uses: stefanzweifel/git-auto-commit-action@v5
@@ -80,10 +81,10 @@ jobs:
           commit_message: Commit changes in dvc.lock
           file_pattern: dvc.lock
         # Node is required to run CML
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+      # - name: Setup Node
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: ${{ env.NODE_VERSION }}
       - name: Setup CML
         uses: iterative/setup-cml@v2
         with:
