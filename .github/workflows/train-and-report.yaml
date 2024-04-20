@@ -96,7 +96,7 @@ jobs:
   cleanup-runner:
     needs: train-and-report
     runs-on: self-hosted
-    if: always()
+    if: success() | failure()
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
