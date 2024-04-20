@@ -9,7 +9,7 @@ spec:
   - name: dshm
     emptyDir:
       medium: Memory
-      sizeLimit: 38Gi
+      sizeLimit: 16Gi
   containers:
   - name: github-runner-gpu
     image: ghcr.io/heigvd-software-engineering/swissimage-vision/github-runner:latest
