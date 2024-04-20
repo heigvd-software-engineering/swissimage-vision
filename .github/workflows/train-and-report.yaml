@@ -32,9 +32,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
-      - name: Initialize runner on Kubernetes
+      - name: Setup kubeconfig
         env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        run: |
+          echo "$KUBECONFIG_DATA" > kubeconfig
+          export KUBECONFIG=kubeconfig
+      - name: Initialize runner on Kubernetes
         run: kubectl apply -f infra/github-runner/runner-gpu.yaml
 
   train-and-report:
@@ -90,7 +94,7 @@ jobs:
           # Publish the CML report
           cml comment update --target=pr --publish report.md
 
-  free-runner:
+  cleanup-runner:
     needs: train-and-report
     runs-on: self-hosted
     steps:
@@ -98,7 +102,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
-      - name: Initialize runner on Kubernetes
+      - name: Setup kubeconfig
         env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        run: |
+          echo "$KUBECONFIG_DATA" > kubeconfig
+          export KUBECONFIG=kubeconfig
+      - name: Cleanup runner on Kubernetes
         run: kubectl delete -f infra/github-runner/runner-gpu.yaml
