@@ -7,31 +7,19 @@ metadata:
 spec:
   containers:
   - name: github-runner
-    image: ubuntu:22.04
+    image: ghcr.io/heigvd-software-engineering/swissimage-vision/github-runner:latest
     env:
-      # Needed for the GitHub Actions Runner
-      - name: RUNNER_ALLOW_RUNASROOT
-        value: "1"
-    command: ["/bin/bash", "-c"]
-    args:
-      - |
-        # Install dependencies
-        apt-get update && apt-get install -y \
-                          curl python3 \
-                          python3-pip gpg wget \
-                          git unzip tar
-
-        # Install GitHub Actions Runner
-        mkdir actions-runner && cd actions-runner
-        curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
-        tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
-
-        echo "[INFO] Runner ready"
-        sleep infinity
+    - name: GITHUB_RUNNER_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: github-runner-token
+          key: token
+    securityContext:
+      runAsUser: 1000
     resources:
       limits:
-        cpu: "8"
+        cpu: "4"
         memory: "2Gi"
       requests:
-        cpu: "8"
+        cpu: "4"
         memory: "2Gi"

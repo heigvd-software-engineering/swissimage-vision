@@ -5,10 +5,11 @@
 - [Deploy GitHub Runner](#deploy-github-runner)
 - [Action Workflow Configuration](#action-workflow-configuration)
   - [Node affinity](#node-affinity)
+- [Building the Docker image](#building-the-docker-image)
 
 ## Overview
 
-This guide explains how to deploy a self-hosted GitHub runner to a Kubernetes cluster. The runner is used to execute the GitHub Action workflows defined in the repository.
+This page explains how to deploy a self-hosted GitHub runner to a Kubernetes cluster. The runner is used to execute the GitHub Action workflows defined in the repository.
 
 ## Configuring the Repository
 
@@ -23,39 +24,26 @@ This guide explains how to deploy a self-hosted GitHub runner to a Kubernetes cl
 
 ## Deploy GitHub Runner
 
-1. Deploy runner to Kubernetes cluster:
+First, you need to create a Kubernetes secret to store the runner token. Run the following command to create the secret:
 
-   ```bash
-   kubectl apply -f infra/github-runner/runner.yaml
-   ```
+```bash
+printf "Enter your GitHub runner token: " && read TOKEN \
+   && kubectl create secret generic github-runner-token --from-literal=token=$TOKEN
+```
 
-2. Configure runner with the GitHub repository:
+To deploy runner to Kubernetes cluster, run the following command:
 
-   ```bash
-   # Connect to the runner pod
-   kubectl exec -it github-runner -- bash
-   ```
+```bash
+kubectl apply -f runner.yaml
+```
 
-   ```bash
-   # Run the configuration script
-   cd actions-runner
-   ./config.sh --token <your-token>
-   ```
+This will deploy a GitHub runner pod named `github-runner` in your current namespace.
 
-   > [!NOTE]
-   > You might be prompted to install some extra dependencies. Follow the instructions and re-run the configure script.
+You can check the runner logs with the following command:
 
-3. Start the runner with the following command:
-
-   ```bash
-   nohup ./run.sh &> runner.log &
-   ```
-
-   This will start the runner in the background. You can check the logs with the following command:
-
-   ```bash
-   tail -f runner.log
-   ```
+```bash
+kubectl logs -f github-runner
+```
 
 ## Action Workflow Configuration
 
@@ -70,3 +58,22 @@ cml runner \
    --cloud-kubernetes-node-selector="<your-selector>" \
    --single
 ```
+
+## Building the Docker image
+
+1. Authenticate to the GitHub Container Registry. See [GitHub documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry) for more information.
+
+2. Build docker image 
+
+   ```bash
+   docker build -t ghcr.io/heigvd-software-engineering/swissimage-vision/github-runner:latest .
+   ```
+
+3. Push the docker image to the GitHub Container Registry
+
+   ```bash
+   docker push ghcr.io/heigvd-software-engineering/swissimage-vision/github-runner:latest
+   ```
+
+> [!NOTE]
+> Make sure to set the image visibility to `Public` in the GitHub Container Registry settings.
