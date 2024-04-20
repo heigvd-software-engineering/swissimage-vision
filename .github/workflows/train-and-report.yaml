@@ -67,7 +67,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run DVC pipeline
-        run: dvc repro --pull --allow-missing
+        run: dvc repro --pull
+      - name: Push the outcomes to DVC remote storage 
+        run: dvc push
+      - name: Commit changes in dvc.lock
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Commit changes in dvc.lock
+          file_pattern: dvc.lock
         # Node is required to run CML
       - name: Setup Node
         uses: actions/setup-node@v4
