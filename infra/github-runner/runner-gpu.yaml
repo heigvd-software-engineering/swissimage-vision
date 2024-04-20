@@ -8,7 +8,6 @@ spec:
   containers:
   - name: github-runner-gpu
     image: ghcr.io/heigvd-software-engineering/swissimage-vision/github-runner:latest
-    command: ["/bin/bash", "-c", "sleep infinity"]
     env:
     - name: GITHUB_RUNNER_LABELS
       value: "gpu-runner"
