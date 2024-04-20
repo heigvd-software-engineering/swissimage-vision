@@ -23,7 +23,7 @@ train:
       batch_size: 16
       image_size: 384  # Image size for the model
     num_workers: 8     # Split evenly between train and val dataloaders
-    pin_memory: false
+    pin_memory: true
   model:
     seed: 42        # Random seed for model initialization
     num_classes: 2  # No solar panel & solar panel

@@ -49,13 +49,17 @@ jobs:
             --single
 
   train-and-report:
+    permissions: write-all
+    needs: setup-runner
+    runs-on: [self-hosted, cml-runner]
+    container:       
+      image: docker://iterativeai/cml:0-dvc2-base0-gpu  
+      # Configure the container limits
+      options: --cpus 16 --memory 64gb --gpus 1 --shm-size=38gb
     env:
       AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    permissions: write-all
-    needs: setup-runner
-    runs-on: [self-hosted, cml-runner]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
