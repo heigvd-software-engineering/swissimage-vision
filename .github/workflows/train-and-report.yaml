@@ -14,7 +14,7 @@ on:
       - dvc.lock
       - dvc.yaml
       - params.yaml
-      - requirements.txt
+      - requirements-freeze.txt
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -55,7 +55,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: pip
       - name: Install dependencies
         run: pip install -r requirements-freeze.txt
       - name: Run DVC pipeline

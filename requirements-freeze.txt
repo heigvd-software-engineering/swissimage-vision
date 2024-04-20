@@ -114,9 +114,6 @@ packaging==24.0
 pandas==2.2.2
 pathspec==0.12.1
 pillow==10.3.0
-pip==23.3.1
-pip-requirements-parser==32.0.1
-pip-tools==7.4.1
 platformdirs==3.11.0
 prometheus_client==0.20.0
 prompt-toolkit==3.0.43
@@ -150,7 +147,6 @@ s3transfer==0.10.1
 schema==0.7.5
 scmrepo==3.3.1
 semver==3.0.2
-setuptools==69.5.1
 shapely==2.0.4
 shellingham==1.5.4
 shortuuid==1.0.13
