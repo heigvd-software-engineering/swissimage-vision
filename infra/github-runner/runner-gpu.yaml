@@ -5,9 +5,17 @@ metadata:
   labels:
     app: github-runner-gpu
 spec:
+  volumes:
+  - name: dshm
+    emptyDir:
+      medium: Memory
+      sizeLimit: 38Gi
   containers:
   - name: github-runner-gpu
     image: ghcr.io/heigvd-software-engineering/swissimage-vision/github-runner:latest
+    volumeMounts:
+    - name: dshm
+      mountPath: /dev/shm
     env:
     - name: GITHUB_RUNNER_LABELS
       value: "gpu-runner"
@@ -27,3 +35,4 @@ spec:
         cpu: "16"
         memory: "64Gi"
         nvidia.com/gpu: "1"
+
