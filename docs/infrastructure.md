@@ -36,6 +36,9 @@ The workflow `train-and-report.yaml` is triggered when a pull request is opened 
 - Create a Kubernetes job with CML
 - Run `dvc repro` and `cml comment` (reporting)
 
+> [!NOTE]
+> CML creates a Kubernetes job with a node affinity to run on a node with GPU. This has the limitation that resource limits are not enforced and the job can consume all available resources on the node.
+
 ## Reference
 
 ### Configuration
@@ -47,6 +50,7 @@ Make sure to configure the repository access settings to restrict access to the 
 #### Branch protection rules
 
 In your repository, go to `Settings` -> `Branches`. Add `main` branch protection rules to the repository settings. The rules should include:
+
 - Check "Require a pull request before merging"
 - Uncheck "Allow force pushes"
 - Uncheck "Allow deletions"

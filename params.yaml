@@ -22,8 +22,8 @@ train:
       split: 0.8       # train = split * total
       batch_size: 16
       image_size: 384  # Image size for the model
-    num_workers: 2     # Split evenly between train and val dataloaders
-    pin_memory: true
+    num_workers: 8     # Split evenly between train and val dataloaders
+    pin_memory: false
   model:
     seed: 42        # Random seed for model initialization
     num_classes: 2  # No solar panel & solar panel
