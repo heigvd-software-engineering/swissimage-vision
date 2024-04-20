@@ -32,14 +32,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
-      - name: Setup kubeconfig
+      - name: Initialize runner on Kubernetes
         env:
           KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
         run: |
           echo "$KUBECONFIG_DATA" > kubeconfig
           export KUBECONFIG=kubeconfig
-      - name: Initialize runner on Kubernetes
-        run: kubectl apply -f infra/github-runner/runner-gpu.yaml
+          kubectl apply -f infra/github-runner/runner-gpu.yaml
 
   train-and-report:
     permissions: write-all
@@ -102,11 +101,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
-      - name: Setup kubeconfig
+      - name: Cleanup runner on Kubernetes
         env:
           KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
         run: |
           echo "$KUBECONFIG_DATA" > kubeconfig
           export KUBECONFIG=kubeconfig
-      - name: Cleanup runner on Kubernetes
-        run: kubectl delete -f infra/github-runner/runner-gpu.yaml
+          kubectl delete -f infra/github-runner/runner-gpu.yaml
