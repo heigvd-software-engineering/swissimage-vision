@@ -53,7 +53,7 @@ jobs:
     needs: setup-runner
     runs-on: [self-hosted, cml-runner]
     container:       
-      image: docker://iterativeai/cml:0-dvc2-base0-gpu  
+      image: iterativeai/cml:0-dvc2-base0-gpu  
       # Configure the container limits
       options: --cpus 16 --memory 64gb --gpus '"device=0"' --shm-size=38gb
     env:
