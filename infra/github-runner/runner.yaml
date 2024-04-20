@@ -9,6 +9,7 @@ spec:
   - name: github-runner
     image: ubuntu:22.04
     env:
+      # Needed for the GitHub Actions Runner
       - name: RUNNER_ALLOW_RUNASROOT
         value: "1"
     command: ["/bin/bash", "-c"]

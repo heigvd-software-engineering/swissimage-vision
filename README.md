@@ -1,15 +1,15 @@
 # SwissImage Vision
 
-- [TODO](#todo)
+- [Overview](#overview)
+- [Work in Progress](#work-in-progress)
   - [Label Studio](#label-studio)
   - [CML](#cml)
   - [Model](#model)
-- [About](#about)
 - [Installation](#installation)
+  - [Setup Conda Environment](#setup-conda-environment)
   - [Setup DVC](#setup-dvc)
 - [Reproduce the Experiment](#reproduce-the-experiment)
 - [Serving the Model](#serving-the-model)
-  - [Gradio Demo](#gradio-demo)
   - [BentoML API](#bentoml-api)
 - [Integrations](#integrations)
   - [DVC](#dvc)
@@ -18,34 +18,30 @@
   - [Data](#data)
   - [Projects](#projects)
 
-![Demo](media/demo.png)
+## Overview
 
-## TODO
+The goal of this project is to detect solar panels in aerial images (SwissImage 0.1m) using deep learning.
+
+MLOps practices are used to manage the project, including DVC for data versioning, Label Studio for data labeling, and BentoML for model serving. This allows for reproducibility, collaboration and scalability of the project.
+
+## Work in Progress
 
 ### Label Studio
 
 - [ ] Documentation for Label Studio
+
   - [ ] Installation locally
   - [ ] Installation on Kubernetes
   - [ ] Configuration
 
 - [ ] Deploy label studio instance
+
   - [ ] Add label studio configuration
 
 - [ ] (Deploy BentoML API to Kubernetes cluster)
 - [ ] (Deploy label studio model backend)
 
 ### CML
-
-- [ ] Documentation for CML
-  - [ ] PR preview
-  - [ ] GitHub repository setup (prevent fork to run actions)
-  - [ ] (Diagram)
-
-- [x] CML training on Kubernetes cluster
-  - [x] Self hosted runner
-
-- [x] PR and main branch CI/CD
 
 - [ ] CML reporting
   - [ ] Better model evaluation metrics and plots
@@ -56,15 +52,20 @@
 - [ ] Detection yaml job on whole dataset
 - [ ] Label more data
 
-## About
-
-The goal of this project is to detect solar panels in aerial images (SwissImage 0.1m) using deep learning.
-
-MLOps practices are used to manage the project, including DVC for data versioning, Label Studio for data labeling, and BentoML for model serving. This allows for reproducibility, collaboration and scalability of the project.
-
 ## Installation
 
-If you don't have Conda installed, you can run the following script to install it:
+Clone the repository:
+
+```bash
+git clone https://github.com/heigvd-software-engineering/swissimage-vision.git
+cd swissimage-vision
+```
+
+### Setup Conda Environment
+
+Installing MiniConda is optional but is recommended in environments where you do not have sudo access to install system packages. You can skip this step
+
+To install MiniConda, you can run the following script to install it:
 
 ```bash
 ./scripts/install_conda.sh
@@ -111,14 +112,14 @@ tensorboard --logdir lightning_logs
 ```
 
 ## Serving the Model
-
+<!-- DEPRECATED
 ### Gradio Demo
 
 Run the following command to start the Gradio demo interface:
 
 ```bash
 python3 src/demo.py
-```
+``` -->
 
 ### BentoML API
 

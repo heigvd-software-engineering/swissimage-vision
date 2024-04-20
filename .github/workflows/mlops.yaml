@@ -2,19 +2,10 @@ name: MLOps
 
 env:
   CML_VERSION: 0.20.0
+  NODE_VERSION: 18
+  PYTHON_VERSION: 3.12
 
 on:
-  # Runs on pushes targeting main branch
-  push:
-    branches:
-      - main
-    paths:
-      - src/**
-      - dvc.lock
-      - dvc.yaml
-      - params.yaml
-      - requirements.txt
-
   # Runs on pull requests
   pull_request:
     paths:
@@ -41,7 +32,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
       - uses: iterative/setup-cml@v2
         with:
           version: ${{ env.CML_VERSION }}
@@ -70,7 +61,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -79,9 +70,9 @@ jobs:
         # Node is required to run CML
       - name: Setup Node
         if: github.event_name == 'pull_request'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: ${{ env.NODE_VERSION }}
       - name: Setup CML
         if: github.event_name == 'pull_request'
         uses: iterative/setup-cml@v2
