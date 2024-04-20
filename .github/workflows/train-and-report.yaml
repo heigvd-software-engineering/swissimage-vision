@@ -108,4 +108,4 @@ jobs:
         run: |
           echo "$KUBECONFIG_DATA" > kubeconfig
           export KUBECONFIG=kubeconfig
-          kubectl delete -f infra/github-runner/runner-gpu.yaml
+          kubectl delete --wait=false -f infra/github-runner/runner-gpu.yaml
