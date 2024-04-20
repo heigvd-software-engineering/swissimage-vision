@@ -11,6 +11,8 @@
 
 This page explains how to deploy a self-hosted GitHub runner to a Kubernetes cluster. The runner is used to execute the GitHub Action workflows defined in the repository.
 
+The runner uses a custom Docker image that includes the necessary dependencies to run the workflows. The Docker image is built and pushed to the GitHub Container Registry.
+
 ## Configuring the Repository
 
 > [!CAUTION]
@@ -55,7 +57,7 @@ In the `.github/workflows/train-and-report.yaml` file, we have defined a node af
 cml runner \
    --labels="cml-runner" \
    --cloud="kubernetes" \
-   --cloud-kubernetes-node-selector="<your-selector>" \
+   --cloud-kubernetes-node-selector="<YOUR_SELECTOR>" \
    --single
 ```
 

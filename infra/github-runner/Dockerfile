@@ -1,12 +1,12 @@
 FROM ubuntu:22.04
 LABEL org.opencontainers.image.source="https://github.com/heigvd-software-engineering/swissimage-vision"
 
-
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3 python3-pip \
     curl vim gpg wget \
-    git unzip tar 
+    git unzip tar
 
 # Add a non-root user
 RUN useradd -m runner

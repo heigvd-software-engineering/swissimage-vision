@@ -7,6 +7,7 @@
   - [Model](#model)
 - [Installation](#installation)
   - [Setup Conda Environment](#setup-conda-environment)
+  - [Install Dependencies](#install-dependencies)
   - [Setup DVC](#setup-dvc)
 - [Reproduce the Experiment](#reproduce-the-experiment)
 - [Serving the Model](#serving-the-model)
@@ -77,6 +78,8 @@ Next, restart your terminal and create a new conda environment and install the d
 conda create --name swissimage-vision python=3.12 pip
 conda activate swissimage-vision
 ```
+
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
