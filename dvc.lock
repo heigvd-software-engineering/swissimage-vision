@@ -59,20 +59,20 @@ stages:
     outs:
     - path: lightning_logs
       hash: md5
-      md5: e950762f942fe91421562a4fd562c25f.dir
-      size: 691167508
+      md5: 8dc94cfbc885bc7366cfb3686c770b6d.dir
+      size: 691167636
       nfiles: 4
     - path: out/model.ckpt
       hash: md5
-      md5: 10a8b1374ac0acf919fab09b58812b94
-      size: 345578472
+      md5: 6d9c39892a0b81ac1bb982231e85071e
+      size: 345578536
   evaluate:
     cmd: python3 src/3_evaluate.py
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: 10a8b1374ac0acf919fab09b58812b94
-      size: 345578472
+      md5: 6d9c39892a0b81ac1bb982231e85071e
+      size: 345578536
     - path: src/3_evaluate.py
       hash: md5
       md5: 72bd7e68835278190fc189f77ebad50f
@@ -87,8 +87,8 @@ stages:
     outs:
     - path: data/evaluate
       hash: md5
-      md5: 03c1e869d27bb557e74112699c364423.dir
-      size: 2748356
+      md5: ad76615db83783d7054f8394608038a6.dir
+      size: 2737707
       nfiles: 10
   prepare:
     cmd: python3 src/0_prepare.py
@@ -146,8 +146,8 @@ stages:
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: 10a8b1374ac0acf919fab09b58812b94
-      size: 345578472
+      md5: 6d9c39892a0b81ac1bb982231e85071e
+      size: 345578536
     - path: src/3_export.py
       hash: md5
       md5: 59a8788833533e7f0588db33e891b721
@@ -160,8 +160,8 @@ stages:
     outs:
     - path: out/solar_model_gpu.bentomodel
       hash: md5
-      md5: 85d8e53885927397b89fefb8b92f9cac
-      size: 159962844
+      md5: b5cf8a33c5e7c949e4a644dc20d3b40d
+      size: 159970576
   extract_tiles:
     cmd: python3 src/0_extract_tiles.py
     deps:
