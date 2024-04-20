@@ -1,4 +1,0 @@
-GDAL>=3.8.4,<3.9
-minio>=7.2.5,<7.3
-python_dotenv>=1.0.1,<1.1
-matplotlib>=3.8.3,<3.9
