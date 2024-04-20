@@ -58,7 +58,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements-freeze.txt
       - name: Run DVC pipeline
-        run: dvc repro --pull
+        run: |
+          dvc pull
+          dvc status
+          dvc repro
       - name: Push the outcomes to DVC remote storage
         run: dvc push
       - name: Commit changes in dvc.lock
