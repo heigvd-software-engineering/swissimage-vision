@@ -61,7 +61,7 @@ This guide explains how to deploy a self-hosted GitHub runner to a Kubernetes cl
 
 ### Node affinity
 
-In the `.github/workflows/mlops.yaml` file, we have defined a node affinity to run the CML job on a node with GPU. You might need to adjust the node affinity based on your cluster configuration.
+In the `.github/workflows/train-and-report.yaml` file, we have defined a node affinity to run the CML job on a node with GPU. You might need to adjust the node affinity based on your cluster configuration.
 
 ```bash
 cml runner \

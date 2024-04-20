@@ -31,7 +31,7 @@ This guide explains the infrastructure used in the repository and how to configu
 
 The GitHub Action workflows are defined in the `.github/workflows` directory.
 
-The workflow `mlops.yaml` is triggered when a pull request is opened or updated. The workflow runs the following steps:
+The workflow `train-and-report.yaml` is triggered when a pull request is opened or updated. The workflow runs the following steps:
 
 - Create a Kubernetes job with CML
 - Run `dvc repro` and `cml comment` (reporting)
