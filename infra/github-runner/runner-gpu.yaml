@@ -10,7 +10,7 @@ spec:
     image: ghcr.io/heigvd-software-engineering/swissimage-vision/github-runner:latest
     env:
     - name: GITHUB_RUNNER_LABELS
-      value: gpu-runner
+      value: "gpu-runner"
     - name: GITHUB_RUNNER_TOKEN
       valueFrom:
         secretKeyRef:
