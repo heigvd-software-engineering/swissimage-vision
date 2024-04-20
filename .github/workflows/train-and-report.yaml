@@ -1,4 +1,4 @@
-name: MLOps
+name: Train and Report
 
 env:
   CML_VERSION: 0.20.0
@@ -9,6 +9,7 @@ on:
   # Runs on pull requests
   pull_request:
     paths:
+      - .github/workflows/train-and-report.yaml
       - src/**
       - dvc.lock
       - dvc.yaml
@@ -69,17 +70,14 @@ jobs:
         run: dvc repro --pull --allow-missing
         # Node is required to run CML
       - name: Setup Node
-        if: github.event_name == 'pull_request'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Setup CML
-        if: github.event_name == 'pull_request'
         uses: iterative/setup-cml@v2
         with:
           version: ${{ env.CML_VERSION }}
       - name: Create CML report
-        if: github.event_name == 'pull_request'
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -95,11 +93,3 @@ jobs:
 
           # Publish the CML report
           cml comment update --target=pr --publish report.md
-
-  # deploy:
-  #   # Runs on main branch only
-  #   if: github.ref == 'refs/heads/main'
-  #   needs: train-and-report
-  #   name: Call Deploy
-  #   uses: ./.github/workflows/mlops-deploy.yml
-  #   secrets: inherit
