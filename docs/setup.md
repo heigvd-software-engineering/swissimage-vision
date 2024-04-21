@@ -6,6 +6,7 @@
   - [Branch protection rules](#branch-protection-rules)
   - [Repository Secrets](#repository-secrets)
   - [Self-hosted GitHub Runner](#self-hosted-github-runner)
+  - [Dependencies](#dependencies)
 - [Deploy Label Studio](#deploy-label-studio)
 
 ## Overview
@@ -55,10 +56,22 @@ The Kubernetes configuration file to access the Kubernetes cluster.
 
 ### Self-hosted GitHub Runner
 
-We use a self-hosted GitHub runner to execute the GitHub Action workflows on a on-premises Kubernetes cluster. The runner listens for jobs from GitHub Actions and creates Kubernetes jobs to execute the workflows using CML.
+We use a self-hosted GitHub runner to execute the GitHub Action workflows on a on-premises Kubernetes cluster. The runner listens for jobs from GitHub Actions and creates GPU runner pods on the Kubernetes cluster to execute the jobs.
 
 To see more information about configuring a self-hosted GitHub runner, see the [../infra/github-runner/README.md](../infra/github-runner/README.md) file.
 
+### Dependencies
+
+The python dependencies for the GPU runner are listed in the `requirements-freeze.txt` file. The dependencies are installed in the Docker image used by the runner. This speeds up the workflow execution by avoiding dependency resolution and makes the workflow more reproducible.
+
+To update the dependencies, run the following command:
+
+```bash
+pip freeze > requirements-freeze.txt
+```
+
+> [!IMPORTANT]
+> For compatibility reasons, the dependencies are frozen on the same machine that the runner is running on. If you are using a different machine, you need to freeze the dependencies on that machine and update the `requirements-freeze.txt` file.
 
 ## Deploy Label Studio
 

@@ -70,8 +70,8 @@ In this directory, you can find a Python script that uses the Label Studio API t
    LABEL_STUDIO_TOKEN=...
    ```
 
-   > [!NOTE]
-   > The `LABEL_STUDIO_TOKEN` can be found in the Label Studio UI under `Account & Settings` in the top right corner.
+> [!NOTE]
+> The `LABEL_STUDIO_TOKEN` can be found in the Label Studio UI under `Account & Settings` in the top right corner.
 
 3. Install the required dependencies.
 
