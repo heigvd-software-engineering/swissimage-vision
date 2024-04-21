@@ -5,7 +5,8 @@
 - [Deploy GitHub Runner](#deploy-github-runner)
   - [GPU Runner](#gpu-runner)
     - [Alternatives](#alternatives)
-- [Building the Docker image](#building-the-docker-image)
+- [Building the Docker Image](#building-the-docker-image)
+- [Uninstalling the GitHub Runner](#uninstalling-the-github-runner)
 - [Resources](#resources)
 
 ## Overview
@@ -38,7 +39,7 @@ printf "Enter your GitHub runner PAT: " && read TOKEN \
    && kubectl create secret generic github-runner-pat --from-literal=token=$TOKEN
 ```
 
-To deploy runner to Kubernetes cluster, run the following command:
+To deploy runner to Kubernetes cluster, run navigate to this folder and the following command:
 
 ```bash
 kubectl apply -f runner.yaml
@@ -64,7 +65,7 @@ CML also provides a way to deploy a self-hosted runner using the `cml runner` co
 - Docker-in-Docker is required to increase the shared memory size, which can be a security risk.
 - The runner does not have resources limits, it is limited to node affinity.
 
-## Building the Docker image
+## Building the Docker Image
 
 1. Authenticate to the GitHub Container Registry. See [GitHub documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry) for more information.
 
@@ -82,6 +83,14 @@ CML also provides a way to deploy a self-hosted runner using the `cml runner` co
 
 > [!NOTE]
 > Make sure to set the image visibility to `Public` in the GitHub Container Registry settings.
+
+## Uninstalling the GitHub Runner
+
+To remove the runner from the Kubernetes cluster, run the following command:
+
+```bash
+kubectl delete -f runner.yaml
+```
 
 ## Resources
 
