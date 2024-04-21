@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
     build-essential lsb-release \
     python3 python3-pip \
     curl jq vim gpg wget \
-    git unzip tar
+    git unzip tar gettext-base
 
 # Add a non-root user
 RUN useradd -m runner
