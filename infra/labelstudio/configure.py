@@ -1,71 +1,99 @@
 import os
-from pathlib import Path
+from typing import Optional
 
-import yaml
 from dotenv import load_dotenv
-from label_studio_sdk import Client
-from label_studio_sdk.project import ProjectSampling
+from requests.sessions import Session
 
 
-def configure(ls: Client, bucket: str):
-    print("[INFO] Configuring Label Studio...")
-    # 1. Create a new project
-    # https://labelstud.io/sdk/project.html#label_studio_sdk.project.Project.start_project
-    project = ls.start_project(
-        title="Swissimage Vision",
-        description="Label satellite images for Swissimage Vision",
-        label_config=(Path(__file__).resolve().parent / "label_config.xml").read_text(),
-        show_skip_button=True,
-        enable_empty_annotation=True,
-        show_annotation_history=True,
-        sampling=ProjectSampling.RANDOM.value,
-        evaluate_predictions_automatically=False,
-    )
-    # 2. Create import storage
-    import_storage = project.connect_s3_import_storage(
-        bucket=bucket,
-        prefix="data/prepared/images",
-        regex_filter=r".*\.png",
-        use_blob_urls=True,
-        presign=True,
-        title="Swissimage Vision Images",
-        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-        s3_endpoint="https://" + os.environ["AWS_S3_ENDPOINT"],
-    )
-    project.sync_storage(
-        storage_type=import_storage["type"], storage_id=import_storage["id"]
-    )
-    # 3. Create export storage
-    export_storage = project.connect_s3_export_storage(
-        bucket=bucket,
-        prefix="data/prepared/annotations",
-        title="Swissimage Vision Annotations",
-        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-        s3_endpoint="https://" + os.environ["AWS_S3_ENDPOINT"],
-        can_delete_objects=True,
-    )
-    project.sync_storage(
-        storage_type=export_storage["type"], storage_id=export_storage["id"]
-    )
-    print("[INFO] Configuration completed")
+class LabelStudioSession:
+    def __init__(self, host: str, token: str):
+        self.session = Session()
+        self.session.headers.update({"Authorization": "Token " + token})
+        self.session.base_url = host
+
+    def request(self, method: str, url: str, data: Optional[dict] = None) -> dict:
+        response = self.session.request(method, self.session.base_url + url, json=data)
+        response.raise_for_status()
+        return response.json()
 
 
-def main():
-    load_dotenv()
-
-    ls = Client(
-        url=os.environ["LABEL_STUDIO_HOST"],
-        api_key=os.environ["LABEL_STUDIO_TOKEN"],
+def project_exists(session: LabelStudioSession, title: str) -> bool:
+    projects = session.request("get", "/api/projects/")
+    num_same = len(
+        list(
+            filter(
+                lambda p: p["title"] == title,
+                projects["results"],
+            )
+        )
     )
-    projects = ls.get_projects()
-    if projects:
-        print("[INFO] Project already exists, skipping configuration")
-        return
+    return projects["count"] > 0 and num_same > 0
 
-    params = yaml.safe_load(open("params.yaml"))
-    configure(ls=ls, bucket=params["bucket"])
+
+def create_project(session: LabelStudioSession, config: dict) -> None:
+    if not project_exists(session, config["project"]["title"]):
+        print("[INFO] Creating project...")
+        with open("labelstudio/label_config.xml", "r") as f:
+            label_config = f.read()
+        project = session.request(
+            "post",
+            "/api/projects/",
+            data=dict(
+                label_config=label_config,
+                **config["project"],
+            ),
+        )
+        print("[INFO] Configuring S3 storage...")
+        storage = session.request(
+            "post",
+            "/api/storages/s3/",
+            data=dict(
+                project=project["id"],
+                **config["s3"],
+            ),
+        )
+        print("[INFO] Syncing S3 storage...")
+        session.request(
+            "post",
+            f"/api/storages/s3/{storage['id']}/sync",
+        )
+    print("[INFO] Done!")
+
+
+def configure(session: LabelStudioSession) -> None:
+    create_project(
+        session,
+        config=dict(
+            project=dict(
+                title="SwissImage",
+                is_published=True,
+                evaluate_predictions_automatically=True,
+                sampling="Uniform sampling",
+            ),
+            s3=dict(
+                synchronizable=True,
+                presign=True,
+                title="swissimage-tiles",
+                bucket="swissimage-vision",
+                prefix="data/tiles",
+                regex_filter=".*\.png",
+                s3_endpoint="https://" + os.environ["AWS_S3_ENDPOINT"],
+                aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+                aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+                recursive_scan=False,
+                use_blob_urls=True,
+            ),
+        ),
+    )
+
+
+def main() -> None:
+    load_dotenv(".env", override=True)
+    session = LabelStudioSession(
+        host=os.environ["LABELSTUDIO_HOST"],
+        token=os.environ["LABELSTUDIO_TOKEN"],
+    )
+    configure(session)
 
 
 if __name__ == "__main__":

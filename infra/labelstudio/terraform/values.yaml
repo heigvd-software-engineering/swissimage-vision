@@ -1,0 +1,13 @@
+app:
+  service:
+    type: NodePort
+  # ingress:
+  #   enabled: true
+  #   host: "labelstudio.10.190.133.74.sslip.io"
+  extraEnvironmentVars: {
+    "LABEL_STUDIO_DISABLE_SIGNUP_WITHOUT_LINK": "true",
+    "LABEL_STUDIO_USERNAME"                   : "test@test.com",
+    "LABEL_STUDIO_PASSWORD"                   : "testing123",
+    "SSRF_PROTECTION_ENABLED"                 : "true",
+    "collect_analytics"                       : "false"
+  }

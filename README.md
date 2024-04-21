@@ -28,6 +28,16 @@ MLOps practices are used to manage the project, including DVC for data versionin
 
 ### Label Studio
 
+- [ ] Documentation for Label Studio
+
+  - [ ] Installation locally
+  - [ ] Installation on Kubernetes
+  - [ ] Configuration
+
+- [ ] Deploy label studio instance
+
+  - [ ] Add label studio configuration
+
 - [ ] (Deploy BentoML API to Kubernetes cluster)
 - [ ] (Deploy label studio model backend)
 
@@ -104,7 +114,6 @@ tensorboard --logdir lightning_logs
 ```
 
 ## Serving the Model
-
 <!-- DEPRECATED
 ### Gradio Demo
 

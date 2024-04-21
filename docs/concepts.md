@@ -14,7 +14,7 @@
     - [Evaluate](#evaluate)
   - [Directed Acyclic Graph (DAG)](#directed-acyclic-graph-dag)
   - [Data Flow](#data-flow)
-- [Label Studio Integration](#label-studio-integration)
+- [LabelStudio Integration](#labelstudio-integration)
 
 ## Overview
 
@@ -107,13 +107,6 @@ dvc dag
 
 <img src="../media/data-flow.png" width="750" />
 
-## Label Studio Integration
+## LabelStudio Integration
 
-Label Studio is used to label the data. The data (images in this case) is stored in S3 and the annotations are stored in the Label Studio database.
-
-It is configured to sync with the S3 bucket and pull the images from there as well as push the annotations back to S3. These are the concepts of `import storage` and `export storage` that can be found in the Label Studio UI under `Project Settings -> Cloud Storage`.
-
-The annotations are pulled from S3 in the `preprocess` stage and merged into a single JSON file.
-
-> [!NOTE]
-> The `preprocess` stage uses the condition `always_changed: true` in `dvc.yaml` to force the stage to run every time. This is because the annotations are constantly being updated in Label Studio and we want to pull the latest annotations every time we run the pipeline.
+TODO: not documented yet
