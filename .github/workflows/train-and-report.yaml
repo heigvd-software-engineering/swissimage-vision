@@ -10,6 +10,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/train-and-report.yaml
+      - infra/github-runner/runner-gpu.yaml
       - src/**
       - dvc.lock
       - dvc.yaml
@@ -38,7 +39,9 @@ jobs:
         run: |
           echo "$KUBECONFIG_DATA" > kubeconfig
           export KUBECONFIG=kubeconfig
-          kubectl apply -f infra/github-runner/runner-gpu.yaml
+          # We use run_id to make the runner name unique
+          export GITHUB_RUN_ID="${{ github.run_id }}"
+          envsubst < infra/github-runner/runner-gpu.yaml | kubectl apply -f -
 
   train-and-report:
     permissions: write-all
@@ -110,4 +113,5 @@ jobs:
         run: |
           echo "$KUBECONFIG_DATA" > kubeconfig
           export KUBECONFIG=kubeconfig
-          kubectl delete --wait=false -f infra/github-runner/runner-gpu.yaml
+          export GITHUB_RUN_ID="${{ github.run_id }}"
+          envsubst < infra/github-runner/runner-gpu.yaml | kubectl delete --wait=false -f -
