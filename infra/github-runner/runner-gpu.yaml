@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: github-runner-gpu
+  name: github-runner-gpu-$(date +%s)
   labels:
-    app: github-runner-gpu
+    app: github-runner-gpu-$(date +%s)
 spec:
   volumes:
   - name: dshm
@@ -11,7 +11,7 @@ spec:
       medium: Memory
       sizeLimit: 16Gi
   containers:
-  - name: github-runner-gpu
+  - name: github-runner-gpu-$(date +%s)
     image: ghcr.io/heigvd-software-engineering/swissimage-vision/github-runner:latest
     # We mount a shared memory volume for training with PyTorch
     volumeMounts:
