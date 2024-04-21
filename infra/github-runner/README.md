@@ -4,6 +4,8 @@
 - [Configuring the Repository](#configuring-the-repository)
 - [Deploy GitHub Runner](#deploy-github-runner)
 - [Building the Docker image](#building-the-docker-image)
+- [GPU Runner](#gpu-runner)
+  - [Alternatives](#alternatives)
 - [Resources](#resources)
 
 ## Overview
@@ -17,11 +19,11 @@ The runner uses a custom Docker image that includes the necessary dependencies t
 > [!CAUTION]
 > Creating a self-hosted runner allows other users to execute code on your infrastructure. Make sure to secure your runner and restrict access to the repository.
 
-1. Disable running workflows from fork pull requests.
 
-   In the repository, go to `Settings -> Actions` and disable `Fork pull request workflows`.
+**Disable running workflows from fork pull requests**
 
-2. Create self host runner on the GitHub repository. See [GitHub documentation](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners) for more information.
+In the repository, go to `Settings -> Actions` and disable `Fork pull request workflows`.
+
 
 ## Deploy GitHub Runner
 
@@ -71,6 +73,16 @@ tail -f run.log
 
 > [!NOTE]
 > Make sure to set the image visibility to `Public` in the GitHub Container Registry settings.
+
+## GPU Runner
+
+We also have a similar yaml file for GPU runner (`runner-gpu.yaml`). This is used within the workflow `train-and-report.yaml` to create a self-hosted GPU runner only for executing the needed steps. This has the advantage of only utilizing the GPU resources when needed.
+
+### Alternatives
+
+CML also provides a way to deploy a self-hosted runner using the `cml runner` command. However, this method has downsides:
+- Docker-in-Docker is required to increase the shared memory size, which can be a security risk.
+- The runner does not have resources limits, it is limited to node affinity.
 
 ## Resources
 

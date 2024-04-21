@@ -20,8 +20,8 @@ This guide explains the infrastructure used in the repository and how to configu
 
 1. The developer pushes code into an active pull request.
 2. The GitHub Action workflow is triggered.
-3. The self-hosted GitHub runner creates a Kubernetes job with CML
-4. The job:
+3. The self-hosted GitHub runner creates another self-hosted runner with GPU and runs the `train-and-report` step.
+4. `train-and-report`:
    1. Runs the DVC pipeline and reports the results back to the pull request
    2. Pushes the results to the DVC remote storage
    3. Pushes the updated DVC lock file to the repository
@@ -33,11 +33,9 @@ The GitHub Action workflows are defined in the `.github/workflows` directory.
 
 The workflow `train-and-report.yaml` is triggered when a pull request is opened or updated. The workflow runs the following steps:
 
-- Create a Kubernetes job with CML
-- Run `dvc repro` and `cml comment` (reporting)
-
-> [!NOTE]
-> CML creates a Kubernetes job with a node affinity to run on a node with GPU. This has the limitation that resource limits are not enforced and the job can consume all available resources on the node.
+- `setup-runner` - Create a self-hosted gpu runner
+- `train-and-report` - Runs the DVC pipeline and reports the results back to the pull request
+- `cleanup-runner` - Deletes the self-hosted gpu runner
 
 ## Reference
 
@@ -77,14 +75,10 @@ The AWS secret access key used by DVC.
 
 `KUBECONFIG`
 
-The Kubernetes configuration file used by CML.
+The Kubernetes configuration file to access the Kubernetes cluster.
 
 > [!NOTE]
 > Make sure to set the Kubernetes namespace to yours in the context of the `KUBECONFIG` file.
-
-`PAT`
-
-The GitHub personal access token used by CML. See [CML Documentation](https://cml.dev/doc/self-hosted-runners#personal-access-token) to create a personal access token.
 
 #### Self-hosted GitHub Runner
 
