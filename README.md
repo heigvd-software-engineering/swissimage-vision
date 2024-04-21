@@ -1,10 +1,6 @@
 # SwissImage Vision
 
 - [Overview](#overview)
-- [Work in Progress](#work-in-progress)
-  - [Label Studio](#label-studio)
-  - [CML](#cml)
-  - [Model](#model)
 - [Installation](#installation)
   - [Setup Conda Environment](#setup-conda-environment)
   - [Install Dependencies](#install-dependencies)
@@ -23,24 +19,6 @@
 The goal of this project is to detect solar panels in aerial images (SwissImage 0.1m) using deep learning.
 
 MLOps practices are used to manage the project, including DVC for data versioning, Label Studio for data labeling, and BentoML for model serving. This allows for reproducibility, collaboration and scalability of the project.
-
-## Work in Progress
-
-### Label Studio
-
-- [ ] (Deploy BentoML API to Kubernetes cluster)
-- [ ] (Deploy label studio model backend)
-
-### CML
-
-- [ ] CML reporting
-  - [ ] Better model evaluation metrics and plots
-  - [ ] Save metrics to DVC
-
-### Model
-
-- [ ] Detection yaml job on whole dataset
-- [ ] Label more data
 
 ## Installation
 
