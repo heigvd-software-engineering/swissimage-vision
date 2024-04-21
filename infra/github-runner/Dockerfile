@@ -5,7 +5,7 @@ LABEL org.opencontainers.image.source="https://github.com/heigvd-software-engine
 RUN apt-get update && apt-get install -y \
     build-essential lsb-release \
     python3 python3-pip \
-    curl vim gpg wget \
+    curl jq vim gpg wget \
     git unzip tar
 
 # Add a non-root user

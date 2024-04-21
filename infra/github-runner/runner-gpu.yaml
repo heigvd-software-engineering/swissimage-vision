@@ -19,10 +19,10 @@ spec:
     env:
     - name: GITHUB_RUNNER_LABELS
       value: "gpu-runner"
-    - name: GITHUB_RUNNER_TOKEN
+    - name: GITHUB_RUNNER_PAT
       valueFrom:
         secretKeyRef:
-          name: github-runner-gpu-token
+          name: github-runner-pat
           key: token
     securityContext:
       runAsUser: 1000
