@@ -12,9 +12,8 @@
 - [Reproduce the Experiment](#reproduce-the-experiment)
 - [Serving the Model](#serving-the-model)
   - [BentoML API](#bentoml-api)
-- [Integrations](#integrations)
-  - [DVC](#dvc)
-  - [Label Studio](#label-studio-1)
+- [Concepts](#concepts)
+- [Setup](#setup)
 - [Resources](#resources)
   - [Data](#data)
   - [Projects](#projects)
@@ -130,15 +129,13 @@ python3 src/demo.py
 python3 src/serve.py
 ```
 
-## Integrations
+## Concepts
 
-### DVC
+To learn more about the integration and concepts used in this project, refer to the [docs/concepts.md](docs/concepts.md) file.
 
-Read more about DVC integration at [docs/dvc.md](docs/dvc.md)
+## Setup
 
-### Label Studio
-
-Read more about LabelStudio integration at [docs/labelstudio.md](docs/labelstudio.md)
+To replicate the setup of this project, refer to the [docs/setup.md](docs/setup.md) file.
 
 ## Resources
 

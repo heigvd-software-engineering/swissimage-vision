@@ -3,27 +3,25 @@
 - [Overview](#overview)
 - [Configuring the Repository](#configuring-the-repository)
 - [Deploy GitHub Runner](#deploy-github-runner)
+  - [GPU Runner](#gpu-runner)
+    - [Alternatives](#alternatives)
 - [Building the Docker image](#building-the-docker-image)
-- [GPU Runner](#gpu-runner)
-  - [Alternatives](#alternatives)
 - [Resources](#resources)
 
 ## Overview
 
 This page explains how to deploy a self-hosted GitHub runner to a Kubernetes cluster. The runner is used to execute the GitHub Action workflows defined in the repository.
 
-The runner uses a custom Docker image that includes the necessary dependencies to run the workflows. The Docker image is built and pushed to the GitHub Container Registry.
+The runner uses a custom Docker image that includes the necessary dependencies to run the workflows. The Docker image is built and pushed to the GitHub Container Registry. (see [Building the Docker image](#building-the-docker-image))
 
 ## Configuring the Repository
 
 > [!CAUTION]
 > Creating a self-hosted runner allows other users to execute code on your infrastructure. Make sure to secure your runner and restrict access to the repository.
 
-
 **Disable running workflows from fork pull requests**
 
 In the repository, go to `Settings -> Actions` and disable `Fork pull request workflows`.
-
 
 ## Deploy GitHub Runner
 
@@ -55,6 +53,17 @@ kubectl exec -it github-runner -- bash
 tail -f run.log
 ```
 
+### GPU Runner
+
+We also have a similar yaml file for GPU runner (`runner-gpu.yaml`). This is used within the workflow `train-and-report.yaml` to create a self-hosted GPU runner only for executing the needed steps. This has the advantage of only utilizing the GPU resources when needed.
+
+#### Alternatives
+
+CML also provides a way to deploy a self-hosted runner using the `cml runner` command. However, this method has downsides:
+
+- Docker-in-Docker is required to increase the shared memory size, which can be a security risk.
+- The runner does not have resources limits, it is limited to node affinity.
+
 ## Building the Docker image
 
 1. Authenticate to the GitHub Container Registry. See [GitHub documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry) for more information.
@@ -73,16 +82,6 @@ tail -f run.log
 
 > [!NOTE]
 > Make sure to set the image visibility to `Public` in the GitHub Container Registry settings.
-
-## GPU Runner
-
-We also have a similar yaml file for GPU runner (`runner-gpu.yaml`). This is used within the workflow `train-and-report.yaml` to create a self-hosted GPU runner only for executing the needed steps. This has the advantage of only utilizing the GPU resources when needed.
-
-### Alternatives
-
-CML also provides a way to deploy a self-hosted runner using the `cml runner` command. However, this method has downsides:
-- Docker-in-Docker is required to increase the shared memory size, which can be a security risk.
-- The runner does not have resources limits, it is limited to node affinity.
 
 ## Resources
 
