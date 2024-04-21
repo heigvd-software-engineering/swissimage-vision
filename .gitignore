@@ -3,7 +3,5 @@
 __pycache__/
 /lightning_logs
 
-# Terrraform
-**/.terraform/*
-*.tfstate
-*.tfstate.*
+# Helm values
+infra/labelstudio/*values.yaml

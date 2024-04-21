@@ -6,10 +6,11 @@
   - [Branch protection rules](#branch-protection-rules)
   - [Repository Secrets](#repository-secrets)
   - [Self-hosted GitHub Runner](#self-hosted-github-runner)
+- [Deploy Label Studio](#deploy-label-studio)
 
 ## Overview
 
-This page explains the configuration and setup that was used in the repository. The repository uses GitHub Actions to run the CI/CD pipeline and a self-hosted GitHub runner to execute the workflows on a on-premises Kubernetes cluster.
+This page explains the configuration and setup that was used in the repository. The repository uses GitHub Actions to run the CI/CD pipeline and a self-hosted GitHub runner to execute the workflows on a on-premises Kubernetes cluster. The repository also uses DVC to version the data and models, and Label Studio to label the data.
 
 ## Repository Configuration
 
@@ -57,3 +58,10 @@ The Kubernetes configuration file to access the Kubernetes cluster.
 We use a self-hosted GitHub runner to execute the GitHub Action workflows on a on-premises Kubernetes cluster. The runner listens for jobs from GitHub Actions and creates Kubernetes jobs to execute the workflows using CML.
 
 To see more information about configuring a self-hosted GitHub runner, see the [../infra/github-runner/README.md](../infra/github-runner/README.md) file.
+
+
+## Deploy Label Studio
+
+We use Label Studio to label the data. Label Studio is deployed on a Kubernetes cluster using Helm.
+
+For more information on deploying Label Studio, see the [../infra/labelstudio/README.md](../infra/labelstudio/README.md) file.
