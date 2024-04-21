@@ -13,6 +13,7 @@ spec:
   containers:
   - name: github-runner-gpu
     image: ghcr.io/heigvd-software-engineering/swissimage-vision/github-runner:latest
+    # We mount a shared memory volume for training with PyTorch
     volumeMounts:
     - name: dshm
       mountPath: /dev/shm
