@@ -61,9 +61,10 @@ To configure the Label Studio project, two options are available:
 
 In this directory, you can find a Python script (`configure.py`) that uses the Label Studio API to configure a project. To use the script,
 
-1. Modify the `configure.py` script to match your needs. You can find the documentation for the Label Studio API SDK [here](https://labelstud.io/sdk/index.html) with an exhaustive list of available methods and configuration options.
-2. Navigate to the root of the repository.
-3. Include the following environment variables in a `.env` file.
+1. Update the `configure.py` script to match your needs. You can find the documentation for the Label Studio API SDK [here](https://labelstud.io/sdk/index.html) with an exhaustive list of available methods and configuration options.
+2. Update the `label_config.xml` file with your own labeling configuration. You can find more information about the Label Studio labeling configuration [here](https://labelstud.io/tags).
+3. Navigate to the root of the repository.
+4. Include the following environment variables in a `.env` file.
 
    ```bash
    AWS_S3_ENDPOINT=...

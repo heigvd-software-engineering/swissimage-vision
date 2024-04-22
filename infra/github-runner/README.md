@@ -9,7 +9,7 @@
     - [Runner](#runner)
   - [Building the Docker Image](#building-the-docker-image)
   - [Deploy GitHub Runner](#deploy-github-runner)
-- [Uninstalling the GitHub Runner](#uninstalling-the-github-runner)
+- [Uninstall the GitHub Runner](#uninstall-the-github-runner)
 - [Resources](#resources)
 
 ## Overview
@@ -103,7 +103,7 @@ kubectl exec -it github-runner -- bash
 tail -f run.log
 ```
 
-## Uninstalling the GitHub Runner
+## Uninstall the GitHub Runner
 
 To remove the runner from the Kubernetes cluster, run the following command:
 
