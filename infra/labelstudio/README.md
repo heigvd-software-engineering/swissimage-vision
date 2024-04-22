@@ -34,6 +34,9 @@ app:
     }
 ```
 
+> [!NOTE]
+> Your can find an exhaustive list of configuration options in the [official chart repository](https://github.com/HumanSignal/charts/tree/master/heartex/label-studio).
+
 ### Installation on Kubernetes
 
 Add the Helm chart repository to install and update Label Studio.
@@ -56,10 +59,11 @@ To configure the Label Studio project, two options are available:
 1. Manually create a project in the Label Studio UI.
 2. Use the Label Studio API.
 
-In this directory, you can find a Python script that uses the Label Studio API to configure a project. To use the script,
+In this directory, you can find a Python script (`configure.py`) that uses the Label Studio API to configure a project. To use the script,
 
-1. Navigate to the root of the repository.
-2. Include the following environment variables in a `.env` file.
+1. Modify the `configure.py` script to match your needs. You can find the documentation for the Label Studio API SDK [here](https://labelstud.io/sdk/index.html) with an exhaustive list of available methods and configuration options.
+2. Navigate to the root of the repository.
+3. Include the following environment variables in a `.env` file.
 
    ```bash
    AWS_S3_ENDPOINT=...
@@ -73,13 +77,13 @@ In this directory, you can find a Python script that uses the Label Studio API t
 > [!NOTE]
 > The `LABEL_STUDIO_TOKEN` can be found in the Label Studio UI under `Account & Settings` in the top right corner.
 
-3. Install the required dependencies.
+4. Install the required dependencies.
 
    ```bash
    pip install -r infra/labelstudio/requirements.txt
    ```
 
-4. Run the script.
+5. Run the script.
 
    ```bash
    pip install -r infra/labelstudio/requirements.txt
