@@ -21,7 +21,7 @@ Make sure to configure the repository access settings to restrict access to the 
 
 ### Branch protection rules
 
-In your repository, go to `Settings` -> `Branches`. Add `main` branch protection rules to the repository settings. The rules should include:
+In your repository, go to `Settings -> Branches`. Add `main` branch protection rules to the repository settings. The rules should include:
 
 - Check "Require a pull request before merging"
 - Uncheck "Allow force pushes"
