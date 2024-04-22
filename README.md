@@ -6,8 +6,6 @@
   - [Install Dependencies](#install-dependencies)
   - [Setup DVC](#setup-dvc)
 - [Reproduce the Experiment](#reproduce-the-experiment)
-- [Serving the Model](#serving-the-model)
-  - [BentoML API](#bentoml-api)
 - [Concepts](#concepts)
 - [Setup](#setup)
 - [Resources](#resources)
@@ -81,22 +79,23 @@ To view the training logs, run the following command:
 tensorboard --logdir lightning_logs
 ```
 
+<!-- DEPRECATED
 ## Serving the Model
 
-<!-- DEPRECATED
 ### Gradio Demo
 
 Run the following command to start the Gradio demo interface:
 
 ```bash
 python3 src/demo.py
-``` -->
+```
 
 ### BentoML API
 
 ```bash
 python3 src/serve.py
 ```
+-->
 
 ## Concepts
 
