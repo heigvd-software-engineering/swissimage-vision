@@ -1,4 +1,59 @@
-# SwissImage Vision
+<!-- # SwissImage Vision -->
+
+<svg fill="none" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <foreignObject width="100%" height="100%">
+		<div xmlns="http://www.w3.org/1999/xhtml">
+			<style>
+				.container {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					justify-content: center;
+					margin: 0;
+					width: 100%;
+					height: 100%;
+          border-radius: 10px;
+					color: white;
+					text-align: center;
+          --s: 20px; /* control the size */
+          background: 
+            conic-gradient(from 90deg at 2px 2px,black 90deg, rgba(0, 0, 0, 0.7) 0);
+          background-size: var(--s) var(--s), calc(var(--s)/5) calc(var(--s)/5);
+				}
+				h1 {
+					font-size: 50px;
+					line-height: 1.3;
+          font-weight: 700;
+					text-transform: uppercase;
+          margin-bottom: 10px;
+				}
+        .tag-container {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        .tag-container p {
+          display: inline-block;
+          margin: 0;
+          padding: 5px 10px;
+          background: white;
+          color: black;
+          border-radius: 5px;
+          font-size: 12px;
+          font-weight: 700;
+        }
+			</style>
+			<div class="container">
+				<h1>SwissImage Vision</h1>
+        <div class="tag-container">
+          <p>MLOps</p>
+          <p>DVC</p>
+          <p>PyTorch</p>
+        </div>
+			</div>
+		</div>
+	</foreignObject>
+</svg>
 
 - [Overview](#overview)
 - [Installation](#installation)
