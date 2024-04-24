@@ -24,7 +24,9 @@ The goal of this page is to provide an more detailed explanation of the integrat
 
 ### Development Cycle
 
-<img src="../media/infra.png" width="650" />
+<p align="center">
+  <img src="../media/infra.png" width="650" />
+</p>
 
 1. The developer pushes code into an active pull request.
 2. The GitHub Action workflow is triggered.
@@ -101,11 +103,26 @@ In this stage we evaluate the model on the test set. (not implemented yet)
 dvc dag
 ```
 
-<img src="../media/dag.png" width="350" />
+<div align="center">
+
+```mermaid
+%%{ init : { "theme" : "neutral" }}%%
+flowchart TD
+  data/raw.dvc --> prepare
+  prepare --> preprocess
+  preprocess --> preview
+  preprocess --> train
+  train --> export
+  train --> evaluate
+```
+
+</div>
 
 ### Data Flow
 
-<img src="../media/data-flow.png" width="750" />
+<p align="center">
+  <img src="../media/data-flow.png" width="900" />
+</p>
 
 ## Label Studio Integration
 

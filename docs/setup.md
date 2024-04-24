@@ -1,6 +1,7 @@
 # Setup
 
 - [Overview](#overview)
+- [Project Structure](#project-structure)
 - [Repository Configuration](#repository-configuration)
   - [Access](#access)
   - [Branch protection rules](#branch-protection-rules)
@@ -12,6 +13,12 @@
 ## Overview
 
 This page explains the configuration and setup that was used in the repository. The repository uses GitHub Actions to run the CI/CD pipeline and a self-hosted GitHub runner to execute the workflows on a on-premises Kubernetes cluster. The repository also uses DVC to version the data and models, and Label Studio to label the data.
+
+## Project Structure
+
+```graphql
+TODO: Not documented yet
+```
 
 ## Repository Configuration
 
