@@ -7,7 +7,7 @@ import yaml
 from torchvision.transforms.v2 import functional as F
 
 from dataset.solar_datamodule import SolarDataModule
-from model.fasterrcnn import FasterRCNN
+from model.deeplabv3 import DeepLabV3
 
 
 def evaluate(
@@ -34,7 +34,7 @@ def evaluate(
     )
     dm.setup()
 
-    model = FasterRCNN.load_from_checkpoint("out/model.ckpt")
+    model = DeepLabV3.load_from_checkpoint("out/model.ckpt")
     device = "cpu"
     if torch.cuda.is_available():
         device = "cuda"

@@ -26,11 +26,9 @@ train:
     pin_memory: true
   model:
     seed: 42        # Random seed for model initialization
-    num_classes: 2  # No solar panel & solar panel
-    trainable_backbone_layers: 3
+    num_classes: 1  # Solar panel
   training:
-    lr: 0.0075
-    lr_momentum: 0.9
+    lr: 0.001
     lr_decay_rate: 0.0005
     lr_sched_step_size: 5  # Step size (epochs) for learning rate scheduler
     lr_sched_gamma: 0.8    # Multiplicative factor of learning rate decay

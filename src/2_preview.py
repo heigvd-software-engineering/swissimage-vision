@@ -18,7 +18,7 @@ def save_samples(
             if sample_count == max_samples:
                 return
             image = F.to_dtype(image, torch.uint8, scale=True)
-            boxes = target["boxes"]
+            mask = target["boxes"]
             sample = torchvision.utils.draw_bounding_boxes(
                 image, boxes, width=1, colors="blue"
             )

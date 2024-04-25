@@ -8,8 +8,10 @@ stages:
       - data/raw/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg
     params:
       - prepare
-    outs:
-      - data/prepared/depends.txt
+    # This is commented because the preapre stage is frozen
+    # outs:
+    #   - data/prepared/depends.txt
+    frozen: true  # For the moment, we don't need to rerun this stage
 
   # 1. Pull labelstudio annotations from S3
   # 2. Merge into a single JSON file
@@ -19,7 +21,7 @@ stages:
     cmd: python3 src/1_preprocess.py
     deps:
       - src/1_preprocess.py
-      - data/prepared/depends.txt
+      # - data/prepared/depends.txt  # This is commented because the preapre stage is frozen
     outs:
       - data/preprocessed/annotations.json
     always_changed: true
@@ -36,41 +38,41 @@ stages:
     outs:
       - data/preview
   
-  # Train the model
-  train:
-    cmd: python3 src/2_train.py
-    deps:
-      - src/2_train.py
-      - data/preprocessed/annotations.json
-    params: 
-      - train.datamodule.setup
-      - train.model
-      - train.training
-    outs:
-      - lightning_logs:
-          persist: true
-      - out/model.ckpt
+  # # Train the model
+  # train:
+  #   cmd: python3 src/2_train.py
+  #   deps:
+  #     - src/2_train.py
+  #     - data/preprocessed/annotations.json
+  #   params: 
+  #     - train.datamodule.setup
+  #     - train.model
+  #     - train.training
+  #   outs:
+  #     - lightning_logs:
+  #         persist: true
+  #     - out/model.ckpt
   
-  # Convert PyTorch model to BentoML model (TorchScript)
-  export:
-    cmd: python3 src/3_export.py
-    deps:
-      - src/3_export.py
-      - out/model.ckpt
-    params:
-      - train.datamodule.setup.batch_size
-      - train.datamodule.setup.image_size
-      - export.model_name
-    outs:
-      - out/${export.model_name}.bentomodel
+  # # Convert PyTorch model to BentoML model (TorchScript)
+  # export:
+  #   cmd: python3 src/3_export.py
+  #   deps:
+  #     - src/3_export.py
+  #     - out/model.ckpt
+  #   params:
+  #     - train.datamodule.setup.batch_size
+  #     - train.datamodule.setup.image_size
+  #     - export.model_name
+  #   outs:
+  #     - out/${export.model_name}.bentomodel
 
-  # Evaluate the model
-  evaluate:
-    cmd: python3 src/3_evaluate.py
-    deps:
-      - src/3_evaluate.py
-      - out/model.ckpt
-    params: 
-      - train.datamodule.setup
-    outs:
-      - data/evaluate
+  # # Evaluate the model
+  # evaluate:
+  #   cmd: python3 src/3_evaluate.py
+  #   deps:
+  #     - src/3_evaluate.py
+  #     - out/model.ckpt
+  #   params: 
+  #     - train.datamodule.setup
+  #   outs:
+  #     - data/evaluate

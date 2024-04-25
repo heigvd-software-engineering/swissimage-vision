@@ -13,7 +13,7 @@ from lightning.pytorch.callbacks import (
 from lightning.pytorch.strategies import DDPStrategy
 
 from dataset.solar_datamodule import SolarDataModule
-from model.fasterrcnn import FasterRCNN
+from model.deeplabv3 import DeepLabV3
 
 
 def train(
@@ -49,7 +49,7 @@ def train(
         pin_memory=pin_memory,
     )
 
-    model = FasterRCNN(
+    model = DeepLabV3(
         num_classes=num_classes,
         trainable_backbone_layers=trainable_backbone_layers,
         lr=lr,

@@ -1,4 +1,4 @@
 <View>
   <Image name="image" value="$image_url"/>
-  <Rectangle name="boxes" toName="image" canRotate="false" smart="true" />
+  <Polygon name="mask" toName="image" snap="pixel" />
 </View>

@@ -1,17 +1,15 @@
 import lightning as L
 import torch
 import torchvision
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torchvision.models.segmentation.deeplabv3 import DeepLabHead
 
 
-class FasterRCNN(L.LightningModule):
+class DeepLabV3(L.LightningModule):
     def __init__(
         self,
         # Hyperparameters
         num_classes: int,
-        trainable_backbone_layers: int,
         lr: float,
-        lr_momentum: float,
         lr_decay_rate: float,
         lr_sched_step_size: int,
         lr_sched_gamma: float,
@@ -20,10 +18,7 @@ class FasterRCNN(L.LightningModule):
 
         Args:
             num_classes (int): Number of classes in the dataset.
-            trainable_backbone_layers (int): Number of trainable layers in the backbone.
-                                             Valid values are between 0 and 5.
             lr (float): Learning rate for the optimizer.
-            lr_momentum (float): Momentum for the optimizer.
             lr_decay_rate (float): Weight decay for the optimizer.
             lr_sched_step_size (int): Step size for the learning rate scheduler.
             lr_sched_gamma (float): Gamma for the learning rate scheduler.
@@ -31,26 +26,25 @@ class FasterRCNN(L.LightningModule):
         super().__init__()
         self.save_hyperparameters()
         self.lr = self.hparams.lr
-        self.lr_momentum = self.hparams.lr_momentum
         self.lr_decay_rate = self.hparams.lr_decay_rate
         self.lr_sched_step_size = self.hparams.lr_sched_step_size
         self.lr_sched_gamma = self.hparams.lr_sched_gamma
 
-        self.model = torchvision.models.detection.fasterrcnn_resnet50_fpn_v2(
-            weights="DEFAULT",
-            trainable_backbone_layers=self.hparams_initial.trainable_backbone_layers,
+        self.model = torchvision.models.segmentation.deeplabv3_resnet50(
+            weights=torchvision.models.segmentation.DeepLabV3_ResNet50_Weights.DEFAULT,
+            aux_loss=None,
         )
-        in_features = self.model.roi_heads.box_predictor.cls_score.in_features
-        self.model.roi_heads.box_predictor = FastRCNNPredictor(
-            in_features, self.hparams_initial.num_classes
+        in_channels = self.model.classifier[0].convs[0][0].in_channels
+        self.model.classifier = DeepLabHead(
+            in_channels=in_channels, num_classes=self.hparams.num_classes
         )
+        self.criterion = torch.nn.MSELoss(reduction="mean")
 
     def configure_optimizers(self):
         params = [p for p in self.model.parameters() if p.requires_grad]
-        optimizer = torch.optim.SGD(
+        optimizer = torch.optim.Adam(
             params,
             lr=self.lr,
-            momentum=self.lr_momentum,
             weight_decay=self.lr_decay_rate,
         )
         lr_scheduler = torch.optim.lr_scheduler.StepLR(
@@ -68,13 +62,12 @@ class FasterRCNN(L.LightningModule):
         self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> torch.Tensor:
         images, targets = batch
-        loss_dict = self.model(images, targets)
-        loss = sum(loss for loss in loss_dict.values())
-        loss_val = loss.item()
+        output = self.model(images)
+        loss = self.criterion(output["out"], targets)
 
         self.log(
             "train_loss",
-            loss_val,
+            loss,
             batch_size=len(images),
             prog_bar=True,
             sync_dist=True,
@@ -85,24 +78,14 @@ class FasterRCNN(L.LightningModule):
         self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> torch.Tensor:
         images, targets = batch
-        # In validation mode, the loss is not calculated.
-        # See https://pytorch.org/vision/main/models/generated/torchvision.models.detection.fasterrcnn_resnet50_fpn.html#torchvision.models.detection.fasterrcnn_resnet50_fpn
-        outputs = self.model(images)
+        output = self.model(images)
+        loss = self.criterion(output["out"], targets)
 
-        iou = self._get_iou(targets, outputs)
-        self.log("val_iou", iou, batch_size=len(images), prog_bar=True, sync_dist=True)
-
-    def _get_iou(
-        self, targets: list[torch.Tensor], outputs: list[torch.Tensor]
-    ) -> torch.Tensor:
-        ious = []
-        for i in range(len(targets)):
-            iou_diag = torchvision.ops.box_iou(
-                outputs[i]["boxes"], targets[i]["boxes"]
-            ).diag()
-            ious.append(
-                torch.nn.functional.pad(
-                    iou_diag, (0, len(targets[i]) - iou_diag.size(0)), value=0
-                ).mean()
-            )
-        return torch.stack(ious).mean()
+        self.log(
+            "val_loss",
+            loss,
+            batch_size=len(images),
+            prog_bar=True,
+            sync_dist=True,
+        )
+        return loss

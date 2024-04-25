@@ -17,20 +17,14 @@ def parse_annotation(ann_key: str, bucket: str) -> dict:
     ann = {}
     if data["task"]["is_labeled"]:
         ann["image"] = data["task"]["data"]["image_url"]
-        boxes = []
+        polys = []
         if data["result"]:
             for result in data["result"]:
-                img_width = result["original_width"]
-                img_height = result["original_height"]
-                # We convert the relative coordinates to absolute pixel values
-                x = result["value"]["x"] / 100 * img_width
-                y = result["value"]["y"] / 100 * img_height
-                width = result["value"]["width"] / 100 * img_width
-                height = result["value"]["height"] / 100 * img_height
-                # We store the bounding box coordinates as a list of lists
-                # [xmin, ymin, xmax, ymax]
-                boxes.append([x, y, x + width, y + height])
-        ann["boxes"] = boxes
+                points = []
+                for point in result["value"]["points"]:
+                    points.append([round(pt) for pt in point])
+                polys.append(points)
+        ann["polys"] = polys
     return ann
 
 
@@ -53,12 +47,12 @@ def main() -> None:
             partial(parse_annotation, bucket=params["bucket"]), annotations
         )
 
-    # Split limit to 50% annotations that do not have bounding boxes (boxes = [])
+    # Split limit to 50% annotations that do not have masks (polys = [])
     split_limit = int(len(parsed_annotations) * 0.5)
-    no_boxes = [ann for ann in parsed_annotations if not ann["boxes"]]
-    random.shuffle(no_boxes)
-    with_boxes = [ann for ann in parsed_annotations if ann["boxes"]]
-    parsed_annotations = no_boxes[:split_limit] + with_boxes
+    no_polys = [ann for ann in parsed_annotations if not ann["polys"]]
+    random.shuffle(no_polys)
+    with_polys = [ann for ann in parsed_annotations if ann["polys"]]
+    parsed_annotations = no_polys[:split_limit] + with_polys
 
     # We sort to ensure that race conditions don't affect the order of the annotations and
     # therefore don't invalidate the DVC cache
