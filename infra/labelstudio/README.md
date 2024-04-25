@@ -6,6 +6,7 @@
   - [Installation on Kubernetes](#installation-on-kubernetes)
   - [Project Configuration](#project-configuration)
 - [Uninstall Label Studio](#uninstall-label-studio)
+- [Migrating Annotations](#migrating-annotations)
 
 ## Overview
 
@@ -100,3 +101,7 @@ Uninstall Label Studio using Helm.
 ```bash
 helm delete label-studio
 ```
+
+## Migrating Annotations
+
+One limitation of saving the annotations to S3, is that they contain Label Studio project, task and annotations IDs. This means that if you want to migrate the annotations to a different Label Studio instance, you will need to update these IDs and create the annotations in the Label Studio database. You can find the `migration_utils` directory with a Python script that can help you with this process.
