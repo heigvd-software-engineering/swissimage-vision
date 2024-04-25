@@ -22,6 +22,14 @@ The runner uses a custom Docker image that includes the necessary dependencies t
 
 We also have a similar yaml file for GPU runner (`runner-gpu.yaml`). This is used within the workflow `train-and-report.yaml` to create a self-hosted GPU runner only for executing the needed steps. This has the advantage of only utilizing the GPU resources when needed. It also uses the same Docker image as the CPU runner.
 
+The step `train-and-report` of the workflow `train-and-report.yaml` runs on a self-hosted runner that has the label `gpu-runner`. We configured `runner-gpu.yaml` in order to create a self-hosted runner with the label `gpu-runner`.
+
+```yaml
+env:
+  - name: GITHUB_RUNNER_LABELS
+    value: "gpu-runner"
+```
+
 #### Alternatives
 
 CML also provides a way to deploy a self-hosted runner using the `cml runner` command. However, this method has downsides:

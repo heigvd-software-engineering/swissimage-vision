@@ -36,6 +36,10 @@ jobs:
       - name: Initialize runner on Kubernetes
         env:
           KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        # We use envsubst to replace variables in runner-gpu.yaml
+        # in order to create a unique runner name with the
+        # GitHub run ID. This prevents conflicts when multiple
+        # runners are created at the same time.
         run: |
           echo "$KUBECONFIG_DATA" > kubeconfig
           export KUBECONFIG=kubeconfig
@@ -46,6 +50,8 @@ jobs:
   train-and-report:
     permissions: write-all
     needs: setup-runner
+    # The label `gpu-runner` corresponds to the self-hosted runner with this
+    # label in the runner-gpu.yaml file.
     runs-on: [self-hosted, gpu-runner]
     env:
       AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
@@ -101,6 +107,7 @@ jobs:
   cleanup-runner:
     needs: train-and-report
     runs-on: self-hosted
+    # Always run this job even if the previous jobs fail
     if: always()
     steps:
       - name: Checkout repository
