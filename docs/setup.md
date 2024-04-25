@@ -8,6 +8,7 @@
   - [Repository Secrets](#repository-secrets)
   - [Self-hosted GitHub Runner](#self-hosted-github-runner)
   - [Dependencies](#dependencies)
+- [DVC Remote Storage](#dvc-remote-storage)
 - [Deploy Label Studio](#deploy-label-studio)
 
 ## Overview
@@ -80,8 +81,27 @@ pip freeze > requirements-freeze.txt
 > [!IMPORTANT]
 > For compatibility reasons, the dependencies are frozen on the same machine that the runner is running on. If you are using a different machine, you need to freeze the dependencies on that machine and update the `requirements-freeze.txt` file.
 
+## DVC Remote Storage
+
+We have configured a remote storage to store the data in a MinIO S3 compatible bucket. The following configuration is used in the `.dvc/config` file:
+
+```yaml
+[core]
+    remote = minio
+    analytics = false
+['remote "minio"']
+    url = s3://swissimage-vision/dvc
+    endpointurl = https://storage-kubernetes.iict.ch:9000
+```
+
+DVC has been configured to version the data in to folder `data/raw`. (`dvc add data/raw`)
+
 ## Deploy Label Studio
 
 We use Label Studio to label the data. Label Studio is deployed on a Kubernetes cluster using Helm.
 
 For more information on deploying Label Studio, see the [../infra/labelstudio/README.md](../infra/labelstudio/README.md) file.
+
+```
+
+```
