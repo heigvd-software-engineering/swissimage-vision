@@ -27,7 +27,9 @@ permissions:
 
 jobs:
   setup-runner:
-    runs-on: self-hosted
+    # `base-runner` corresponds to the self-hosted runner with this label,
+    # in this case a cpu runner.
+    runs-on: [self-hosted, base-runner]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -106,7 +108,7 @@ jobs:
 
   cleanup-runner:
     needs: train-and-report
-    runs-on: self-hosted
+    runs-on: [self-hosted, base-runner]
     # Always run this job even if the previous jobs fail
     if: always()
     steps:
