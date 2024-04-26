@@ -1,6 +1,7 @@
 import shutil
 import time
 from pathlib import Path
+from typing import Optional
 
 import lightning as L
 import torch
@@ -13,7 +14,7 @@ from lightning.pytorch.callbacks import (
 from lightning.pytorch.strategies import DDPStrategy
 
 from dataset.solar_datamodule import SolarDataModule
-from model.fasterrcnn import FasterRCNN
+from model.deeplabv3 import DeepLabV3
 
 
 def train(
@@ -26,12 +27,10 @@ def train(
     pin_memory: bool,
     seed: int,
     num_classes: int,
-    trainable_backbone_layers: int,
     lr: float,
-    lr_momentum: float,
     lr_decay_rate: float,
-    lr_sched_step_size: int,
-    lr_sched_gamma: float,
+    lr_sched_step_size: Optional[int],
+    lr_sched_gamma: Optional[float],
     save_ckpt: bool,
     es_patience: bool,
     epochs: int,
@@ -49,11 +48,9 @@ def train(
         pin_memory=pin_memory,
     )
 
-    model = FasterRCNN(
+    model = DeepLabV3(
         num_classes=num_classes,
-        trainable_backbone_layers=trainable_backbone_layers,
         lr=lr,
-        lr_momentum=lr_momentum,
         lr_decay_rate=lr_decay_rate,
         lr_sched_step_size=lr_sched_step_size,
         lr_sched_gamma=lr_sched_gamma,
@@ -69,15 +66,15 @@ def train(
     if save_ckpt:
         callbacks.append(
             ModelCheckpoint(
-                filename="{epoch:02d}-{step}-{val_iou:.3f}",
-                monitor="val_iou",
+                filename="{epoch:02d}-{step}-{val_loss:.3f}",
+                monitor="val_loss",
                 save_top_k=1,
                 mode="min",
             )
         )
     if es_patience is not None:
         callbacks.append(
-            EarlyStopping(monitor="val_iou", patience=es_patience, mode="min"),
+            EarlyStopping(monitor="val_loss", patience=es_patience, mode="min"),
         )
 
     trainer = L.Trainer(

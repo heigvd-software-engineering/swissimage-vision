@@ -4,11 +4,11 @@ import yaml
 from PIL import Image
 from torchvision.transforms.v2 import functional as F
 
-from model.fasterrcnn import FasterRCNN
+from model.deeplabv3 import DeepLabV3
 
 
 def export(batch_size: int, image_size: int, model_name: str) -> None:
-    model = FasterRCNN.load_from_checkpoint("out/model.ckpt")
+    model = DeepLabV3.load_from_checkpoint("out/model.ckpt")
     model.eval()
     model.to("cuda")
     script_module = model.to_torchscript(

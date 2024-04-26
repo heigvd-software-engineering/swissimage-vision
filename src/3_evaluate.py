@@ -7,7 +7,7 @@ import yaml
 from torchvision.transforms.v2 import functional as F
 
 from dataset.solar_datamodule import SolarDataModule
-from model.fasterrcnn import FasterRCNN
+from model.deeplabv3 import DeepLabV3
 
 
 def evaluate(
@@ -34,7 +34,7 @@ def evaluate(
     )
     dm.setup()
 
-    model = FasterRCNN.load_from_checkpoint("out/model.ckpt")
+    model = DeepLabV3.load_from_checkpoint("out/model.ckpt")
     device = "cpu"
     if torch.cuda.is_available():
         device = "cuda"
@@ -52,11 +52,13 @@ def evaluate(
             if sample_count == max_samples:
                 return
             image = F.to_dtype(image, torch.uint8, scale=True)
-            sample = torchvision.utils.draw_bounding_boxes(
-                image, target["boxes"], width=1, colors="blue"
+            target_mask = F.to_dtype(target, bool)
+            output_mask = (output > 0.5).detach().cpu()
+            sample = torchvision.utils.draw_segmentation_masks(
+                image, target_mask, alpha=0.4, colors="blue"
             )
-            sample = torchvision.utils.draw_bounding_boxes(
-                sample, output["boxes"], width=1, colors="red"
+            sample = torchvision.utils.draw_segmentation_masks(
+                sample, output_mask, alpha=0.4, colors="red"
             )
             print("[INFO] Saved to", str(output_dir / f"sample_{sample_count}.png"))
             torchvision.io.write_png(
