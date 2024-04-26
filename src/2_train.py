@@ -1,6 +1,7 @@
 import shutil
 import time
 from pathlib import Path
+from typing import Optional
 
 import lightning as L
 import torch
@@ -28,8 +29,8 @@ def train(
     num_classes: int,
     lr: float,
     lr_decay_rate: float,
-    lr_sched_step_size: int,
-    lr_sched_gamma: float,
+    lr_sched_step_size: Optional[int],
+    lr_sched_gamma: Optional[float],
     save_ckpt: bool,
     es_patience: bool,
     epochs: int,

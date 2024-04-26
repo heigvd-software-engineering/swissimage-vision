@@ -5,12 +5,12 @@ stages:
     deps:
     - path: data/preprocessed/annotations.json
       hash: md5
-      md5: d1e9ebadcab86d64547ead0e652b3fb9
-      size: 1510
+      md5: 8a76227e024c4e6d7ffc0fd630c8d332
+      size: 10515
     - path: src/2_preview.py
       hash: md5
-      md5: dd1aacb75a053a63d977a7f878fe653c
-      size: 2205
+      md5: 27bc48612e83e558f6e6b898717cd582
+      size: 2244
     params:
       params.yaml:
         train.datamodule.setup:
@@ -21,20 +21,20 @@ stages:
     outs:
     - path: data/preview
       hash: md5
-      md5: 0493dbf8a7b2bb2912b1ccc62a648673.dir
-      size: 1046335
-      nfiles: 4
+      md5: e1ae8b24fca2b0b0332fb319bc06cab6.dir
+      size: 4165248
+      nfiles: 16
   train:
     cmd: python3 src/2_train.py
     deps:
     - path: data/preprocessed/annotations.json
       hash: md5
-      md5: 5777c717b91b9bd52f1354b24d3bc9dd
-      size: 25439
+      md5: 8a76227e024c4e6d7ffc0fd630c8d332
+      size: 10515
     - path: src/2_train.py
       hash: md5
-      md5: fb2d70b03e73bdecdbd1ee500edf357e
-      size: 3885
+      md5: 3b632b19e991a0391a7fd834e9395666
+      size: 3779
     params:
       params.yaml:
         train.datamodule.setup:
@@ -44,14 +44,12 @@ stages:
           image_size: 384
         train.model:
           seed: 42
-          num_classes: 2
-          trainable_backbone_layers: 3
+          num_classes: 1
         train.training:
-          lr: 0.0075
-          lr_momentum: 0.9
+          lr: 0.001
           lr_decay_rate: 0.0005
-          lr_sched_step_size: 5
-          lr_sched_gamma: 0.8
+          lr_sched_step_size:
+          lr_sched_gamma:
           save_ckpt: false
           es_patience:
           epochs: 5
@@ -59,24 +57,24 @@ stages:
     outs:
     - path: lightning_logs
       hash: md5
-      md5: 555f294d457d7155a0be54d496a2f907.dir
-      size: 691167636
+      md5: 1e2ad33aa873a519984765031b23144f.dir
+      size: 594761869
       nfiles: 4
     - path: out/model.ckpt
       hash: md5
-      md5: 75ee5167676442a8cafd6d4c00b454db
-      size: 345578536
+      md5: f9500cf1d6ffc0796a8603b8bc2d2ab4
+      size: 297377090
   evaluate:
     cmd: python3 src/3_evaluate.py
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: 75ee5167676442a8cafd6d4c00b454db
-      size: 345578536
+      md5: f9500cf1d6ffc0796a8603b8bc2d2ab4
+      size: 297377090
     - path: src/3_evaluate.py
       hash: md5
-      md5: 72bd7e68835278190fc189f77ebad50f
-      size: 2289
+      md5: aa0a225ffcc88fab519022970665c537
+      size: 2397
     params:
       params.yaml:
         train.datamodule.setup:
@@ -87,8 +85,8 @@ stages:
     outs:
     - path: data/evaluate
       hash: md5
-      md5: 7c7e030ca4e1234ab7d273895a90c6e3.dir
-      size: 2739742
+      md5: 8d939a03b90c8c7cac9a5e2e9b313236.dir
+      size: 2419968
       nfiles: 10
   prepare:
     cmd: python3 src/0_prepare.py
@@ -146,12 +144,12 @@ stages:
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: 75ee5167676442a8cafd6d4c00b454db
-      size: 345578536
+      md5: f9500cf1d6ffc0796a8603b8bc2d2ab4
+      size: 297377090
     - path: src/3_export.py
       hash: md5
-      md5: 59a8788833533e7f0588db33e891b721
-      size: 2716
+      md5: 0fcafcbfffa0da35a86967e045822621
+      size: 2713
     params:
       params.yaml:
         export.model_name: solar_model_gpu
@@ -160,8 +158,8 @@ stages:
     outs:
     - path: out/solar_model_gpu.bentomodel
       hash: md5
-      md5: add9362269e48d7936b0ff35e65442e4
-      size: 159963296
+      md5: 00108687a6628c1f0a5a49f28817f90d
+      size: 154589500
   extract_tiles:
     cmd: python3 src/0_extract_tiles.py
     deps:
@@ -209,5 +207,5 @@ stages:
     outs:
     - path: data/preprocessed/annotations.json
       hash: md5
-      md5: d1e9ebadcab86d64547ead0e652b3fb9
-      size: 1510
+      md5: 8a76227e024c4e6d7ffc0fd630c8d332
+      size: 10515

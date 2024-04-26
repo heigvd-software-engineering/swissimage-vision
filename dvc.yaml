@@ -53,26 +53,26 @@ stages:
           persist: true
       - out/model.ckpt
   
-  # # Convert PyTorch model to BentoML model (TorchScript)
-  # export:
-  #   cmd: python3 src/3_export.py
-  #   deps:
-  #     - src/3_export.py
-  #     - out/model.ckpt
-  #   params:
-  #     - train.datamodule.setup.batch_size
-  #     - train.datamodule.setup.image_size
-  #     - export.model_name
-  #   outs:
-  #     - out/${export.model_name}.bentomodel
+  # Convert PyTorch model to BentoML model (TorchScript)
+  export:
+    cmd: python3 src/3_export.py
+    deps:
+      - src/3_export.py
+      - out/model.ckpt
+    params:
+      - train.datamodule.setup.batch_size
+      - train.datamodule.setup.image_size
+      - export.model_name
+    outs:
+      - out/${export.model_name}.bentomodel
 
-  # # Evaluate the model
-  # evaluate:
-  #   cmd: python3 src/3_evaluate.py
-  #   deps:
-  #     - src/3_evaluate.py
-  #     - out/model.ckpt
-  #   params: 
-  #     - train.datamodule.setup
-  #   outs:
-  #     - data/evaluate
+  # Evaluate the model
+  evaluate:
+    cmd: python3 src/3_evaluate.py
+    deps:
+      - src/3_evaluate.py
+      - out/model.ckpt
+    params: 
+      - train.datamodule.setup
+    outs:
+      - data/evaluate

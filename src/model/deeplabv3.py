@@ -1,3 +1,5 @@
+from typing import Optional
+
 import lightning as L
 import torch
 import torchvision
@@ -11,8 +13,8 @@ class DeepLabV3(L.LightningModule):
         num_classes: int,
         lr: float,
         lr_decay_rate: float,
-        lr_sched_step_size: int,
-        lr_sched_gamma: float,
+        lr_sched_step_size: Optional[int],
+        lr_sched_gamma: Optional[float],
     ):
         """Initialize Faster R-CNN model.
 
@@ -50,24 +52,23 @@ class DeepLabV3(L.LightningModule):
             lr=self.lr,
             weight_decay=self.lr_decay_rate,
         )
+        if self.lr_sched_step_size is None or self.lr_sched_gamma is None:
+            return optimizer
         lr_scheduler = torch.optim.lr_scheduler.StepLR(
             optimizer, step_size=self.lr_sched_step_size, gamma=self.lr_sched_gamma
         )
         return [optimizer], [lr_scheduler]
 
-    # def forward(
-    #     self, images: torch.Tensor
-    # ) -> tuple[dict[str, torch.Tensor], list[dict[str, torch.Tensor]]]:
-    #     images = [img for img in images]
-    #     return self.model(images)
+    def forward(self, images: torch.Tensor) -> torch.Tensor:
+        return self.model(images)["out"]
 
     def training_step(
         self, batch: list[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> torch.Tensor:
         images, targets = batch
 
-        output = self.model(images)
-        loss = self.criterion(output["out"], targets)
+        output = self(images)
+        loss = self.criterion(output, targets)
 
         self.log(
             "train_loss",
@@ -82,8 +83,8 @@ class DeepLabV3(L.LightningModule):
         self, batch: list[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> torch.Tensor:
         images, targets = batch
-        output = self.model(images)
-        loss = self.criterion(output["out"], targets)
+        output = self(images)
+        loss = self.criterion(output, targets)
 
         self.log(
             "val_loss",

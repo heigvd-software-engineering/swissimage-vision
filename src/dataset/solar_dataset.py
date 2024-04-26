@@ -1,3 +1,4 @@
+import torch
 from PIL import Image, ImageDraw
 from torch.utils.data import Dataset
 from torchvision import tv_tensors
@@ -32,9 +33,9 @@ class SolarDataset(Dataset):
             for points in sample["polys"]:
                 points = [tuple(point) for point in points]
                 # Create polygon from points
-                draw.polygon(points, fill=255)
+                draw.polygon(points, fill=1)
 
-        targets["masks"] = tv_tensors.Mask(mask, dtype=bool)
+        targets["masks"] = tv_tensors.Mask(mask, dtype=torch.float)
 
         image, targets = self.transform(image, targets)
         return image, targets["masks"]
