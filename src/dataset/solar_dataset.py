@@ -1,9 +1,9 @@
-import torch
+from PIL import Image, ImageDraw
 from torch.utils.data import Dataset
 from torchvision import tv_tensors
 from torchvision.transforms import v2 as T
 from torchvision.transforms.v2 import functional as F
-from PIL import Image, ImageDraw
+
 import utils
 
 
@@ -34,7 +34,7 @@ class SolarDataset(Dataset):
                 # Create polygon from points
                 draw.polygon(points, fill=255)
 
-        targets["masks"] = tv_tensors.Mask(mask)
+        targets["masks"] = tv_tensors.Mask(mask, dtype=bool)
 
         image, targets = self.transform(image, targets)
         return image, targets

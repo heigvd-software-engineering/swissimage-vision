@@ -18,10 +18,10 @@ def save_samples(
             if sample_count == max_samples:
                 return
             image = F.to_dtype(image, torch.uint8, scale=True)
-            mask = target["boxes"]
-            sample = torchvision.utils.draw_bounding_boxes(
-                image, boxes, width=1, colors="blue"
+            sample = torchvision.utils.draw_segmentation_masks(
+                image, target["masks"], alpha=0.4, colors="blue"
             )
+            torchvision.utils.draw_keypoints
             print("[INFO] Saved to", str(output_dir / f"{prefix}_{sample_count}.png"))
             torchvision.io.write_png(
                 sample, str(output_dir / f"{prefix}_{sample_count}.png")

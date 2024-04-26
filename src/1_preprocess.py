@@ -20,9 +20,11 @@ def parse_annotation(ann_key: str, bucket: str) -> dict:
         polys = []
         if data["result"]:
             for result in data["result"]:
+                w = result["original_width"]
+                h = result["original_height"]
                 points = []
                 for point in result["value"]["points"]:
-                    points.append([round(pt) for pt in point])
+                    points.append([point[0] / 100 * w, point[1] / 100 * h])
                 polys.append(points)
         ann["polys"] = polys
     return ann
