@@ -5,12 +5,12 @@ stages:
     deps:
     - path: data/preprocessed/annotations.json
       hash: md5
-      md5: 5777c717b91b9bd52f1354b24d3bc9dd
-      size: 25439
+      md5: d1e9ebadcab86d64547ead0e652b3fb9
+      size: 1510
     - path: src/2_preview.py
       hash: md5
-      md5: c55968a0026350ab57fa3d18cefef911
-      size: 2180
+      md5: dd1aacb75a053a63d977a7f878fe653c
+      size: 2205
     params:
       params.yaml:
         train.datamodule.setup:
@@ -21,9 +21,9 @@ stages:
     outs:
     - path: data/preview
       hash: md5
-      md5: 831101470849371f041fc43b9f04127d.dir
-      size: 5588480
-      nfiles: 20
+      md5: 0493dbf8a7b2bb2912b1ccc62a648673.dir
+      size: 1046335
+      nfiles: 4
   train:
     cmd: python3 src/2_train.py
     deps:
@@ -202,16 +202,12 @@ stages:
   preprocess:
     cmd: python3 src/1_preprocess.py
     deps:
-    - path: data/prepared/depends.txt
-      hash: md5
-      md5: b04bb8a84303df415975f0342f6c6452
-      size: 86
     - path: src/1_preprocess.py
       hash: md5
-      md5: aaa53aa759aee026b1502869d6aac97e
-      size: 2654
+      md5: aa699e9faef007f37a7aac0129c4f4ff
+      size: 2312
     outs:
     - path: data/preprocessed/annotations.json
       hash: md5
-      md5: 5777c717b91b9bd52f1354b24d3bc9dd
-      size: 25439
+      md5: d1e9ebadcab86d64547ead0e652b3fb9
+      size: 1510
