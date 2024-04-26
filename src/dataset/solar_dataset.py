@@ -12,15 +12,15 @@ class SolarDataset(Dataset):
         self,
         metadata: list[dict],
         transform: T.Compose,
-    ):
+    ) -> None:
         self.metadata = metadata
         self.transform = transform
         self.s3 = utils.s3.get_s3_resource()
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.metadata)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx) -> tuple[Image.Image, tv_tensors.Mask]:
         sample = self.metadata[idx]
         bucket, prefix = utils.s3.split_url_to_bucket_and_prefix(sample["image"])
         image = F.to_image(utils.s3.get_image(self.s3, bucket, prefix))
@@ -37,4 +37,4 @@ class SolarDataset(Dataset):
         targets["masks"] = tv_tensors.Mask(mask, dtype=bool)
 
         image, targets = self.transform(image, targets)
-        return image, targets
+        return image, targets["masks"]

@@ -19,7 +19,7 @@ def save_samples(
                 return
             image = F.to_dtype(image, torch.uint8, scale=True)
             sample = torchvision.utils.draw_segmentation_masks(
-                image, target["masks"], alpha=0.4, colors="blue"
+                image, target, alpha=0.4, colors="blue"
             )
             torchvision.utils.draw_keypoints
             print("[INFO] Saved to", str(output_dir / f"{prefix}_{sample_count}.png"))

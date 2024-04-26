@@ -21,10 +21,6 @@ def seed_worker(worker_id):
     random.seed(worker_seed)
 
 
-def collate_fn(batch):
-    return tuple(zip(*batch))
-
-
 class SolarDataModule(L.LightningDataModule):
     def __init__(
         self,
@@ -83,7 +79,6 @@ class SolarDataModule(L.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=True,
             drop_last=False,
-            collate_fn=collate_fn,
             num_workers=self.num_workers // 2,
             worker_init_fn=seed_worker,
             generator=self.gen,
@@ -96,7 +91,6 @@ class SolarDataModule(L.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             drop_last=False,
-            collate_fn=collate_fn,
             num_workers=self.num_workers // 2,
             worker_init_fn=seed_worker,
             generator=self.gen,

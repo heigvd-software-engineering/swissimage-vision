@@ -34,6 +34,9 @@ class DeepLabV3(L.LightningModule):
             weights=torchvision.models.segmentation.DeepLabV3_ResNet50_Weights.DEFAULT,
             aux_loss=None,
         )
+        for param in self.model.parameters():
+            param.requires_grad = False
+
         in_channels = self.model.classifier[0].convs[0][0].in_channels
         self.model.classifier = DeepLabHead(
             in_channels=in_channels, num_classes=self.hparams.num_classes
@@ -52,16 +55,17 @@ class DeepLabV3(L.LightningModule):
         )
         return [optimizer], [lr_scheduler]
 
-    def forward(
-        self, images: torch.Tensor
-    ) -> tuple[dict[str, torch.Tensor], list[dict[str, torch.Tensor]]]:
-        images = [img for img in images]
-        return self.model(images)
+    # def forward(
+    #     self, images: torch.Tensor
+    # ) -> tuple[dict[str, torch.Tensor], list[dict[str, torch.Tensor]]]:
+    #     images = [img for img in images]
+    #     return self.model(images)
 
     def training_step(
-        self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
+        self, batch: list[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> torch.Tensor:
         images, targets = batch
+
         output = self.model(images)
         loss = self.criterion(output["out"], targets)
 
@@ -75,7 +79,7 @@ class DeepLabV3(L.LightningModule):
         return loss
 
     def validation_step(
-        self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
+        self, batch: list[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> torch.Tensor:
         images, targets = batch
         output = self.model(images)
