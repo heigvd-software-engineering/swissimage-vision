@@ -52,6 +52,8 @@ stages:
       - lightning_logs:
           persist: true
       - out/model.ckpt
+    metrics:
+      - out/metrics.json
   
   # Convert PyTorch model to BentoML model (TorchScript)
   export:

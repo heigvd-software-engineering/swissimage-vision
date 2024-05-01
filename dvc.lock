@@ -33,8 +33,8 @@ stages:
       size: 10515
     - path: src/2_train.py
       hash: md5
-      md5: 3b632b19e991a0391a7fd834e9395666
-      size: 3779
+      md5: 45b1b032bed61ea60ed27d0c35cc1b5d
+      size: 3914
     params:
       params.yaml:
         train.datamodule.setup:
@@ -57,20 +57,24 @@ stages:
     outs:
     - path: lightning_logs
       hash: md5
-      md5: 1e2ad33aa873a519984765031b23144f.dir
-      size: 594761869
-      nfiles: 4
+      md5: aaec8f9cf0e0f55723673c831d329111.dir
+      size: 1189525235
+      nfiles: 8
+    - path: out/metrics.json
+      hash: md5
+      md5: 10c129412c7f690be6ec7bfe763e6619
+      size: 256
     - path: out/model.ckpt
       hash: md5
-      md5: f9500cf1d6ffc0796a8603b8bc2d2ab4
-      size: 297377090
+      md5: f6f1caff894b940ae83297cdad29461b
+      size: 297377282
   evaluate:
     cmd: python3 src/3_evaluate.py
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: f9500cf1d6ffc0796a8603b8bc2d2ab4
-      size: 297377090
+      md5: f6f1caff894b940ae83297cdad29461b
+      size: 297377282
     - path: src/3_evaluate.py
       hash: md5
       md5: aa0a225ffcc88fab519022970665c537
@@ -85,8 +89,8 @@ stages:
     outs:
     - path: data/evaluate
       hash: md5
-      md5: 8d939a03b90c8c7cac9a5e2e9b313236.dir
-      size: 2419968
+      md5: 2fde327dd334bd2e06c4d4bab6d77afb.dir
+      size: 2419938
       nfiles: 10
   prepare:
     cmd: python3 src/0_prepare.py
@@ -144,8 +148,8 @@ stages:
     deps:
     - path: out/model.ckpt
       hash: md5
-      md5: f9500cf1d6ffc0796a8603b8bc2d2ab4
-      size: 297377090
+      md5: f6f1caff894b940ae83297cdad29461b
+      size: 297377282
     - path: src/3_export.py
       hash: md5
       md5: 0fcafcbfffa0da35a86967e045822621
@@ -158,8 +162,8 @@ stages:
     outs:
     - path: out/solar_model_gpu.bentomodel
       hash: md5
-      md5: 00108687a6628c1f0a5a49f28817f90d
-      size: 154589500
+      md5: 735c22e4f49e7590b5d49a0397929dba
+      size: 154599480
   extract_tiles:
     cmd: python3 src/0_extract_tiles.py
     deps:
