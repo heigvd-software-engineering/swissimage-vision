@@ -101,7 +101,3 @@ DVC has been configured to version the data in to folder `data/raw`. (`dvc add d
 We use Label Studio to label the data. Label Studio is deployed on a Kubernetes cluster using Helm.
 
 For more information on deploying Label Studio, see the [../infra/labelstudio/README.md](../infra/labelstudio/README.md) file.
-
-```
-
-```
