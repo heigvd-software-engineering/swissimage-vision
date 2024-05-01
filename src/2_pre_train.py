@@ -14,13 +14,12 @@ from lightning.pytorch.callbacks import (
 )
 from lightning.pytorch.strategies import DDPStrategy
 
-from dataset.s3_solar_datamodule import S3SolarDataModule
+from dataset.solar_datamodule import SolarDataModule
 from model.deeplabv3 import DeepLabV3
 
 
 def train(
     dm_seed: int,
-    ann_path: Path,
     split: float,
     batch_size: int,
     image_size: int,
@@ -28,6 +27,7 @@ def train(
     pin_memory: bool,
     seed: int,
     num_classes: int,
+    freeze_backbone: bool,
     lr: float,
     lr_decay_rate: float,
     lr_sched_step_size: Optional[int],
@@ -39,8 +39,8 @@ def train(
 ) -> None:
     L.seed_everything(seed)
 
-    dm = S3SolarDataModule(
-        ann_path=ann_path,
+    dm = SolarDataModule(
+        root_dirs=[Path("data/raw/bdappv/google"), Path("data/raw/bdappv/ign")],
         image_size=image_size,
         seed=dm_seed,
         split=split,
@@ -51,6 +51,7 @@ def train(
 
     model = DeepLabV3(
         num_classes=num_classes,
+        freeze_backbone=freeze_backbone,
         lr=lr,
         lr_decay_rate=lr_decay_rate,
         lr_sched_step_size=lr_sched_step_size,
@@ -79,7 +80,7 @@ def train(
         )
 
     trainer = L.Trainer(
-        log_every_n_steps=5,
+        # log_every_n_steps=5,
         max_epochs=epochs,
         precision=precision if precision else "32-true",
         strategy=(
@@ -117,8 +118,9 @@ def train(
     # Wait for model to be saved
     max_retries = 20
     retries = 0
-    out_path = Path("out/model.ckpt")
-    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_dir = Path("out/pretrained/")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / "model.ckpt"
     while True:
         if retries >= max_retries:
             raise RuntimeError("Model not found")
@@ -129,20 +131,19 @@ def train(
         retries += 1
 
     # Save metric values
-    with open("out/metrics.json", "w") as f:
+    with open(out_dir / "metrics.json", "w") as f:
         json.dump(model.get_metrics(), f, indent=4)
 
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
-    train_params = params["train"]
+    train_params = params["pre-train"]
     datamodule_params = train_params["datamodule"]
     datamodule_setup_params = datamodule_params["setup"]
     datamodule_setup_params["dm_seed"] = datamodule_setup_params.pop("seed")
 
     train(
         **datamodule_setup_params,
-        ann_path=Path("data/preprocessed/annotations.json"),
         num_workers=datamodule_params["num_workers"],
         pin_memory=datamodule_params["pin_memory"],
         **train_params["model"],

@@ -12,6 +12,7 @@ class DeepLabV3(L.LightningModule):
         self,
         # Hyperparameters
         num_classes: int,
+        freeze_backbone: bool,
         lr: float,
         lr_decay_rate: float,
         lr_sched_step_size: Optional[int],
@@ -21,6 +22,7 @@ class DeepLabV3(L.LightningModule):
 
         Args:
             num_classes (int): Number of classes in the dataset.
+            freeze_backbone (bool): Whether to freeze the backbone.
             lr (float): Learning rate for the optimizer.
             lr_decay_rate (float): Weight decay for the optimizer.
             lr_sched_step_size (int): Step size for the learning rate scheduler.
@@ -37,14 +39,16 @@ class DeepLabV3(L.LightningModule):
             weights=torchvision.models.segmentation.DeepLabV3_ResNet50_Weights.DEFAULT,
             aux_loss=None,
         )
-        for param in self.model.parameters():
-            param.requires_grad = False
+        if freeze_backbone:
+            for param in self.model.parameters():
+                param.requires_grad = False
 
         in_channels = self.model.classifier[0].convs[0][0].in_channels
         self.model.classifier = DeepLabHead(
             in_channels=in_channels, num_classes=self.hparams.num_classes
         )
-        self.criterion = torch.nn.MSELoss(reduction="mean")
+        # TODO: Accuratly calculate the pos_weight
+        self.criterion = torch.nn.BCEWithLogitsLoss(pos_weight=torch.Tensor([15.0]))
         # Metrics
         threshold = 0.5
         self.val_prec = torchmetrics.classification.BinaryPrecision(threshold=threshold)

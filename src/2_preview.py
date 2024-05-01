@@ -6,7 +6,7 @@ import torchvision
 import yaml
 from torchvision.transforms.v2 import functional as F
 
-from dataset.solar_datamodule import SolarDataModule
+from dataset.s3_solar_datamodule import S3SolarDataModule
 
 
 def save_samples(
@@ -43,7 +43,7 @@ def preview(
 ) -> None:
     L.seed_everything(seed)
 
-    dm = SolarDataModule(
+    dm = S3SolarDataModule(
         ann_path=ann_path,
         image_size=image_size,
         seed=seed,

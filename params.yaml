@@ -14,6 +14,30 @@ prepare:
 
 preprocess:  # Empty for now
 
+pre-train:
+  datamodule:          # PyTorch Lightning DataModule parameters
+    setup:
+      # S3 path to the prepared data (should contain images/ and labels/ folders)
+      seed: 42         # Random seed for data split
+      split: 0.8       # train = split * total
+      batch_size: 16
+      image_size: 256  # Image size for the model
+    num_workers: 6     # Split evenly between train and val dataloaders
+    pin_memory: true
+  model:
+    seed: 42                # Random seed for model initialization
+    num_classes: 1          # Solar panel
+    freeze_backbone: false  # Freeze the backbone of the model
+  training:
+    lr: 0.001
+    lr_decay_rate: 0.0005
+    lr_sched_step_size: 1  # Step size (epochs) for learning rate scheduler
+    lr_sched_gamma: 0.5      # Multiplicative factor of learning rate decay
+    save_ckpt: false          # Save best model checkpoint while training
+    es_patience: null         # Early stopping patience, null to disable
+    epochs: 2
+    precision: "16-mixed"
+
 train:
   datamodule:          # PyTorch Lightning DataModule parameters
     setup:
@@ -25,8 +49,9 @@ train:
     num_workers: 8     # Split evenly between train and val dataloaders
     pin_memory: true
   model:
-    seed: 42        # Random seed for model initialization
-    num_classes: 1  # Solar panel
+    seed: 42               # Random seed for model initialization
+    num_classes: 1         # Solar panel
+    freeze_backbone: true  # Freeze the backbone of the model
   training:
     lr: 0.001
     lr_decay_rate: 0.0005

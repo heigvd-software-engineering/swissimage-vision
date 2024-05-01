@@ -8,7 +8,7 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision.transforms import v2 as T
 
-from dataset.solar_dataset import SolarDataset
+from dataset.s3_solar_dataset import S3SolarDataset
 
 
 def seed_worker(worker_id):
@@ -21,10 +21,10 @@ def seed_worker(worker_id):
     random.seed(worker_seed)
 
 
-class SolarDataModule(L.LightningDataModule):
+class S3SolarDataModule(L.LightningDataModule):
     def __init__(
         self,
-        root_dirs: list[Path],
+        ann_path: Path,
         image_size: int,
         seed: int,
         split: float,
@@ -35,7 +35,7 @@ class SolarDataModule(L.LightningDataModule):
         """Initialize S3SolarDataModule.
 
         Args:
-            root_dirs (list[Path]): Paths to masks and images.
+            ann_path (Path): Path to annotations (json).
             image_size (int): Size of the images.
             seed (int): Seed for reproducibility.
             split (float): Fraction of the data to use for training.
@@ -44,7 +44,7 @@ class SolarDataModule(L.LightningDataModule):
             pin_memory (bool, optional): Whether to pin memory. Defaults to True.
         """
         super().__init__()
-        self.root_dirs = root_dirs
+        self.ann_path = ann_path
         self.image_size = image_size
         self.seed = seed
         self.split = split
@@ -58,26 +58,20 @@ class SolarDataModule(L.LightningDataModule):
         self.val_transform = self._get_transform(is_train=False)
 
     def setup(self, stage: str = None) -> None:
-        # root should have img/ and mask/ folders
-        data = []
-        for root_dir in self.root_dirs:
-            for mask_path in root_dir.glob("mask/*.png"):
-                image_path = root_dir / "img" / mask_path.name
-                data.append((str(image_path), str(mask_path)))
+        # Load data from preprocessed DVC stage
+        with open(self.ann_path, "r") as f:
+            data = json.load(f)
+        if len(data) == 0:
+            raise ValueError("No data found. Check the paths.")
         indices = torch.randperm(len(data)).tolist()
         train_size = int(self.split * len(data))
-
-        print(f"Found {len(data)} samples:")
-        print(f"  - Training: {train_size}")
-        print(f"  - Validation: {len(data) - train_size}")
-
         train = torch.utils.data.Subset(data, indices[:train_size])
         val = torch.utils.data.Subset(data, indices[train_size:])
 
-        self.train_dataset = SolarDataset(
+        self.train_dataset = S3SolarDataset(
             metadata=train, transform=self.train_transform
         )
-        self.val_dataset = SolarDataset(metadata=val, transform=self.val_transform)
+        self.val_dataset = S3SolarDataset(metadata=val, transform=self.val_transform)
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(

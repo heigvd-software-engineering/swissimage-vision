@@ -24,7 +24,8 @@ def evaluate(
     L.seed_everything(seed)
 
     dm = SolarDataModule(
-        ann_path=ann_path,
+        root_dirs=[Path("data/raw/bdappv/google"), Path("data/raw/bdappv/ign")],
+        # ann_path=ann_path,
         image_size=image_size,
         seed=seed,
         split=split,
@@ -34,7 +35,7 @@ def evaluate(
     )
     dm.setup()
 
-    model = DeepLabV3.load_from_checkpoint("out/model.ckpt")
+    model = DeepLabV3.load_from_checkpoint("out/pretrained/model.ckpt")
     device = "cpu"
     if torch.cuda.is_available():
         device = "cuda"
@@ -69,7 +70,7 @@ def evaluate(
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
-    train_params = params["train"]
+    train_params = params["pre-train"]
     datamodule_setup_params = train_params["datamodule"]["setup"]
 
     evaluate(

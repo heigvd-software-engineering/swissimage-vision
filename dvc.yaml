@@ -37,6 +37,17 @@ stages:
       - train.datamodule.setup
     outs:
       - data/preview
+
+  pre-train:
+    cmd: python3 src/2_pre_train.py
+    deps:
+      - data/raw/...
+    params: 
+      - train.datamodule.setup
+      - train.model
+      - train.training
+    outs:
+      - out/model.ckpt
   
   # Train the model
   train:
