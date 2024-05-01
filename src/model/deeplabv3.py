@@ -2,6 +2,7 @@ from typing import Optional
 
 import lightning as L
 import torch
+import torchmetrics.classification
 import torchvision
 from torchvision.models.segmentation.deeplabv3 import DeepLabHead
 
@@ -44,6 +45,13 @@ class DeepLabV3(L.LightningModule):
             in_channels=in_channels, num_classes=self.hparams.num_classes
         )
         self.criterion = torch.nn.MSELoss(reduction="mean")
+        # Metrics
+        threshold = 0.5
+        self.val_prec = torchmetrics.classification.BinaryPrecision(threshold=threshold)
+        self.val_rec = torchmetrics.classification.BinaryRecall(threshold=threshold)
+        self.val_acc = torchmetrics.classification.BinaryAccuracy(threshold=threshold)
+        self.val_f1 = torchmetrics.classification.BinaryF1Score(threshold=threshold)
+        self.val_auc_roc = torchmetrics.classification.BinaryAUROC()
 
     def configure_optimizers(self):
         params = [p for p in self.model.parameters() if p.requires_grad]
@@ -73,7 +81,6 @@ class DeepLabV3(L.LightningModule):
         self.log(
             "train_loss",
             loss,
-            batch_size=len(images),
             prog_bar=True,
             sync_dist=True,
         )
@@ -84,13 +91,30 @@ class DeepLabV3(L.LightningModule):
     ) -> torch.Tensor:
         images, targets = batch
         output = self(images)
+
+        self.val_prec(output, targets),
+        self.log("val_prec", self.val_prec, prog_bar=False)
+        self.val_rec(output, targets),
+        self.log("val_rec", self.val_rec, prog_bar=False)
+        self.val_acc(output, targets),
+        self.log("val_acc", self.val_acc, prog_bar=False)
+        self.val_f1(output, targets),
+        self.log("val_f1", self.val_f1, prog_bar=False)
+        self.val_auc_roc(output, targets)
+        self.log("val_auc_roc", self.val_auc_roc, prog_bar=False)
         loss = self.criterion(output, targets)
 
-        self.log(
-            "val_loss",
-            loss,
-            batch_size=len(images),
-            prog_bar=True,
-            sync_dist=True,
-        )
+        self.log("val_loss", loss, prog_bar=True, sync_dist=True)
         return loss
+
+    def get_metrics(self) -> dict[str, float]:
+        callback_metrics = self.trainer.callback_metrics
+        return {
+            "train_loss": callback_metrics["train_loss"].detach().cpu().item(),
+            "val_loss": callback_metrics["val_loss"].detach().cpu().item(),
+            "val_prec": callback_metrics["val_prec"].detach().cpu().item(),
+            "val_rec": callback_metrics["val_rec"].detach().cpu().item(),
+            "val_acc": callback_metrics["val_acc"].detach().cpu().item(),
+            "val_f1": callback_metrics["val_f1"].detach().cpu().item(),
+            "val_auc_roc": callback_metrics["val_auc_roc"].detach().cpu().item(),
+        }

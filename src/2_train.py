@@ -1,3 +1,4 @@
+import json
 import shutil
 import time
 from pathlib import Path
@@ -126,6 +127,10 @@ def train(
             break
         time.sleep(1)
         retries += 1
+
+    # Save metric values
+    with open("out/metrics.json", "w") as f:
+        json.dump(model.get_metrics(), f, indent=4)
 
 
 def main() -> None:
