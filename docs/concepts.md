@@ -134,3 +134,5 @@ The annotations are pulled from S3 in the `preprocess` stage and merged into a s
 
 > [!NOTE]
 > The `preprocess` stage uses the condition `always_changed: true` in `dvc.yaml` to force the stage to run every time. This is because the annotations are constantly being updated in Label Studio and we want to pull the latest annotations every time we run the pipeline.
+
+You can refer to the [Label Studio documentation](https://labelstud.io/guide/) for more information on how to use Label Studio.
