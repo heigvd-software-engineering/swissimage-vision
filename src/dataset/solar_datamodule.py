@@ -111,7 +111,11 @@ class SolarDataModule(L.LightningDataModule):
                     T.RandomHorizontalFlip(0.5),
                     T.RandomVerticalFlip(0.5),
                     T.ColorJitter(
-                        brightness=0.25, contrast=0.5, saturation=0.5, hue=0.1
+                        brightness=0.25, contrast=0.25, saturation=0.25, hue=0.1
+                    ),
+                    T.RandomResizedCrop(
+                        size=(self.image_size, self.image_size),
+                        scale=(0.6, 1.0),
                     ),
                 ]
             )

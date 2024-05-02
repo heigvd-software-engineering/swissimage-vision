@@ -48,7 +48,7 @@ class DeepLabV3(L.LightningModule):
             in_channels=in_channels, num_classes=self.hparams.num_classes
         )
         # TODO: Accuratly calculate the pos_weight
-        self.criterion = torch.nn.BCEWithLogitsLoss(pos_weight=torch.Tensor([15.0]))
+        self.criterion = torch.nn.BCEWithLogitsLoss(pos_weight=torch.Tensor([1.0]))
         # Metrics
         threshold = 0.5
         self.val_prec = torchmetrics.classification.BinaryPrecision(threshold=threshold)

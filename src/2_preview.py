@@ -7,6 +7,7 @@ import yaml
 from torchvision.transforms.v2 import functional as F
 
 from dataset.s3_solar_datamodule import S3SolarDataModule
+from dataset.solar_datamodule import SolarDataModule
 
 
 def save_samples(
@@ -43,8 +44,9 @@ def preview(
 ) -> None:
     L.seed_everything(seed)
 
-    dm = S3SolarDataModule(
-        ann_path=ann_path,
+    dm = SolarDataModule(
+        root_dirs=[Path("data/raw/bdappv/google"), Path("data/raw/bdappv/ign")],
+        # ann_path=ann_path,
         image_size=image_size,
         seed=seed,
         split=split,
@@ -71,7 +73,7 @@ def preview(
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
-    datamodule_setup_params = params["train"]["datamodule"]["setup"]
+    datamodule_setup_params = params["pre-train"]["datamodule"]["setup"]
     preview(
         **datamodule_setup_params,
         num_workers=0,

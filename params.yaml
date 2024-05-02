@@ -25,18 +25,18 @@ pre-train:
     num_workers: 6     # Split evenly between train and val dataloaders
     pin_memory: true
   model:
-    seed: 42                # Random seed for model initialization
+    seed: 64                # Random seed for model initialization
     num_classes: 1          # Solar panel
     freeze_backbone: false  # Freeze the backbone of the model
   training:
-    lr: 0.001
+    lr: 0.00025
     lr_decay_rate: 0.0005
     lr_sched_step_size: 1  # Step size (epochs) for learning rate scheduler
-    lr_sched_gamma: 0.5      # Multiplicative factor of learning rate decay
-    save_ckpt: false          # Save best model checkpoint while training
-    es_patience: null         # Early stopping patience, null to disable
-    epochs: 2
-    precision: "16-mixed"
+    lr_sched_gamma: 0.7    # Multiplicative factor of learning rate decay
+    save_ckpt: false       # Save best model checkpoint while training
+    es_patience: null      # Early stopping patience, null to disable
+    epochs: 5
+    precision: "32-true"
 
 train:
   datamodule:          # PyTorch Lightning DataModule parameters

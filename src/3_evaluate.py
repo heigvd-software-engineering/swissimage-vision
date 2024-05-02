@@ -6,6 +6,7 @@ import torchvision
 import yaml
 from torchvision.transforms.v2 import functional as F
 
+from dataset.s3_solar_datamodule import S3SolarDataModule
 from dataset.solar_datamodule import SolarDataModule
 from model.deeplabv3 import DeepLabV3
 

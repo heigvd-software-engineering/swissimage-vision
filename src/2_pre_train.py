@@ -62,7 +62,7 @@ def train(
         torch.set_float32_matmul_precision("high")
 
     callbacks = [
-        LearningRateMonitor(logging_interval="epoch", log_momentum=True),
+        LearningRateMonitor(logging_interval="epoch"),
     ]
 
     if save_ckpt:
