@@ -30,8 +30,8 @@ stages:
       size: 8185439624
     - path: src/0_pre_train.py
       hash: md5
-      md5: f1b8df6e6b5ddfaff08cf8654e9f57c0
-      size: 3869
+      md5: 1e2f9ffc4fb3f1bd1c7ef2d2bd2eae57
+      size: 3912
     params:
       params.yaml:
         pre-train.datamodule.setup:
@@ -53,7 +53,7 @@ stages:
           epochs: 5
           precision: 32-true
     outs:
-    - path: lightning_logs
+    - path: out/pretrained/lightning_logs
       hash: md5
       md5: 83129846d42104cd1aaeae1d7b7d1108.dir
       size: 971165733
@@ -78,3 +78,27 @@ stages:
       hash: md5
       md5: 8a76227e024c4e6d7ffc0fd630c8d332
       size: 10515
+  preview:
+    cmd: python3 src/2_preview.py
+    deps:
+    - path: data/preprocessed/annotations.json
+      hash: md5
+      md5: 8a76227e024c4e6d7ffc0fd630c8d332
+      size: 10515
+    - path: src/2_preview.py
+      hash: md5
+      md5: e78082cfa9b1f3672c8d1d51491ea6d5
+      size: 2255
+    params:
+      params.yaml:
+        train.datamodule.setup:
+          seed: 42
+          split: 0.8
+          batch_size: 16
+          image_size: 384
+    outs:
+    - path: data/preview
+      hash: md5
+      md5: ecec96b4618d95382024b9199e80d80d.dir
+      size: 1852429
+      nfiles: 16

@@ -6,7 +6,6 @@ import torchvision
 import yaml
 from torchvision.transforms.v2 import functional as F
 
-from dataset.bdappv_datamodule import SolarDataModule
 from dataset.s3_solar_datamodule import S3SolarDataModule
 
 
@@ -44,9 +43,8 @@ def preview(
 ) -> None:
     L.seed_everything(seed)
 
-    dm = SolarDataModule(
-        root_dirs=[Path("data/raw/bdappv/google"), Path("data/raw/bdappv/ign")],
-        # ann_path=ann_path,
+    dm = S3SolarDataModule(
+        ann_path=ann_path,
         image_size=image_size,
         seed=seed,
         split=split,

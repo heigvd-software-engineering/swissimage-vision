@@ -49,18 +49,16 @@ train:
     num_workers: 8     # Split evenly between train and val dataloaders
     pin_memory: true
   model:
-    seed: 42               # Random seed for model initialization
-    num_classes: 1         # Solar panel
-    freeze_backbone: true  # Freeze the backbone of the model
+    seed: 42  # Random seed for model initialization
   training:
-    lr: 0.001
+    lr: 0.00025
     lr_decay_rate: 0.0005
     lr_sched_step_size: null  # Step size (epochs) for learning rate scheduler
     lr_sched_gamma: null      # Multiplicative factor of learning rate decay
     save_ckpt: false          # Save best model checkpoint while training
     es_patience: null         # Early stopping patience, null to disable
     epochs: 5
-    precision: "16-mixed"
+    precision: "32-true"
 
 export:
   model_name: solar_model_gpu

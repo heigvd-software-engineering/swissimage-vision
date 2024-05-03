@@ -91,6 +91,7 @@ def train(
         benchmark=True if torch.cuda.is_available() else False,
         callbacks=callbacks,
         limit_val_batches=0 if split == 1 else None,
+        default_root_dir="out/pretrained",
     )
 
     trainer.fit(

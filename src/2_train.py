@@ -27,7 +27,6 @@ def train(
     num_workers: int,
     pin_memory: bool,
     seed: int,
-    num_classes: int,
     lr: float,
     lr_decay_rate: float,
     lr_sched_step_size: Optional[int],
@@ -49,8 +48,8 @@ def train(
         pin_memory=pin_memory,
     )
 
-    model = DeepLabV3(
-        num_classes=num_classes,
+    model = DeepLabV3.load_from_checkpoint(
+        "out/pretrained/model.ckpt",
         lr=lr,
         lr_decay_rate=lr_decay_rate,
         lr_sched_step_size=lr_sched_step_size,
@@ -79,7 +78,7 @@ def train(
         )
 
     trainer = L.Trainer(
-        log_every_n_steps=5,
+        log_every_n_steps=1,
         max_epochs=epochs,
         precision=precision if precision else "32-true",
         strategy=(
@@ -92,6 +91,7 @@ def train(
         benchmark=True if torch.cuda.is_available() else False,
         callbacks=callbacks,
         limit_val_batches=0 if split == 1 else None,
+        default_root_dir="out",
     )
 
     trainer.fit(
