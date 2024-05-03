@@ -5,3 +5,6 @@ __pycache__/
 
 # Helm values
 infra/labelstudio/*values.yaml
+
+# Extracted files
+data/extracted

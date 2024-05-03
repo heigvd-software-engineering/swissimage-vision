@@ -1,11 +1,8 @@
-import json
-import random
 import shutil
 import zipfile
 from pathlib import Path
 
 import lightning as L
-import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from torchvision.transforms import v2 as T
@@ -16,7 +13,8 @@ from utils.seed import seed_worker
 
 class BdappvDataModule(L.LightningDataModule):
     DATA_PATH = Path("data/raw/bdappv.zip")
-    ROOT_DIRS = [Path("data/raw/bdappv/google"), Path("data/raw/bdappv/ign")]
+    EXTRACT_PATH = Path("data/extracted")
+    ROOT_DIRS = [EXTRACT_PATH / "bdappv/google", EXTRACT_PATH / "bdappv/ign"]
 
     def __init__(
         self,
@@ -51,13 +49,14 @@ class BdappvDataModule(L.LightningDataModule):
         self.val_transform = self._get_transform(is_train=False)
 
     def prepare_data(self) -> None:
-        print("[INFO] Extracting data...")
-        with zipfile.ZipFile(self.DATA_PATH, "r") as zip_ref:
-            zip_ref.extractall("data/raw")
+        if self.EXTRACT_PATH.exists():
+            return
 
-    def teardown(self, stage: str) -> None:
-        if stage == "fit":
-            shutil.rmtree("data/raw/bdappv")
+        print("[INFO] Extracting data...")
+        self.EXTRACT_PATH.mkdir(parents=True, exist_ok=True)
+
+        with zipfile.ZipFile(self.DATA_PATH, "r") as zip_ref:
+            zip_ref.extractall(str(self.EXTRACT_PATH))
 
     def setup(self, stage: str = None) -> None:
         # root should have img/ and mask/ folders
