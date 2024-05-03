@@ -16,6 +16,7 @@ from utils.seed import seed_worker
 
 class BdappvDataModule(L.LightningDataModule):
     DATA_PATH = Path("data/raw/bdappv.zip")
+    ROOT_DIRS = [Path("data/raw/bdappv/google"), Path("data/raw/bdappv/ign")]
 
     def __init__(
         self,
@@ -50,8 +51,9 @@ class BdappvDataModule(L.LightningDataModule):
         self.val_transform = self._get_transform(is_train=False)
 
     def prepare_data(self) -> None:
+        print("[INFO] Extracting data...")
         with zipfile.ZipFile(self.DATA_PATH, "r") as zip_ref:
-            zip_ref.extractall("data/raw/bdappv")
+            zip_ref.extractall("data/raw")
 
     def teardown(self, stage: str) -> None:
         if stage == "fit":
@@ -60,7 +62,7 @@ class BdappvDataModule(L.LightningDataModule):
     def setup(self, stage: str = None) -> None:
         # root should have img/ and mask/ folders
         data = []
-        for root_dir in self.root_dirs:
+        for root_dir in self.ROOT_DIRS:
             for mask_path in root_dir.glob("mask/*.png"):
                 image_path = root_dir / "img" / mask_path.name
                 data.append((str(image_path), str(mask_path)))
