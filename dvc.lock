@@ -53,6 +53,11 @@ stages:
           epochs: 5
           precision: 32-true
     outs:
+    - path: lightning_logs
+      hash: md5
+      md5: 47121084521526811c6cfb57c0889e2c.dir
+      size: 653946985
+      nfiles: 4
     - path: out/pretrained/metrics.json
       hash: md5
       md5: 19a50a6b0aaa676ce0768efc315cb125
