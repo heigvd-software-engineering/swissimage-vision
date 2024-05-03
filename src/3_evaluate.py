@@ -45,7 +45,7 @@ def evaluate(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     sample_count = 0
-    for images, targets in dm.train_dataloader():
+    for images, targets in dm.val_dataloader():
         with torch.no_grad():
             outputs = model(images)
         for image, target, output in zip(images, targets, outputs):

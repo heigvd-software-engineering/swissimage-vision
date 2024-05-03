@@ -55,6 +55,9 @@ def train(
         lr_sched_step_size=lr_sched_step_size,
         lr_sched_gamma=lr_sched_gamma,
     )
+    # Freeze backbone
+    for param in model.model.backbone.parameters():
+        param.requires_grad = False
 
     if torch.cuda.is_available():
         torch.set_float32_matmul_precision("high")

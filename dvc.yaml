@@ -55,23 +55,23 @@ stages:
     outs:
       - data/preview
 
-  # # Train the model
-  # train:
-  #   cmd: python3 src/2_train.py
-  #   deps:
-  #     - src/2_train.py
-  #     - data/preprocessed/annotations.json
-  #     - out/pretrained/model.ckpt
-  #   params: 
-  #     - train.datamodule.setup
-  #     - train.model
-  #     - train.training
-  #   outs:
-  #     - out/model.ckpt
-  #     - out/lightning_logs:
-  #         persist: true
-  #   metrics:
-  #     - out/metrics.json
+  # Train the model
+  train:
+    cmd: python3 src/2_train.py
+    deps:
+      - src/2_train.py
+      - data/preprocessed/annotations.json
+      - out/pretrained/model.ckpt
+    params: 
+      - train.datamodule.setup
+      - train.model
+      - train.training
+    outs:
+      - out/model.ckpt
+      - out/lightning_logs:
+          persist: true
+    metrics:
+      - out/metrics.json
   
   # # Convert PyTorch model to BentoML model (TorchScript)
   # export:
@@ -86,13 +86,13 @@ stages:
   #   outs:
   #     - out/${export.model_name}.bentomodel
 
-  # # Evaluate the model
-  # evaluate:
-  #   cmd: python3 src/3_evaluate.py
-  #   deps:
-  #     - src/3_evaluate.py
-  #     - out/model.ckpt
-  #   params: 
-  #     - train.datamodule.setup
-  #   outs:
-  #     - data/evaluate
+  # Evaluate the model
+  evaluate:
+    cmd: python3 src/3_evaluate.py
+    deps:
+      - src/3_evaluate.py
+      - out/model.ckpt
+    params: 
+      - train.datamodule.setup
+    outs:
+      - data/evaluate

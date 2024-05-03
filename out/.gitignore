@@ -3,3 +3,4 @@
 /solar_model.bentomodel
 /solar_model_gpu.bentomodel
 /metrics.json
+/lightning_logs

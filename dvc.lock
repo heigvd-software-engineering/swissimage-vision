@@ -95,10 +95,81 @@ stages:
           seed: 42
           split: 0.8
           batch_size: 16
-          image_size: 384
+          image_size: 256
     outs:
     - path: data/preview
       hash: md5
       md5: ecec96b4618d95382024b9199e80d80d.dir
       size: 1852429
       nfiles: 16
+  train:
+    cmd: python3 src/2_train.py
+    deps:
+    - path: data/preprocessed/annotations.json
+      hash: md5
+      md5: 8a76227e024c4e6d7ffc0fd630c8d332
+      size: 10515
+    - path: out/pretrained/model.ckpt
+      hash: md5
+      md5: 84e100b133e3f568be8f55e603cabbde
+      size: 485571270
+    - path: src/2_train.py
+      hash: md5
+      md5: 8a6efe7b96fcf5e8014ce4e0a2b6795c
+      size: 4081
+    params:
+      params.yaml:
+        train.datamodule.setup:
+          seed: 42
+          split: 0.8
+          batch_size: 16
+          image_size: 256
+        train.model:
+          seed: 42
+        train.training:
+          lr: 0.00025
+          lr_decay_rate: 0.0005
+          lr_sched_step_size:
+          lr_sched_gamma:
+          save_ckpt: false
+          es_patience:
+          epochs: 5
+          precision: 32-true
+    outs:
+    - path: out/lightning_logs
+      hash: md5
+      md5: 8e2ad85922b4ee28536b4323bf856497.dir
+      size: 594764185
+      nfiles: 4
+    - path: out/metrics.json
+      hash: md5
+      md5: 10ef10c46a11796a10f6dca9aa1972e1
+      size: 258
+    - path: out/model.ckpt
+      hash: md5
+      md5: f570335bdb9ffe3ee185cd912bc24cf2
+      size: 297377408
+  evaluate:
+    cmd: python3 src/3_evaluate.py
+    deps:
+    - path: out/model.ckpt
+      hash: md5
+      md5: f570335bdb9ffe3ee185cd912bc24cf2
+      size: 297377408
+    - path: src/3_evaluate.py
+      hash: md5
+      md5: a3df4482e08745ac8d675a0418f2633a
+      size: 2402
+    params:
+      params.yaml:
+        train.datamodule.setup:
+          seed: 42
+          split: 0.8
+          batch_size: 16
+          image_size: 256
+    outs:
+    - path: data/evaluate
+      hash: md5
+      md5: 86495b8d2b2d73796ecbc655b9531256.dir
+      size: 772528
+      nfiles: 6
