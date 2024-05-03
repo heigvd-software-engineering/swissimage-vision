@@ -55,16 +55,16 @@ stages:
     outs:
     - path: lightning_logs
       hash: md5
-      md5: 47121084521526811c6cfb57c0889e2c.dir
-      size: 653946985
+      md5: 83129846d42104cd1aaeae1d7b7d1108.dir
+      size: 971165733
       nfiles: 4
     - path: out/pretrained/metrics.json
       hash: md5
-      md5: 19a50a6b0aaa676ce0768efc315cb125
-      size: 258
+      md5: 5f90458007b9199e00118697fe240814
+      size: 259
     - path: out/pretrained/model.ckpt
       hash: md5
-      md5: e1216ae2db90c0b14836ddfb27841616
+      md5: 84e100b133e3f568be8f55e603cabbde
       size: 485571270
   preprocess:
     cmd: python3 src/1_preprocess.py
