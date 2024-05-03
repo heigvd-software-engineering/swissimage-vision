@@ -13,6 +13,20 @@ stages:
     #   - data/prepared/depends.txt
     frozen: true  # For the moment, we don't need to rerun this stage
 
+  pre-train:
+    cmd: python3 src/0_pre_train.py
+    deps:
+      - src/0_pre_train.py
+      - data/raw/bdappv.zip
+    params: 
+      - pre-train.datamodule.setup
+      - pre-train.model
+      - pre-train.training
+    outs:
+      - out/pretrained/model.ckpt
+    metrics:
+      - out/pretrained/metrics.json
+
   # 1. Pull labelstudio annotations from S3
   # 2. Merge into a single JSON file
   # 3. Preprocess the annotations
@@ -26,19 +40,6 @@ stages:
       - data/preprocessed/annotations.json
     always_changed: true
 
-  pre-train:
-    cmd: python3 src/2_pre_train.py
-    deps:
-      - src/2_pre_train.py
-      - data/raw/bdappv
-    params: 
-      - train.datamodule.setup
-      - train.model
-      - train.training
-    outs:
-      - out/pretrained/model.ckpt
-    metrics:
-      - out/pretrained/metrics.json
 
   # # 1. Pull some images from S3
   # # 2. Save them into DVC cache

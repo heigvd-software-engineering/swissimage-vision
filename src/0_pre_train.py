@@ -14,7 +14,7 @@ from lightning.pytorch.callbacks import (
 )
 from lightning.pytorch.strategies import DDPStrategy
 
-from dataset.solar_datamodule import SolarDataModule
+from dataset.bdappv_datamodule import BdappvDataModule
 from model.deeplabv3 import DeepLabV3
 
 
@@ -39,8 +39,7 @@ def train(
 ) -> None:
     L.seed_everything(seed)
 
-    dm = SolarDataModule(
-        root_dirs=[Path("data/raw/bdappv/google"), Path("data/raw/bdappv/ign")],
+    dm = BdappvDataModule(
         image_size=image_size,
         seed=dm_seed,
         split=split,
@@ -80,7 +79,6 @@ def train(
         )
 
     trainer = L.Trainer(
-        # log_every_n_steps=5,
         max_epochs=epochs,
         precision=precision if precision else "32-true",
         strategy=(

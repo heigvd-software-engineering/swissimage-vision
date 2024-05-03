@@ -9,16 +9,7 @@ from torch.utils.data import DataLoader
 from torchvision.transforms import v2 as T
 
 from dataset.s3_solar_dataset import S3SolarDataset
-
-
-def seed_worker(worker_id):
-    """
-    Helper function to seed workers with different seeds for
-    reproducibility.
-    """
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
+from utils.seed import seed_worker
 
 
 class S3SolarDataModule(L.LightningDataModule):

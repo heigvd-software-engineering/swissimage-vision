@@ -1,5 +1,7 @@
 import json
 import random
+import shutil
+import zipfile
 from pathlib import Path
 
 import lightning as L
@@ -8,23 +10,15 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision.transforms import v2 as T
 
-from dataset.solar_dataset import SolarDataset
+from dataset.bdappv_dataset import BdappvDataset
+from utils.seed import seed_worker
 
 
-def seed_worker(worker_id):
-    """
-    Helper function to seed workers with different seeds for
-    reproducibility.
-    """
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
+class BdappvDataModule(L.LightningDataModule):
+    DATA_PATH = Path("data/raw/bdappv.zip")
 
-
-class SolarDataModule(L.LightningDataModule):
     def __init__(
         self,
-        root_dirs: list[Path],
         image_size: int,
         seed: int,
         split: float,
@@ -35,7 +29,6 @@ class SolarDataModule(L.LightningDataModule):
         """Initialize S3SolarDataModule.
 
         Args:
-            root_dirs (list[Path]): Paths to masks and images.
             image_size (int): Size of the images.
             seed (int): Seed for reproducibility.
             split (float): Fraction of the data to use for training.
@@ -44,7 +37,6 @@ class SolarDataModule(L.LightningDataModule):
             pin_memory (bool, optional): Whether to pin memory. Defaults to True.
         """
         super().__init__()
-        self.root_dirs = root_dirs
         self.image_size = image_size
         self.seed = seed
         self.split = split
@@ -56,6 +48,14 @@ class SolarDataModule(L.LightningDataModule):
 
         self.train_transform = self._get_transform(is_train=True)
         self.val_transform = self._get_transform(is_train=False)
+
+    def prepare_data(self) -> None:
+        with zipfile.ZipFile(self.DATA_PATH, "r") as zip_ref:
+            zip_ref.extractall("data/raw/bdappv")
+
+    def teardown(self, stage: str) -> None:
+        if stage == "fit":
+            shutil.rmtree("data/raw/bdappv")
 
     def setup(self, stage: str = None) -> None:
         # root should have img/ and mask/ folders
@@ -74,10 +74,10 @@ class SolarDataModule(L.LightningDataModule):
         train = torch.utils.data.Subset(data, indices[:train_size])
         val = torch.utils.data.Subset(data, indices[train_size:])
 
-        self.train_dataset = SolarDataset(
+        self.train_dataset = BdappvDataset(
             metadata=train, transform=self.train_transform
         )
-        self.val_dataset = SolarDataset(metadata=val, transform=self.val_transform)
+        self.val_dataset = BdappvDataset(metadata=val, transform=self.val_transform)
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
