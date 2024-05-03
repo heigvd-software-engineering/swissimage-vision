@@ -71,7 +71,7 @@ def preview(
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
-    datamodule_setup_params = params["pre-train"]["datamodule"]["setup"]
+    datamodule_setup_params = params["train"]["datamodule"]["setup"]
     preview(
         **datamodule_setup_params,
         num_workers=0,

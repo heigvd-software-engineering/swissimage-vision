@@ -67,9 +67,9 @@ stages:
   #     - train.model
   #     - train.training
   #   outs:
+  #     - out/model.ckpt
   #     - out/lightning_logs:
   #         persist: true
-  #     - out/model.ckpt
   #   metrics:
   #     - out/metrics.json
   

@@ -6,7 +6,6 @@ import torchvision
 import yaml
 from torchvision.transforms.v2 import functional as F
 
-from dataset.bdappv_datamodule import SolarDataModule
 from dataset.s3_solar_datamodule import S3SolarDataModule
 from model.deeplabv3 import DeepLabV3
 
@@ -24,9 +23,8 @@ def evaluate(
 ) -> None:
     L.seed_everything(seed)
 
-    dm = SolarDataModule(
-        root_dirs=[Path("data/raw/bdappv/google"), Path("data/raw/bdappv/ign")],
-        # ann_path=ann_path,
+    dm = S3SolarDataModule(
+        ann_path=ann_path,
         image_size=image_size,
         seed=seed,
         split=split,
@@ -36,7 +34,7 @@ def evaluate(
     )
     dm.setup()
 
-    model = DeepLabV3.load_from_checkpoint("out/pretrained/model.ckpt")
+    model = DeepLabV3.load_from_checkpoint("out/model.ckpt")
     device = "cpu"
     if torch.cuda.is_available():
         device = "cuda"
@@ -71,7 +69,7 @@ def evaluate(
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
-    train_params = params["pre-train"]
+    train_params = params["train"]
     datamodule_setup_params = train_params["datamodule"]["setup"]
 
     evaluate(

@@ -78,6 +78,7 @@ def train(
             EarlyStopping(monitor="val_loss", patience=es_patience, mode="min"),
         )
 
+    log_dir = Path("out/pretrained")
     trainer = L.Trainer(
         max_epochs=epochs,
         precision=precision if precision else "32-true",
@@ -91,7 +92,7 @@ def train(
         benchmark=True if torch.cuda.is_available() else False,
         callbacks=callbacks,
         limit_val_batches=0 if split == 1 else None,
-        default_root_dir="out/pretrained",
+        default_root_dir=log_dir,
     )
 
     trainer.fit(
@@ -102,7 +103,7 @@ def train(
     # Copy model to root folder
     ckpt_folder = (
         sorted(
-            Path("lightning_logs").glob("version_*"),
+            (log_dir / "lightning_logs").glob("version_*"),
             key=lambda x: int(x.name.split("_")[-1]),
         )[-1]
         / "checkpoints"
