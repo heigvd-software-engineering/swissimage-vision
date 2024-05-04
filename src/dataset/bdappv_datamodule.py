@@ -1,30 +1,23 @@
-import json
-import random
+import shutil
+import zipfile
 from pathlib import Path
 
 import lightning as L
-import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from torchvision.transforms import v2 as T
 
-from dataset.solar_dataset import SolarDataset
+from dataset.bdappv_dataset import BdappvDataset
+from utils.seed import seed_worker
 
 
-def seed_worker(worker_id):
-    """
-    Helper function to seed workers with different seeds for
-    reproducibility.
-    """
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
+class BdappvDataModule(L.LightningDataModule):
+    DATA_PATH = Path("data/raw/bdappv.zip")
+    EXTRACT_PATH = Path("data/extracted")
+    ROOT_DIRS = [EXTRACT_PATH / "bdappv/google", EXTRACT_PATH / "bdappv/ign"]
 
-
-class SolarDataModule(L.LightningDataModule):
     def __init__(
         self,
-        ann_path: Path,
         image_size: int,
         seed: int,
         split: float,
@@ -32,10 +25,9 @@ class SolarDataModule(L.LightningDataModule):
         num_workers: int = 8,
         pin_memory: bool = True,
     ) -> None:
-        """Initialize SolarDataModule.
+        """Initialize S3SolarDataModule.
 
         Args:
-            ann_path (Path): Path to annotations (json).
             image_size (int): Size of the images.
             seed (int): Seed for reproducibility.
             split (float): Fraction of the data to use for training.
@@ -44,7 +36,6 @@ class SolarDataModule(L.LightningDataModule):
             pin_memory (bool, optional): Whether to pin memory. Defaults to True.
         """
         super().__init__()
-        self.ann_path = ann_path
         self.image_size = image_size
         self.seed = seed
         self.split = split
@@ -57,21 +48,37 @@ class SolarDataModule(L.LightningDataModule):
         self.train_transform = self._get_transform(is_train=True)
         self.val_transform = self._get_transform(is_train=False)
 
+    def prepare_data(self) -> None:
+        if self.EXTRACT_PATH.exists():
+            return
+
+        print("[INFO] Extracting data...")
+        self.EXTRACT_PATH.mkdir(parents=True, exist_ok=True)
+
+        with zipfile.ZipFile(self.DATA_PATH, "r") as zip_ref:
+            zip_ref.extractall(str(self.EXTRACT_PATH))
+
     def setup(self, stage: str = None) -> None:
-        # Load data from preprocessed DVC stage
-        with open(self.ann_path, "r") as f:
-            data = json.load(f)
-        if len(data) == 0:
-            raise ValueError("No data found. Check the paths.")
+        # root should have img/ and mask/ folders
+        data = []
+        for root_dir in self.ROOT_DIRS:
+            for mask_path in root_dir.glob("mask/*.png"):
+                image_path = root_dir / "img" / mask_path.name
+                data.append((str(image_path), str(mask_path)))
         indices = torch.randperm(len(data)).tolist()
         train_size = int(self.split * len(data))
+
+        print(f"Found {len(data)} samples:")
+        print(f"  - Training: {train_size}")
+        print(f"  - Validation: {len(data) - train_size}")
+
         train = torch.utils.data.Subset(data, indices[:train_size])
         val = torch.utils.data.Subset(data, indices[train_size:])
 
-        self.train_dataset = SolarDataset(
+        self.train_dataset = BdappvDataset(
             metadata=train, transform=self.train_transform
         )
-        self.val_dataset = SolarDataset(metadata=val, transform=self.val_transform)
+        self.val_dataset = BdappvDataset(metadata=val, transform=self.val_transform)
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
@@ -105,7 +112,11 @@ class SolarDataModule(L.LightningDataModule):
                     T.RandomHorizontalFlip(0.5),
                     T.RandomVerticalFlip(0.5),
                     T.ColorJitter(
-                        brightness=0.25, contrast=0.5, saturation=0.5, hue=0.1
+                        brightness=0.25, contrast=0.25, saturation=0.25, hue=0.1
+                    ),
+                    T.RandomResizedCrop(
+                        size=(self.image_size, self.image_size),
+                        scale=(0.6, 1.0),
                     ),
                 ]
             )

@@ -1,5 +1,2 @@
-/model.ckpt
-/nyon_solar.gpkg
-/solar_model.bentomodel
-/solar_model_gpu.bentomodel
-/metrics.json
+/preview
+/evaluate

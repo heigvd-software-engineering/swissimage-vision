@@ -23,10 +23,12 @@ def main() -> None:
     )
 
     # Create dummy file to make other DVC stages depend on this one
-    dummy_file = Path("data/prepared/depends.txt")
-    content = "NOTE: This a dummy file is used to make other DVC stages depend on this one (prepare)."
+    dummy_file = Path("out/prepare/depends.txt")
     dummy_file.parent.mkdir(parents=True, exist_ok=True)
-    dummy_file.write_text(content)
+    dummy_file.write_text(
+        "NOTE: This a dummy file is used to make other DVC"
+        "stages depend on this one (prepare)."
+    )
 
 
 if __name__ == "__main__":

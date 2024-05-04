@@ -8,7 +8,7 @@ from torchvision.transforms.v2 import functional as F
 import utils
 
 
-class SolarDataset(Dataset):
+class S3SolarDataset(Dataset):
     def __init__(
         self,
         metadata: list[dict],

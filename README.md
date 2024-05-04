@@ -109,6 +109,7 @@ To replicate the setup of this project, refer to the [docs/setup.md](docs/setup.
 
 ### Data
 
+- https://zenodo.org/records/7358126 (currently used)
 - http://2019.geopython.net/data/solar.zip
 - https://ep2020.europython.eu/media/conference/slides/detecting-and-analyzing-solar-panels-switzerland-using-aerial-imagery.pdf
 - https://zenodo.org/records/5171712

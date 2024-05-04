@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import bentoml
 import torch
 import yaml
@@ -8,7 +10,7 @@ from model.deeplabv3 import DeepLabV3
 
 
 def export(batch_size: int, image_size: int, model_name: str) -> None:
-    model = DeepLabV3.load_from_checkpoint("out/model.ckpt")
+    model = DeepLabV3.load_from_checkpoint("out/train/model.ckpt")
     model.eval()
     model.to("cuda")
     script_module = model.to_torchscript(
@@ -60,7 +62,11 @@ def export(batch_size: int, image_size: int, model_name: str) -> None:
         signatures={"__call__": {"batch_dim": 0, "batchable": True}},
         custom_objects={"preprocess": preprocess, "postprocess": postprocess},
     )
-    bentoml.models.export_model(f"{model_name}:latest", f"out/{model_name}.bentomodel")
+    out_dir = Path("out/export")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    bentoml.models.export_model(
+        f"{model_name}:latest", str(out_dir / f"{model_name}.bentomodel")
+    )
 
 
 def main() -> None:

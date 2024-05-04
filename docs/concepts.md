@@ -6,6 +6,7 @@
   - [Action Workflows](#action-workflows)
 - [DVC Integration](#dvc-integration)
   - [Stages](#stages)
+    - [Pre-train](#pre-train)
     - [Prepare](#prepare)
     - [Preprocess](#preprocess)
     - [Preview](#preview)
@@ -51,11 +52,15 @@ The workflow `train-and-report.yaml` is triggered when a pull request is opened 
 
 The full pipeline is implemented using DVC and can be found in `dvc.yaml`.
 
-The pipeline is composed of 6 stages: `prepare`, `preprocess`, `preview`, `train`, `export`, and `evaluate`. Each stage is implemented in a separate script in the `src` directory.
+The pipeline is composed of 7 stages: `pre-train`, `prepare`, `preprocess`, `preview`, `train`, `export`, and `evaluate`. Each stage is implemented in a separate script in the `src` directory.
 
 The parameters for each stage are defined in the `params.yaml` file.
 
 ### Stages
+
+#### Pre-train
+
+In this stage we pre-train the model on a crowd-sourced dataset (https://zenodo.org/records/7358126). The dataset is stored in DVC cache. This allows to the model to later be fine tuned on the SwissImage dataset.
 
 #### Prepare
 
@@ -67,7 +72,7 @@ In this stage we:
 We upload the tiles and annotations to S3 to avoid storing them in DVC cache. This is because it would not be efficient to store large amounts of data in DVC cache. Instead, we store the data in S3 and pull it when needed. See more in the <a href="#train">Train</a> stage.
 
 > [!NOTE]
-> As this stage does not create any outputs (we are saving the dataset to a S3 bucket), we create a dummy output (`data/prepared/depends.txt`) to make other stages depend on this one. See more about this [here](https://github.com/iterative/dvc/issues/8881).
+> As this stage does not create any outputs (we are saving the dataset to a S3 bucket), we create a dummy output (`out/prepare/depends.txt`) to make other stages depend on this one. See more about this [here](https://github.com/iterative/dvc/issues/8881).
 
 #### Preprocess
 
@@ -99,16 +104,14 @@ In this stage we evaluate the model on the test set. (not implemented yet)
 
 ### Directed Acyclic Graph (DAG)
 
-```bash
-dvc dag
-```
-
 <div align="center">
 
 ```mermaid
 %%{ init : { "theme" : "neutral" }}%%
 flowchart TD
   data/raw.dvc --> prepare
+  data/raw.dvc --> pre-train
+  pre-train --> train
   prepare --> preprocess
   preprocess --> preview
   preprocess --> train

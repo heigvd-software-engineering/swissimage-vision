@@ -6,7 +6,7 @@ import torchvision
 import yaml
 from torchvision.transforms.v2 import functional as F
 
-from dataset.solar_datamodule import SolarDataModule
+from dataset.s3_solar_datamodule import S3SolarDataModule
 from model.deeplabv3 import DeepLabV3
 
 
@@ -23,7 +23,7 @@ def evaluate(
 ) -> None:
     L.seed_everything(seed)
 
-    dm = SolarDataModule(
+    dm = S3SolarDataModule(
         ann_path=ann_path,
         image_size=image_size,
         seed=seed,
@@ -34,7 +34,7 @@ def evaluate(
     )
     dm.setup()
 
-    model = DeepLabV3.load_from_checkpoint("out/model.ckpt")
+    model = DeepLabV3.load_from_checkpoint("out/train/model.ckpt")
     device = "cpu"
     if torch.cuda.is_available():
         device = "cuda"
@@ -45,7 +45,7 @@ def evaluate(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     sample_count = 0
-    for images, targets in dm.train_dataloader():
+    for images, targets in dm.val_dataloader():
         with torch.no_grad():
             outputs = model(images)
         for image, target, output in zip(images, targets, outputs):
@@ -74,11 +74,11 @@ def main() -> None:
 
     evaluate(
         **datamodule_setup_params,
-        ann_path=Path("data/preprocessed/annotations.json"),
+        ann_path=Path("out/preprocess/annotations.json"),
         num_workers=0,
         pin_memory=False,
         max_samples=10,
-        output_dir=Path("data/evaluate"),
+        output_dir=Path("out/evaluate"),
     )
 
 

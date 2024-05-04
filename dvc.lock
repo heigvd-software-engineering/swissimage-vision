@@ -1,97 +1,155 @@
 schema: '2.0'
 stages:
-  preview:
-    cmd: python3 src/2_preview.py
+  pre-train:
+    cmd: python3 src/0_pre_train.py
     deps:
-    - path: data/preprocessed/annotations.json
+    - path: data/raw/bdappv.zip
       hash: md5
-      md5: 8a76227e024c4e6d7ffc0fd630c8d332
-      size: 10515
-    - path: src/2_preview.py
+      md5: 451493b63927342d1dc54a365f136302
+      size: 8185439624
+    - path: src/0_pre_train.py
       hash: md5
-      md5: 27bc48612e83e558f6e6b898717cd582
-      size: 2244
+      md5: 87b7e6dde1aadd5325d297fecae8f610
+      size: 3944
     params:
       params.yaml:
-        train.datamodule.setup:
+        pre-train.datamodule.setup:
           seed: 42
           split: 0.8
           batch_size: 16
-          image_size: 384
-    outs:
-    - path: data/preview
-      hash: md5
-      md5: e1ae8b24fca2b0b0332fb319bc06cab6.dir
-      size: 4165248
-      nfiles: 16
-  train:
-    cmd: python3 src/2_train.py
-    deps:
-    - path: data/preprocessed/annotations.json
-      hash: md5
-      md5: 8a76227e024c4e6d7ffc0fd630c8d332
-      size: 10515
-    - path: src/2_train.py
-      hash: md5
-      md5: 45b1b032bed61ea60ed27d0c35cc1b5d
-      size: 3914
-    params:
-      params.yaml:
-        train.datamodule.setup:
-          seed: 42
-          split: 0.8
-          batch_size: 16
-          image_size: 384
-        train.model:
-          seed: 42
+          image_size: 256
+        pre-train.model:
+          seed: 64
           num_classes: 1
-        train.training:
-          lr: 0.001
+          freeze_backbone: false
+        pre-train.training:
+          lr: 0.00025
           lr_decay_rate: 0.0005
-          lr_sched_step_size:
-          lr_sched_gamma:
+          lr_sched_step_size: 1
+          lr_sched_gamma: 0.7
           save_ckpt: false
           es_patience:
           epochs: 5
-          precision: 16-mixed
+          precision: 32-true
     outs:
-    - path: lightning_logs
+    - path: out/pre-train/lightning_logs
       hash: md5
-      md5: aaec8f9cf0e0f55723673c831d329111.dir
-      size: 1189525235
-      nfiles: 8
-    - path: out/metrics.json
+      md5: d825bd03fe207e6b574b536adf6129bb.dir
+      size: 971165669
+      nfiles: 4
+    - path: out/pre-train/metrics.json
       hash: md5
-      md5: 10c129412c7f690be6ec7bfe763e6619
-      size: 256
-    - path: out/model.ckpt
+      md5: b843d03a6cd2eede1cb93db1252022b5
+      size: 258
+    - path: out/pre-train/model.ckpt
       hash: md5
-      md5: f6f1caff894b940ae83297cdad29461b
-      size: 297377282
-  evaluate:
-    cmd: python3 src/3_evaluate.py
+      md5: b53fe6b8957e37e209c8154895acd86d
+      size: 485571206
+  preprocess:
+    cmd: python3 src/1_preprocess.py
     deps:
-    - path: out/model.ckpt
+    - path: out/prepare/depends.txt
       hash: md5
-      md5: f6f1caff894b940ae83297cdad29461b
-      size: 297377282
-    - path: src/3_evaluate.py
+      md5: 50d64d0a8c63718fc2a4e718440d52af
+      size: 85
+    - path: src/1_preprocess.py
       hash: md5
-      md5: aa0a225ffcc88fab519022970665c537
-      size: 2397
+      md5: 75265ec54a11048259cd1953dbc8f86f
+      size: 2388
+    outs:
+    - path: out/preprocess/annotations.json
+      hash: md5
+      md5: ac05926286b5dbb872aaf97f14d13ff8
+      size: 1619
+  preview:
+    cmd: python3 src/2_preview.py
+    deps:
+    - path: out/preprocess/annotations.json
+      hash: md5
+      md5: ac05926286b5dbb872aaf97f14d13ff8
+      size: 1619
+    - path: src/2_preview.py
+      hash: md5
+      md5: 6af9b4be31d221a8a5c9b39b2d53875d
+      size: 2247
     params:
       params.yaml:
         train.datamodule.setup:
           seed: 42
           split: 0.8
           batch_size: 16
-          image_size: 384
+          image_size: 256
     outs:
-    - path: data/evaluate
+    - path: out/preview
       hash: md5
-      md5: 2fde327dd334bd2e06c4d4bab6d77afb.dir
-      size: 2419938
-      nfiles: 10
+      md5: 9fa3486d79870821035b3bf360cf2bb2.dir
+      size: 746083
+      nfiles: 6
+  train:
+    cmd: python3 src/2_train.py
+    deps:
+    - path: out/pre-train/model.ckpt
+      hash: md5
+      md5: b53fe6b8957e37e209c8154895acd86d
+      size: 485571206
+    - path: out/preprocess/annotations.json
+      hash: md5
+      md5: ac05926286b5dbb872aaf97f14d13ff8
+      size: 1619
+    - path: src/2_train.py
+      hash: md5
+      md5: f6985b5ff8585af9bc31b91318405bea
+      size: 4250
+    outs:
+    - path: out/train/model.ckpt
+      hash: md5
+      md5: b53fe6b8957e37e209c8154895acd86d
+      size: 485571206
+  export:
+    cmd: python3 src/3_export.py
+    deps:
+    - path: out/train/model.ckpt
+      hash: md5
+      md5: b53fe6b8957e37e209c8154895acd86d
+      size: 485571206
+    - path: src/3_export.py
+      hash: md5
+      md5: 74dd961afc4a6a5768d59749be4b6929
+      size: 2850
+    params:
+      params.yaml:
+        export.model_name: solar_model_gpu
+        train.datamodule.setup.batch_size: 16
+        train.datamodule.setup.image_size: 256
+    outs:
+    - path: out/export/solar_model_gpu.bentomodel
+      hash: md5
+      md5: 2ed223371c233eaf89afa03e8dc0f78e
+      size: 126725060
+  evaluate:
+    cmd: python3 src/3_evaluate.py
+    deps:
+    - path: out/train/model.ckpt
+      hash: md5
+      md5: b53fe6b8957e37e209c8154895acd86d
+      size: 485571206
+    - path: src/3_evaluate.py
+      hash: md5
+      md5: bd5b03a98b3ad2ade158897cc0fa5062
+      size: 2404
+    params:
+      params.yaml:
+        train.datamodule.setup:
+          seed: 42
+          split: 0.8
+          batch_size: 16
+          image_size: 256
+    outs:
+    - path: out/evaluate
+      hash: md5
+      md5: 4560ef5a19deb8ab3b562d4f951566e3.dir
+      size: 240863
+      nfiles: 2
   prepare:
     cmd: python3 src/0_prepare.py
     deps:
@@ -101,7 +159,7 @@ stages:
       size: 73265152
     - path: src/0_prepare.py
       hash: md5
-      md5: 0c360e59d6219194572d25f492ffe630
+      md5: 1d9769452f61fe38bb228751145dff6c
       size: 1085
     params:
       params.yaml:
@@ -112,104 +170,9 @@ stages:
           commune_name: Nyon
           commune_x_ratio: 0.66
           commune_y_ratio: 0.75
-          tile_size: 1024
+          tile_size: 512
     outs:
-    - path: data/prepared/depends.txt
+    - path: out/prepare/depends.txt
       hash: md5
-      md5: b04bb8a84303df415975f0342f6c6452
-      size: 86
-  detect:
-    cmd: python3 src/detect_tif.py
-    deps:
-    - path: data/raw/nyon.tif
-      hash: md5
-      md5: bc7ea13eb06a246207e8fba8fec1a82b
-      size: 3679034256
-    - path: out/model.ckpt
-      hash: md5
-      md5: 323fa405a58cbbdc6bc2714e1ecadf7f
-      size: 345578472
-    - path: src/detect_tif.py
-      hash: md5
-      md5: 55b60bb2755cef959e916c19dfb523c2
-      size: 7263
-    params:
-      params.yaml:
-        datamodule.batch_size: 16
-        datamodule.image_size: 384
-        train.seed: 42
-    outs:
-    - path: out/nyon_solar.gpkg
-      hash: md5
-      md5: 21947923c7a23dae7611e8b053fe6685
-      size: 311296
-  export:
-    cmd: python3 src/3_export.py
-    deps:
-    - path: out/model.ckpt
-      hash: md5
-      md5: f6f1caff894b940ae83297cdad29461b
-      size: 297377282
-    - path: src/3_export.py
-      hash: md5
-      md5: 0fcafcbfffa0da35a86967e045822621
-      size: 2713
-    params:
-      params.yaml:
-        export.model_name: solar_model_gpu
-        train.datamodule.setup.batch_size: 16
-        train.datamodule.setup.image_size: 384
-    outs:
-    - path: out/solar_model_gpu.bentomodel
-      hash: md5
-      md5: 735c22e4f49e7590b5d49a0397929dba
-      size: 154599480
-  extract_tiles:
-    cmd: python3 src/0_extract_tiles.py
-    deps:
-    - path: data/raw/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg
-      hash: md5
-      md5: f6f20f6b2a2e76e976e5bc5fb22d06a2
-      size: 73265152
-    - path: src/0_extract_tiles.py
-      hash: md5
-      md5: d8f3c3f85cb8ce0f03bc2f5cb6d268f2
-      size: 5549
-    params:
-      params.yaml:
-        extract_tiles:
-          commune_name: Nyon
-          x_ratio: 0.66
-          y_ratio: 0.75
-          tile_size: 1024
-          overlap_size: 0
-    outs:
-    - path: data/extracted
-      hash: md5
-      md5: 21ebad90556c18bcb102a899cbaec28a.dir
-      size: 2232518327
-      nfiles: 1110
-  pull_labels:
-    cmd: python3 src/1_pull_labels.py
-    deps:
-    - path: src/1_pull_labels.py
-      hash: md5
-      md5: 9a8d04cb37fda408fb573066a7f58d3d
-      size: 196
-    outs:
-    - path: data/labels/annotations.json
-      hash: md5
-      md5: d751713988987e9331980363e24189ce
-      size: 2
-  preprocess:
-    cmd: python3 src/1_preprocess.py
-    deps:
-    - path: src/1_preprocess.py
-      hash: md5
-      md5: aa699e9faef007f37a7aac0129c4f4ff
-      size: 2312
-    outs:
-    - path: data/preprocessed/annotations.json
-      hash: md5
-      md5: 8a76227e024c4e6d7ffc0fd630c8d332
-      size: 10515
+      md5: 50d64d0a8c63718fc2a4e718440d52af
+      size: 85
