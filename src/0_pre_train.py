@@ -78,7 +78,7 @@ def train(
             EarlyStopping(monitor="val_loss", patience=es_patience, mode="min"),
         )
 
-    log_dir = Path("out/pretrained")
+    log_dir = Path("out/pre-train")
     trainer = L.Trainer(
         max_epochs=epochs,
         precision=precision if precision else "32-true",
@@ -118,7 +118,7 @@ def train(
     # Wait for model to be saved
     max_retries = 20
     retries = 0
-    out_dir = Path("out/pretrained/")
+    out_dir = Path("out/pre-train/")
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "model.ckpt"
     while True:

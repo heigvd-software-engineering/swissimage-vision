@@ -10,9 +10,10 @@ stages:
       - prepare
     # This is commented because the preapre stage is frozen
     # outs:
-    #   - data/prepared/depends.txt
+    #   - out/prepare/depends.txt
     frozen: true  # For the moment, we don't need to rerun this stage
 
+  # Pre-train the model
   pre-train:
     cmd: python3 src/0_pre_train.py
     deps:
@@ -23,11 +24,11 @@ stages:
       - pre-train.model
       - pre-train.training
     outs:
-      - out/pretrained/model.ckpt
-      - out/pretrained/lightning_logs:
+      - out/pre-train/model.ckpt
+      - out/pre-train/lightning_logs:
           persist: true
     metrics:
-      - out/pretrained/metrics.json
+      - out/pre-train/metrics.json
 
   # 1. Pull labelstudio annotations from S3
   # 2. Merge into a single JSON file
@@ -37,9 +38,9 @@ stages:
     cmd: python3 src/1_preprocess.py
     deps:
       - src/1_preprocess.py
-      # - data/prepared/depends.txt  # This is commented because the preapre stage is frozen
+      # - out/prepare/depends.txt  # This is commented because the preapre stage is frozen
     outs:
-      - data/preprocessed/annotations.json
+      - out/preprocess/annotations.json
     always_changed: true
 
 
@@ -49,50 +50,52 @@ stages:
     cmd: python3 src/2_preview.py
     deps:
       - src/2_preview.py
-      - data/preprocessed/annotations.json
+      - out/preprocess/annotations.json
     params: 
       - train.datamodule.setup
     outs:
-      - data/preview
+      - out/preview
 
   # Train the model
+  # Note: This step is partially commented out as we do not have sufficient data yet
+  #       to train the model
   train:
     cmd: python3 src/2_train.py
     deps:
       - src/2_train.py
-      - data/preprocessed/annotations.json
-      - out/pretrained/model.ckpt
-    params: 
-      - train.datamodule.setup
-      - train.model
-      - train.training
+      - out/preprocess/annotations.json
+      - out/pre-train/model.ckpt
+  #   params: 
+  #     - train.datamodule.setup
+  #     - train.model
+  #     - train.training
     outs:
-      - out/model.ckpt
-      - out/lightning_logs:
-          persist: true
-    metrics:
-      - out/metrics.json
+      - out/train/model.ckpt
+  #     - out/train/lightning_logs:
+  #         persist: true
+  #   metrics:
+  #     - out/train/metrics.json
   
-  # # Convert PyTorch model to BentoML model (TorchScript)
-  # export:
-  #   cmd: python3 src/3_export.py
-  #   deps:
-  #     - src/3_export.py
-  #     - out/model.ckpt
-  #   params:
-  #     - train.datamodule.setup.batch_size
-  #     - train.datamodule.setup.image_size
-  #     - export.model_name
-  #   outs:
-  #     - out/${export.model_name}.bentomodel
+  # Convert PyTorch model to BentoML model (TorchScript)
+  export:
+    cmd: python3 src/3_export.py
+    deps:
+      - src/3_export.py
+      - out/train/model.ckpt
+    params:
+      - train.datamodule.setup.batch_size
+      - train.datamodule.setup.image_size
+      - export.model_name
+    outs:
+      - out/export/${export.model_name}.bentomodel
 
   # Evaluate the model
   evaluate:
     cmd: python3 src/3_evaluate.py
     deps:
       - src/3_evaluate.py
-      - out/model.ckpt
+      - out/train/model.ckpt
     params: 
       - train.datamodule.setup
     outs:
-      - data/evaluate
+      - out/evaluate

@@ -34,7 +34,7 @@ def evaluate(
     )
     dm.setup()
 
-    model = DeepLabV3.load_from_checkpoint("out/model.ckpt")
+    model = DeepLabV3.load_from_checkpoint("out/train/model.ckpt")
     device = "cpu"
     if torch.cuda.is_available():
         device = "cuda"
@@ -74,11 +74,11 @@ def main() -> None:
 
     evaluate(
         **datamodule_setup_params,
-        ann_path=Path("data/preprocessed/annotations.json"),
+        ann_path=Path("out/preprocess/annotations.json"),
         num_workers=0,
         pin_memory=False,
         max_samples=10,
-        output_dir=Path("data/evaluate"),
+        output_dir=Path("out/evaluate"),
     )
 
 

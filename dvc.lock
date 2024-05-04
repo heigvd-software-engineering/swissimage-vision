@@ -1,26 +1,5 @@
 schema: '2.0'
 stages:
-  prepare:
-    cmd: python3 src/0_prepare.py
-    deps:
-    - path: data/raw/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg
-      hash: md5
-      md5: f6f20f6b2a2e76e976e5bc5fb22d06a2
-      size: 73265152
-    - path: src/0_prepare.py
-      hash: md5
-      md5: 0c360e59d6219194572d25f492ffe630
-      size: 1085
-    params:
-      params.yaml:
-        prepare:
-          src_bucket: swissimage-0.1m
-          s3_src_vrt_path: files.vrt
-          s3_dest_prepared_path: data/prepared
-          commune_name: Nyon
-          commune_x_ratio: 0.66
-          commune_y_ratio: 0.75
-          tile_size: 1024
   pre-train:
     cmd: python3 src/0_pre_train.py
     deps:
@@ -30,8 +9,8 @@ stages:
       size: 8185439624
     - path: src/0_pre_train.py
       hash: md5
-      md5: 30dd3851958fa91109994bc71bacf571
-      size: 3946
+      md5: 87b7e6dde1aadd5325d297fecae8f610
+      size: 3944
     params:
       params.yaml:
         pre-train.datamodule.setup:
@@ -53,42 +32,42 @@ stages:
           epochs: 5
           precision: 32-true
     outs:
-    - path: out/pretrained/lightning_logs
+    - path: out/pre-train/lightning_logs
       hash: md5
-      md5: 83129846d42104cd1aaeae1d7b7d1108.dir
-      size: 971165733
+      md5: d825bd03fe207e6b574b536adf6129bb.dir
+      size: 971165669
       nfiles: 4
-    - path: out/pretrained/metrics.json
+    - path: out/pre-train/metrics.json
       hash: md5
-      md5: 5f90458007b9199e00118697fe240814
-      size: 259
-    - path: out/pretrained/model.ckpt
+      md5: b843d03a6cd2eede1cb93db1252022b5
+      size: 258
+    - path: out/pre-train/model.ckpt
       hash: md5
-      md5: 84e100b133e3f568be8f55e603cabbde
-      size: 485571270
+      md5: b53fe6b8957e37e209c8154895acd86d
+      size: 485571206
   preprocess:
     cmd: python3 src/1_preprocess.py
     deps:
     - path: src/1_preprocess.py
       hash: md5
-      md5: aa699e9faef007f37a7aac0129c4f4ff
-      size: 2312
+      md5: 75265ec54a11048259cd1953dbc8f86f
+      size: 2388
     outs:
-    - path: data/preprocessed/annotations.json
+    - path: out/preprocess/annotations.json
       hash: md5
       md5: 8a76227e024c4e6d7ffc0fd630c8d332
       size: 10515
   preview:
     cmd: python3 src/2_preview.py
     deps:
-    - path: data/preprocessed/annotations.json
+    - path: out/preprocess/annotations.json
       hash: md5
       md5: 8a76227e024c4e6d7ffc0fd630c8d332
       size: 10515
     - path: src/2_preview.py
       hash: md5
-      md5: d0d0efa31968c77025bc025e80eec7a6
-      size: 2251
+      md5: 6af9b4be31d221a8a5c9b39b2d53875d
+      size: 2247
     params:
       params.yaml:
         train.datamodule.setup:
@@ -97,7 +76,7 @@ stages:
           batch_size: 16
           image_size: 256
     outs:
-    - path: data/preview
+    - path: out/preview
       hash: md5
       md5: ecec96b4618d95382024b9199e80d80d.dir
       size: 1852429
@@ -105,61 +84,55 @@ stages:
   train:
     cmd: python3 src/2_train.py
     deps:
-    - path: data/preprocessed/annotations.json
+    - path: out/pre-train/model.ckpt
+      hash: md5
+      md5: b53fe6b8957e37e209c8154895acd86d
+      size: 485571206
+    - path: out/preprocess/annotations.json
       hash: md5
       md5: 8a76227e024c4e6d7ffc0fd630c8d332
       size: 10515
-    - path: out/pretrained/model.ckpt
-      hash: md5
-      md5: 84e100b133e3f568be8f55e603cabbde
-      size: 485571270
     - path: src/2_train.py
       hash: md5
-      md5: 8a6efe7b96fcf5e8014ce4e0a2b6795c
-      size: 4081
+      md5: f6985b5ff8585af9bc31b91318405bea
+      size: 4250
+    outs:
+    - path: out/train/model.ckpt
+      hash: md5
+      md5: b53fe6b8957e37e209c8154895acd86d
+      size: 485571206
+  export:
+    cmd: python3 src/3_export.py
+    deps:
+    - path: out/train/model.ckpt
+      hash: md5
+      md5: b53fe6b8957e37e209c8154895acd86d
+      size: 485571206
+    - path: src/3_export.py
+      hash: md5
+      md5: 74dd961afc4a6a5768d59749be4b6929
+      size: 2850
     params:
       params.yaml:
-        train.datamodule.setup:
-          seed: 42
-          split: 0.8
-          batch_size: 16
-          image_size: 256
-        train.model:
-          seed: 42
-        train.training:
-          lr: 0.00025
-          lr_decay_rate: 0.0005
-          lr_sched_step_size:
-          lr_sched_gamma:
-          save_ckpt: false
-          es_patience:
-          epochs: 5
-          precision: 32-true
+        export.model_name: solar_model_gpu
+        train.datamodule.setup.batch_size: 16
+        train.datamodule.setup.image_size: 256
     outs:
-    - path: out/lightning_logs
+    - path: out/export/solar_model_gpu.bentomodel
       hash: md5
-      md5: 8e2ad85922b4ee28536b4323bf856497.dir
-      size: 594764185
-      nfiles: 4
-    - path: out/metrics.json
-      hash: md5
-      md5: 10ef10c46a11796a10f6dca9aa1972e1
-      size: 258
-    - path: out/model.ckpt
-      hash: md5
-      md5: f570335bdb9ffe3ee185cd912bc24cf2
-      size: 297377408
+      md5: 2ed223371c233eaf89afa03e8dc0f78e
+      size: 126725060
   evaluate:
     cmd: python3 src/3_evaluate.py
     deps:
-    - path: out/model.ckpt
+    - path: out/train/model.ckpt
       hash: md5
-      md5: f570335bdb9ffe3ee185cd912bc24cf2
-      size: 297377408
+      md5: b53fe6b8957e37e209c8154895acd86d
+      size: 485571206
     - path: src/3_evaluate.py
       hash: md5
-      md5: a3df4482e08745ac8d675a0418f2633a
-      size: 2402
+      md5: bd5b03a98b3ad2ade158897cc0fa5062
+      size: 2404
     params:
       params.yaml:
         train.datamodule.setup:
@@ -168,8 +141,8 @@ stages:
           batch_size: 16
           image_size: 256
     outs:
-    - path: data/evaluate
+    - path: out/evaluate
       hash: md5
-      md5: 86495b8d2b2d73796ecbc655b9531256.dir
-      size: 772528
+      md5: e274fe3683d34ced91f612852f866f5e.dir
+      size: 772143
       nfiles: 6

@@ -76,9 +76,9 @@ def main() -> None:
         **datamodule_setup_params,
         num_workers=0,
         pin_memory=False,
-        ann_path=Path("data/preprocessed/annotations.json"),
+        ann_path=Path("out/preprocess/annotations.json"),
         max_samples=10,
-        output_dir=Path("data/preview"),
+        output_dir=Path("out/preview"),
     )
 
 

@@ -67,7 +67,7 @@ In this stage we:
 We upload the tiles and annotations to S3 to avoid storing them in DVC cache. This is because it would not be efficient to store large amounts of data in DVC cache. Instead, we store the data in S3 and pull it when needed. See more in the <a href="#train">Train</a> stage.
 
 > [!NOTE]
-> As this stage does not create any outputs (we are saving the dataset to a S3 bucket), we create a dummy output (`data/prepared/depends.txt`) to make other stages depend on this one. See more about this [here](https://github.com/iterative/dvc/issues/8881).
+> As this stage does not create any outputs (we are saving the dataset to a S3 bucket), we create a dummy output (`out/prepare/depends.txt`) to make other stages depend on this one. See more about this [here](https://github.com/iterative/dvc/issues/8881).
 
 #### Preprocess
 

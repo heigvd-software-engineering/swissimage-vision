@@ -49,7 +49,7 @@ def train(
     )
 
     model = DeepLabV3.load_from_checkpoint(
-        "out/pretrained/model.ckpt",
+        "out/pre-train/model.ckpt",
         lr=lr,
         lr_decay_rate=lr_decay_rate,
         lr_sched_step_size=lr_sched_step_size,
@@ -121,7 +121,7 @@ def train(
     # Wait for model to be saved
     max_retries = 20
     retries = 0
-    out_path = Path("out/model.ckpt")
+    out_path = Path("out/train/model.ckpt")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     while True:
         if retries >= max_retries:
@@ -133,25 +133,29 @@ def train(
         retries += 1
 
     # Save metric values
-    with open("out/metrics.json", "w") as f:
+    with open("out/train/metrics.json", "w") as f:
         json.dump(model.get_metrics(), f, indent=4)
 
 
 def main() -> None:
-    params = yaml.safe_load(open("params.yaml"))
-    train_params = params["train"]
-    datamodule_params = train_params["datamodule"]
-    datamodule_setup_params = datamodule_params["setup"]
-    datamodule_setup_params["dm_seed"] = datamodule_setup_params.pop("seed")
+    shutil.copy("out/pre-train/model.ckpt", "out/train/model.ckpt")
 
-    train(
-        **datamodule_setup_params,
-        ann_path=Path("data/preprocessed/annotations.json"),
-        num_workers=datamodule_params["num_workers"],
-        pin_memory=datamodule_params["pin_memory"],
-        **train_params["model"],
-        **train_params["training"],
-    )
+    # Note: See dvc.yaml for why the code below is commented out
+
+    # params = yaml.safe_load(open("params.yaml"))
+    # train_params = params["train"]
+    # datamodule_params = train_params["datamodule"]
+    # datamodule_setup_params = datamodule_params["setup"]
+    # datamodule_setup_params["dm_seed"] = datamodule_setup_params.pop("seed")
+
+    # train(
+    #     **datamodule_setup_params,
+    #     ann_path=Path("out/preprocess/annotations.json"),
+    #     num_workers=datamodule_params["num_workers"],
+    #     pin_memory=datamodule_params["pin_memory"],
+    #     **train_params["model"],
+    #     **train_params["training"],
+    # )
 
 
 if __name__ == "__main__":

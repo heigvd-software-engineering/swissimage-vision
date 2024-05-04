@@ -62,8 +62,10 @@ def main() -> None:
 
     print(f"[INFO] Total annotations: {len(parsed_annotations)}")
 
+    out_dir = Path("out/preprocess")
+    out_dir.mkdir(parents=True, exist_ok=True)
     # Save the parsed annotations to a JSON file
-    with open("data/preprocessed/annotations.json", "w") as f:
+    with open(out_dir / "annotations.json", "w") as f:
         json.dump(parsed_annotations, f)
 
 
