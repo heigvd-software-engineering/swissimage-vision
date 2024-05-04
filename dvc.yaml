@@ -25,10 +25,8 @@ stages:
       - data/raw/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg
     params:
       - prepare
-    # This is commented because the preapre stage is frozen
-    # outs:
-    #   - out/prepare/depends.txt
-    frozen: true # For the moment, we don't need to rerun this stage
+    outs:
+      - out/prepare/depends.txt
 
   # 1. Pull labelstudio annotations from S3
   # 2. Merge into a single JSON file
@@ -38,7 +36,7 @@ stages:
     cmd: python3 src/1_preprocess.py
     deps:
       - src/1_preprocess.py
-      # - out/prepare/depends.txt  # This is commented because the preapre stage is frozen
+      - out/prepare/depends.txt
     outs:
       - out/preprocess/annotations.json
     always_changed: true

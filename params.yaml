@@ -10,7 +10,7 @@ prepare:
   commune_name: Nyon     # Commune name to be cropped
   commune_x_ratio: 0.66  # Width ratio of the crop for the commune
   commune_y_ratio: 0.75  # Height ratio of the crop for the commune
-  tile_size: 1024        # Tile size cropped from the original image in pixels
+  tile_size: 512        # Tile size cropped from the original image in pixels
 
 preprocess:  # Empty for now
 

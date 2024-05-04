@@ -48,6 +48,10 @@ stages:
   preprocess:
     cmd: python3 src/1_preprocess.py
     deps:
+    - path: out/prepare/depends.txt
+      hash: md5
+      md5: 50d64d0a8c63718fc2a4e718440d52af
+      size: 85
     - path: src/1_preprocess.py
       hash: md5
       md5: 75265ec54a11048259cd1953dbc8f86f
@@ -55,15 +59,15 @@ stages:
     outs:
     - path: out/preprocess/annotations.json
       hash: md5
-      md5: 8a76227e024c4e6d7ffc0fd630c8d332
-      size: 10515
+      md5: ac05926286b5dbb872aaf97f14d13ff8
+      size: 1619
   preview:
     cmd: python3 src/2_preview.py
     deps:
     - path: out/preprocess/annotations.json
       hash: md5
-      md5: 8a76227e024c4e6d7ffc0fd630c8d332
-      size: 10515
+      md5: ac05926286b5dbb872aaf97f14d13ff8
+      size: 1619
     - path: src/2_preview.py
       hash: md5
       md5: 6af9b4be31d221a8a5c9b39b2d53875d
@@ -78,9 +82,9 @@ stages:
     outs:
     - path: out/preview
       hash: md5
-      md5: ecec96b4618d95382024b9199e80d80d.dir
-      size: 1852429
-      nfiles: 16
+      md5: 9fa3486d79870821035b3bf360cf2bb2.dir
+      size: 746083
+      nfiles: 6
   train:
     cmd: python3 src/2_train.py
     deps:
@@ -90,8 +94,8 @@ stages:
       size: 485571206
     - path: out/preprocess/annotations.json
       hash: md5
-      md5: 8a76227e024c4e6d7ffc0fd630c8d332
-      size: 10515
+      md5: ac05926286b5dbb872aaf97f14d13ff8
+      size: 1619
     - path: src/2_train.py
       hash: md5
       md5: f6985b5ff8585af9bc31b91318405bea
@@ -143,6 +147,32 @@ stages:
     outs:
     - path: out/evaluate
       hash: md5
-      md5: e274fe3683d34ced91f612852f866f5e.dir
-      size: 772143
-      nfiles: 6
+      md5: 4560ef5a19deb8ab3b562d4f951566e3.dir
+      size: 240863
+      nfiles: 2
+  prepare:
+    cmd: python3 src/0_prepare.py
+    deps:
+    - path: data/raw/swissBOUNDARIES3D_1_5_LV95_LN02.gpkg
+      hash: md5
+      md5: f6f20f6b2a2e76e976e5bc5fb22d06a2
+      size: 73265152
+    - path: src/0_prepare.py
+      hash: md5
+      md5: 1d9769452f61fe38bb228751145dff6c
+      size: 1085
+    params:
+      params.yaml:
+        prepare:
+          src_bucket: swissimage-0.1m
+          s3_src_vrt_path: files.vrt
+          s3_dest_prepared_path: data/prepared
+          commune_name: Nyon
+          commune_x_ratio: 0.66
+          commune_y_ratio: 0.75
+          tile_size: 512
+    outs:
+    - path: out/prepare/depends.txt
+      hash: md5
+      md5: 50d64d0a8c63718fc2a4e718440d52af
+      size: 85
