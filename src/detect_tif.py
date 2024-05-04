@@ -172,6 +172,7 @@ def consumer(
 def detect_tif(
     model: FasterRCNN,
     device: str,
+    tile_size: int,
     batch_size: int,
     image_size: int,
     tif_path: Path,
@@ -193,7 +194,6 @@ def detect_tif(
 
     img_arr = np.float32(img_arr) / 255.0
 
-    tile_size = 1024
     overlap_cnt = 0
     overlap_size = int(tile_size * 1 / (overlap_cnt + 1)) if overlap_cnt > 0 else 0
     total_tiles = ((img_arr.shape[0] - tile_size) // (tile_size - overlap_size) + 1) * (
@@ -235,10 +235,11 @@ def detect_tif(
 
 def main() -> None:
     params = yaml.safe_load(open("params.yaml"))
+    prepare_params = params["prepare"]
     train_params = params["train"]
-    datamodule_params = params["datamodule"]
+    datamodule_params = params["datamodule"]["setup"]
 
-    L.seed_everything(train_params["seed"])
+    L.seed_everything(train_params["model"]["seed"])
     model = FasterRCNN.load_from_checkpoint("out/model.ckpt")
     device = "cpu"
     if torch.cuda.is_available():
@@ -250,9 +251,11 @@ def main() -> None:
     detect_tif(
         model=model,
         device=device,
+        src_bucket=prepare_params["src_bucket"],
+        s3_src_vrt_path=prepare_params["s3_src_vrt_path"],
+        tile_size=prepare_params["tile_size"],
         batch_size=datamodule_params["batch_size"],
         image_size=datamodule_params["image_size"],
-        tif_path=Path("data/raw/nyon.tif"),
         out_path=Path("out/nyon_solar.gpkg"),
     )
 
