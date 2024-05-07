@@ -74,9 +74,10 @@ def get_window_from_geometry(
     Get the window from the bounds of a GeoDataFrame.
 
     Args:
-        crs: Coordinate reference system.
-        gdf_bounds: GeoDataFrame with the bounds.
         src: rasterio dataset reader.
+        gdf_bounds: GeoDataFrame with the bounds.
+        x_ratio: Ratio for the x axis.
+        y_ratio: Ratio for the y axis.
     """
     gdf = gdf_bounds.to_crs(src.crs)
     geometry = gdf.geometry.unary_union

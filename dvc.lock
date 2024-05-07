@@ -176,3 +176,39 @@ stages:
       hash: md5
       md5: 50d64d0a8c63718fc2a4e718440d52af
       size: 85
+  detect:
+    cmd: python3 src/detect_tif.py
+    deps:
+    - path: out/train/model.ckpt
+      hash: md5
+      md5: b53fe6b8957e37e209c8154895acd86d
+      size: 485571206
+    - path: src/detect_tif.py
+      hash: md5
+      md5: 12b71c3186ccec3007218a9fc9b44d7c
+      size: 3901
+    params:
+      params.yaml:
+        prepare:
+          src_bucket: swissimage-0.1m
+          s3_src_vrt_path: files.vrt
+          s3_dest_prepared_path: data/prepared
+          commune_name: Nyon
+          commune_x_ratio: 0.66
+          commune_y_ratio: 0.75
+          tile_size: 512
+        train.datamodule:
+          setup:
+            seed: 42
+            split: 0.8
+            batch_size: 16
+            image_size: 256
+          num_workers: 6
+          pin_memory: true
+        train.model.seed: 42
+    outs:
+    - path: out/detect
+      hash: md5
+      md5: d65902ccfe13fbcf959da548556adcf8.dir
+      size: 6537216
+      nfiles: 1

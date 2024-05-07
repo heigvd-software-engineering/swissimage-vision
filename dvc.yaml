@@ -96,3 +96,17 @@ stages:
       - train.datamodule.setup
     outs:
       - out/evaluate
+
+  # Detect pannels in a TIF image
+  detect:
+    cmd: python3 src/detect_tif.py
+    deps:
+      - src/detect_tif.py
+      - out/train/model.ckpt
+    params:
+      - prepare
+      - train.datamodule
+      - train.model.seed
+    outs:
+      - out/detect
+    frozen: true # this stage is frozen, as we want to run it manually
