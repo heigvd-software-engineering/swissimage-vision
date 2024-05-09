@@ -13,6 +13,7 @@
     - [Train](#train)
     - [Export](#export)
     - [Evaluate](#evaluate)
+    - [Detect](#detect)
   - [Directed Acyclic Graph (DAG)](#directed-acyclic-graph-dag)
   - [Data Flow](#data-flow)
 - [Label Studio Integration](#label-studio-integration)
@@ -52,7 +53,7 @@ The workflow `train-and-report.yaml` is triggered when a pull request is opened 
 
 The full pipeline is implemented using DVC and can be found in `dvc.yaml`.
 
-The pipeline is composed of 7 stages: `pre-train`, `prepare`, `preprocess`, `preview`, `train`, `export`, and `evaluate`. Each stage is implemented in a separate script in the `src` directory.
+The pipeline is composed of 8 stages: `pre-train`, `prepare`, `preprocess`, `preview`, `train`, `export`, `evaluate` and `detect`. Each stage is implemented in a separate script in the `src` directory.
 
 The parameters for each stage are defined in the `params.yaml` file.
 
@@ -101,6 +102,18 @@ In this stage we export the model to TorchScript and wrap it in a BentoML model.
 #### Evaluate
 
 In this stage we evaluate the model on the test set. (not implemented yet)
+
+#### Detect
+
+In this stage we detect solar panels in a given tif image. The result is a GeoPackage file with the detected solar panels stored in DVC cache.
+
+> [!NOTE]
+> The `detect` stage is not part of the main pipeline. It is a separate stage that can be run independently. Currently, the only way to do this with DVC, is to mark the stage as `frozen: true` in `dvc.yaml`. This way, the stage will not be run when running `dvc repro`.
+> 
+> To run the `detect` stage, you can use the following command:
+> ```bash
+> dvc repro -s detect
+> ```
 
 ### Directed Acyclic Graph (DAG)
 
