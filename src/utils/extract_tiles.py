@@ -6,6 +6,7 @@ from pathlib import Path
 import boto3
 import geopandas as gpd
 import rasterio
+import rasterio.windows
 from PIL import Image
 from rasterio.plot import reshape_as_image
 from tqdm import tqdm
@@ -63,6 +64,32 @@ def crop_and_save_tile_as_png(
         )
 
 
+def get_window_from_geometry(
+    src: rasterio.DatasetReader,
+    gdf_bounds: gpd.GeoDataFrame,
+    x_ratio: float = 1.0,
+    y_ratio: float = 1.0,
+) -> rasterio.windows.Window:
+    """
+    Get the window from the bounds of a GeoDataFrame.
+
+    Args:
+        src: rasterio dataset reader.
+        gdf_bounds: GeoDataFrame with the bounds.
+        x_ratio: Ratio for the x axis.
+        y_ratio: Ratio for the y axis.
+    """
+    gdf = gdf_bounds.to_crs(src.crs)
+    geometry = gdf.geometry.unary_union
+    # Create window for the geometry bounds
+    window = src.window(*geometry.bounds)
+    col_off = round(window.col_off)
+    row_off = round(window.row_off)
+    width = round(window.width * x_ratio)
+    height = round(window.height * y_ratio)
+    return rasterio.windows.Window(col_off, row_off, width, height)
+
+
 def tile_tif(
     src_path: Path,
     tiles_dest_dir: Path,
@@ -89,17 +116,14 @@ def tile_tif(
         tile_size: Size of the tiles.
     """
     # TODO: Tiling the tif file is currently not multiprocessing-friendly because
-    #       of src and s3 not being pickleable. There is an opportunity to 
+    #       of src and s3 not being pickleable. There is an opportunity to
     #       parallelize this process.
     with rasterio.open(src_path) as src:
-        gdf = gdf_bounds.to_crs(str(src.crs))
-        geometry = gdf.geometry.unary_union
-        # Create window for the geometry bounds
-        window = src.window(*geometry.bounds)
-        col_off = round(window.col_off)
-        row_off = round(window.row_off)
-        width = round(window.width * x_ratio)
-        height = round(window.height * y_ratio)
+        window = get_window_from_geometry(src, gdf_bounds, x_ratio, y_ratio)
+        col_off = window.col_off
+        row_off = window.row_off
+        width = window.width
+        height = window.height
         col_end = col_off + width
         row_end = row_off + height
 
