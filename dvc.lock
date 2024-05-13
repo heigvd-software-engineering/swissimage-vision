@@ -114,8 +114,8 @@ stages:
       size: 485571206
     - path: src/3_export.py
       hash: md5
-      md5: 74dd961afc4a6a5768d59749be4b6929
-      size: 2850
+      md5: c8fcbfc6e1fb5059ac5920c9069fd6af
+      size: 2503
     params:
       params.yaml:
         export.model_name: solar_model_gpu
@@ -124,8 +124,8 @@ stages:
     outs:
     - path: out/export/solar_model_gpu.bentomodel
       hash: md5
-      md5: 2ed223371c233eaf89afa03e8dc0f78e
-      size: 126725060
+      md5: 47f68f86c6d78ce4fcb382e17e1f9bb0
+      size: 126723916
   evaluate:
     cmd: python3 src/3_evaluate.py
     deps:

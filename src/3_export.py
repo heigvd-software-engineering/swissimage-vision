@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import bentoml
+import numpy as np
 import torch
 import yaml
 from PIL import Image
@@ -35,26 +36,18 @@ def export(batch_size: int, image_size: int, model_name: str) -> None:
         return images_input
 
     def postprocess(
-        outputs: tuple[dict[str, torch.Tensor], list[dict[str, torch.Tensor]]],
+        outputs: torch.Tensor,
         orig_image_sizes: list[tuple[int, int]],
-    ) -> list[dict[str, list[float]]]:
-        _, detections = outputs
+    ) -> list[np.ndarray]:
+        outputs = outputs > 0.5
+        outputs = outputs.to(torch.uint8) * 255
 
-        predictions = []
-        for detection, orig_image_size in zip(detections, orig_image_sizes):
-            scale_x = orig_image_size[0] / image_size
-            scale_y = orig_image_size[1] / image_size
-            boxes = detection["boxes"].cpu()
-            boxes[:, [0, 2]] *= scale_x
-            boxes[:, [1, 3]] *= scale_y
-            scores = detection["scores"].cpu()
-            predictions.append(
-                {
-                    "boxes": boxes.tolist(),
-                    "scores": scores.tolist(),
-                }
+        masks = []
+        for i, orig_image_size in enumerate(orig_image_sizes):
+            masks.append(
+                F.resize(outputs[i], orig_image_size).detach().cpu().squeeze().numpy()
             )
-        return predictions
+        return masks
 
     bentoml.torchscript.save_model(
         model_name,
