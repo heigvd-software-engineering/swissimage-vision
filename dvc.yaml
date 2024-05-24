@@ -63,6 +63,7 @@ stages:
       - out/preprocess/annotations.json
       - out/pre-train/model.ckpt
     #   params:
+    #     - prepare
     #     - train.datamodule.setup
     #     - train.model
     #     - train.training

@@ -29,6 +29,9 @@ cd swissimage-vision
 
 ### Setup Conda Environment
 
+> [!NOTE]
+> A GPU is required to run the pipeline.
+
 Installing MiniConda is optional but is recommended in environments where you do not have sudo access to install system packages. You can skip this step
 
 To install MiniConda, you can run the following script to install it:
@@ -55,8 +58,8 @@ pip install -r requirements.txt
 Add the MinIO credentials to the DVC configuration:
 
 ```bash
-dvc remove modify --local minio access_key_id <ACCESS_KEY_ID>
-dvc remove modify --local minio secret_access_key <SECRET_ACCESS_KEY>
+dvc remote modify --local minio access_key_id <ACCESS_KEY_ID>
+dvc remote modify --local minio secret_access_key <SECRET_ACCESS_KEY>
 ```
 
 Pull the data from the remote storage:
@@ -76,7 +79,7 @@ dvc repro
 To view the training logs, run the following command:
 
 ```bash
-tensorboard --logdir lightning_logs
+tensorboard --logdir out/pre-train/lightning_logs
 ```
 
 <!-- DEPRECATED

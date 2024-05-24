@@ -22,7 +22,6 @@ def save_samples(
             sample = torchvision.utils.draw_segmentation_masks(
                 image, mask, alpha=0.4, colors="blue"
             )
-            torchvision.utils.draw_keypoints
             print("[INFO] Saved to", str(output_dir / f"{prefix}_{sample_count}.png"))
             torchvision.io.write_png(
                 sample, str(output_dir / f"{prefix}_{sample_count}.png")
