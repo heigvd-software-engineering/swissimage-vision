@@ -70,8 +70,8 @@ stages:
       size: 1619
     - path: src/2_preview.py
       hash: md5
-      md5: 6af9b4be31d221a8a5c9b39b2d53875d
-      size: 2247
+      md5: d76b0f8ba9079fa161e8bf86922eb122
+      size: 2202
     params:
       params.yaml:
         train.datamodule.setup:

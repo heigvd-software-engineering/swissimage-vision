@@ -81,7 +81,7 @@ In this stage we:
 
 1. Pull LabelStudio annotations from S3
 2. Merge into a single JSON file
-3. Preprocess the annotations (distribute equally among image with and without bounding boxes)
+3. Preprocess the annotations (distribute equally among image with and without polygons)
 4. Save it into DVC cache
 
 #### Preview
@@ -91,17 +91,19 @@ In this stage we:
 1. Pull some images from S3
 2. Save them into DVC cache
 
+This stage is just a sanity check to make sure the data is in the correct format for model training.
+
 #### Train
 
-In this stage we train the model using PyTorch lightning. We use PyTorch to prefetch and convert the images and annotations to tensors from the S3 bucket. This way we can train on the fly without storing data in the pod or in DVC cache.
+In this stage we train the model using PyTorch lightning. We use a custom class to prefetch and convert the images and annotations to tensors from the S3 bucket. This way we can train on the fly without storing data in the pod or in DVC cache.
 
 #### Export
 
-In this stage we export the model to TorchScript and wrap it in a BentoML model.
+In this stage we export the model to TorchScript and wrap it into a BentoML model.
 
 #### Evaluate
 
-In this stage we evaluate the model on the test set. (not implemented yet)
+In this stage we evaluate the model on the test set. (not implemented yet, currently we just save model predictions to DVC cache)
 
 #### Detect
 
